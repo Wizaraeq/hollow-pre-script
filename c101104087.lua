@@ -1,12 +1,12 @@
 --War Rock Mammud
 function c101104087.initial_effect(c)
-	--Normal Summon without Tributing
+	--Tribute Summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101104087,0))
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_SUMMON_PROC)
-	e1:SetCondition(c101104087.sumcon)
+	e1:SetCondition(c101104087.tscon)
 	e1:SetValue(1)
 	c:RegisterEffect(e1)
 	--Destroy 1 Spell/Trap
@@ -25,7 +25,7 @@ end
 function c101104087.cfilter(c)
 	return c:IsFacedown() or not c:IsRace(RACE_WARRIOR)
 end
-function c101104087.sumcon(e,c,minc,zone)
+function c101104087.tscon(e,c,minc)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return minc==0 and c:IsLevelAbove(5) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
