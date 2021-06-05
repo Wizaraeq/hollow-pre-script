@@ -62,20 +62,19 @@ function c100278010.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100278010.atkfilter1(c,tp)
-	return c:IsFaceup() and c:IsSetCard(0xc008)
-		and Duel.IsExistingTarget(c100278010.atkfilter1,tp,LOCATION_MZONE,0,1,c,c)
+	return c:IsFaceup() and c:IsSetCard(0xc008) and Duel.IsExistingTarget(c100278010.atkfilter2,tp,LOCATION_MZONE,0,1,nil,c)
 end
 function c100278010.atkfilter2(c,tc)
-	return c:IsFaceup() and c:IsSetCard(0xc008) and not c:IsAttack(tc:GetAttack())
+	return c:IsFaceup() and c:IsSetCard(0xc008) and c:GetAttack()~=tc:GetAttack()
 end
 function c100278010.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	if chk==0 then return Duel.IsExistingTarget(c100278010.atkfilter1,tp,LOCATION_MZONE,0,1,nil,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local g1=Duel.SelectTarget(tp,c100278010.atkfilter1,tp,LOCATION_MZONE,0,1,1,nil,tp)
-	e:SetLabelObject(g1:GetFirst())
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,c100278010.atkfilter2,tp,LOCATION_MZONE,0,1,1,g1:GetFirst(),g1:GetFirst())
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(100278010,2))
+	local g=Duel.SelectTarget(tp,c100278010.atkfilter1,tp,LOCATION_MZONE,0,1,1,nil,tp)
+	e:SetLabelObject(g:GetFirst())
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(100278010,3))
+	Duel.SelectTarget(tp,c100278010.atkfilter2,tp,LOCATION_MZONE,0,1,1,g:GetFirst(),g:GetFirst())
 end
 function c100278010.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local hc=e:GetLabelObject()
