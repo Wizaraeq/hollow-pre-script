@@ -71,5 +71,5 @@ function c100278009.skipcon(e)
 	return c100278009.condition(e) and Duel.GetCurrentPhase()==PHASE_DRAW
 end
 function c100278009.atkval(e,c)
-	return Duel.GetMatchingGroup(Card.IsType,0,LOCATION_GRAVE,LOCATION_GRAVE,nil,TYPE_MONSTER)*100
+	return Duel.GetMatchingGroupCount(Card.IsType,0,LOCATION_GRAVE,LOCATION_GRAVE,nil,TYPE_MONSTER)*100
 end

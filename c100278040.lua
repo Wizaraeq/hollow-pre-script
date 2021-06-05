@@ -81,7 +81,7 @@ function c100278040.nameop(e,tp,eg,ep,ev,re,r,rp)
 			local e1=Effect.CreateEffect(e:GetHandler())
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_CHANGE_CODE)
-			e1:SetValue(gc:GetCode())
+			e1:SetValue(code)
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 			sc:RegisterEffect(e1)
 		end

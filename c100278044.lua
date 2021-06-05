@@ -2,10 +2,9 @@
 function c100278044.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_REMOVE)
+	e1:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCondition(c100278044.condition)
 	e1:SetTarget(c100278044.target)
 	e1:SetOperation(c100278044.activate)
 	c:RegisterEffect(e1)
