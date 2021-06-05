@@ -19,6 +19,7 @@ function c100278030.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
 	e2:SetCountLimit(1)
 	e2:SetCondition(c100278030.descon)
 	e2:SetTarget(c100278030.destg)
@@ -88,8 +89,8 @@ function c100278030.spop(e,tp,eg,ep,ev,re,r,rp)
 		local res=false
 		local tc=og:GetFirst()
 		while og do
-			if sg:GetCount()>0 then return end
-			if Duel.SelectEffectYesNo(tp,tc,aux.Stringid(100278030,2)) then
+			if not tc then return end
+			if sg:GetCount()>0 and Duel.SelectEffectYesNo(tp,tc,aux.Stringid(100278030,2)) then
 				if res==false then
 					res=true
 					Duel.BreakEffect()
