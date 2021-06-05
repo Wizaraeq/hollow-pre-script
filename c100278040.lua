@@ -60,14 +60,15 @@ end
 function c100278040.namefilter(c,code)
 	return c:IsFaceup() and not c:IsCode(code)
 end
-function c100278040.tgfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0xe5) and Duel.IsExistingMatchingCard(c100278040.namefilter,0,LOCATION_MZONE,LOCATION_MZONE,1,c,c:GetCode())
+function c100278040.cfilter(c)
+	return c:IsFaceup() and c:IsSetCard(0xe5)
+		and Duel.IsExistingMatchingCard(c100278040.namefilter,0,LOCATION_MZONE,LOCATION_MZONE,1,c,c:GetCode())
 end
 function c100278040.nametg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c100278040.tgfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c100278040.tgfilter,tp,LOCATION_MZONE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,c100278040.tgfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c100278040.cfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c100278040.cfilter,tp,LOCATION_MZONE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(100278040,2))
+	Duel.SelectTarget(tp,c100278040.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
 end
 function c100278040.nameop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()

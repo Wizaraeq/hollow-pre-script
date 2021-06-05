@@ -39,11 +39,12 @@ function c100278010.thfilter(c,e,tp)
 	return c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false))
 end
 function c100278010.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	local res=e:GetLabel()==1
 	if chk==0 then
+		local res=e:GetLabel()==1
 		e:SetLabel(0)
 		return res or Duel.IsExistingMatchingCard(c100278010.thfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
 	end
+	e:SetLabel(0)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
 end
@@ -71,10 +72,11 @@ function c100278010.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	if chk==0 then return Duel.IsExistingTarget(c100278010.atkfilter1,tp,LOCATION_MZONE,0,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(100278010,2))
-	local g=Duel.SelectTarget(tp,c100278010.atkfilter1,tp,LOCATION_MZONE,0,1,1,nil,tp)
-	e:SetLabelObject(g:GetFirst())
-	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(100278010,3))
-	Duel.SelectTarget(tp,c100278010.atkfilter2,tp,LOCATION_MZONE,0,1,1,g:GetFirst(),g:GetFirst())
+	local g1=Duel.SelectTarget(tp,c100278010.atkfilter1,tp,LOCATION_MZONE,0,1,1,nil,tp)
+	local tc=g1:GetFirst()
+	e:SetLabelObject(tc)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	Duel.SelectTarget(tp,c100278010.atkfilter2,tp,LOCATION_MZONE,0,1,1,tc,tc)
 end
 function c100278010.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local hc=e:GetLabelObject()
