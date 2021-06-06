@@ -30,12 +30,19 @@ function c100278030.initial_effect(c)
 	e3:SetDescription(aux.Stringid(100278030,1))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
+	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetCondition(c100278030.spcon)
 	e3:SetTarget(c100278030.sptg)
 	e3:SetOperation(c100278030.spop)
 	c:RegisterEffect(e3)
+	--xmat check
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e4:SetCode(EVENT_LEAVE_FIELD_P)
+	e4:SetOperation(c100278030.recordop)
+	e4:SetLabelObject(e3)
+	c:RegisterEffect(e4)
 end
 c100278030.xyz_number=4
 function c100278030.descon(e,tp,eg,ep,ev,re,r,rp)
@@ -62,15 +69,14 @@ function c100278030.desop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c100278030.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local ct=c:GetOverlayCount()
-	e:SetLabel(ct)
-	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_XYZ) and ct>0
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_XYZ)
 end
 function c100278030.spfilter(c,e,tp)
 	return c:IsCode(100278031) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c100278030.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)>0
+	local g=e:GetLabelObject()
+	if chk==0 then return #g>0 and Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)>0
 		and Duel.IsExistingMatchingCard(c100278030.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
@@ -78,9 +84,10 @@ function c100278030.matfilter(c)
 	return c:IsAttribute(ATTRIBUTE_WATER) and c:IsCanOverlay()
 end
 function c100278030.spop(e,tp,eg,ep,ev,re,r,rp)
+	local mt=#e:GetLabelObject()
 	local ft=Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)
 	if ft==0 then return end
-	ft=math.min(ft,e:GetLabel())
+	ft=math.min(ft,mt)
 	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	local ect=c29724053 and Duel.IsPlayerAffectedByEffect(tp,29724053) and c29724053[tp]
 	if ect~=nil then ft=math.min(ft,ect) end
@@ -106,4 +113,9 @@ function c100278030.spop(e,tp,eg,ep,ev,re,r,rp)
 			tc=og:GetNext()
 		end
 	end
+end
+function c100278030.recordop(e,tp,eg,ep,ev,re,r,rp)
+	local g=e:GetHandler():GetOverlayGroup()
+	g:KeepAlive()
+	e:GetLabelObject():SetLabelObject(g)
 end
