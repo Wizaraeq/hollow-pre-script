@@ -15,10 +15,12 @@ function c100278016.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c100278016.cfilter(c)
-	return c:IsFaceup() and c:IsRace(RACE_WINDBEAST) and not c:IsOriginalCodeRule()
+	return c:IsFacedown() or not c:IsRace(RACE_WINDBEAST)
 end
 function c100278016.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c100278016.cfilter,tp,LOCATION_MZONE,0,2,nil)
+	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+	return g:GetClassCount(Card.GetOriginalCodeRule)>=2
+		and not Duel.IsExistingMatchingCard(c100278016.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c100278016.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLPCost(tp,600) end
@@ -31,6 +33,6 @@ function c100278016.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,2)
 end
 function c100278016.drop(e,tp,eg,ep,ev,re,r,rp)
-	local p,d=Duel.GetChainIno(0,CHAININFO_TARGET_PLAYER+CHAININFO_TARGET_PARAM)
+	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
-end
+end 
