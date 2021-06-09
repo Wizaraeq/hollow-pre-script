@@ -1,4 +1,6 @@
 --No.4 猛毒刺胞ステルス・クラーゲン
+
+--Script by Chrono-Genex
 function c100278030.initial_effect(c)
 	--xyz summon
 	aux.AddXyzProcedure(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_WATER),4,2)
@@ -19,8 +21,8 @@ function c100278030.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
 	e2:SetCountLimit(1)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
 	e2:SetCondition(c100278030.descon)
 	e2:SetTarget(c100278030.destg)
 	e2:SetOperation(c100278030.desop)
@@ -30,17 +32,16 @@ function c100278030.initial_effect(c)
 	e3:SetDescription(aux.Stringid(100278030,1))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetCondition(c100278030.spcon)
 	e3:SetTarget(c100278030.sptg)
 	e3:SetOperation(c100278030.spop)
 	c:RegisterEffect(e3)
-	--xmat check
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e4:SetCode(EVENT_LEAVE_FIELD_P)
-	e4:SetOperation(c100278030.recordop)
+	e4:SetOperation(c100278030.regop)
 	e4:SetLabelObject(e3)
 	c:RegisterEffect(e4)
 end
@@ -67,16 +68,20 @@ function c100278030.desop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Damage(1-tp,dam,REASON_EFFECT)
 	end
 end
+function c100278030.regop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local ct=c:GetOverlayCount()
+	e:GetLabelObject():SetLabel(ct)
+end
 function c100278030.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_XYZ)
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_XYZ) and e:GetLabel()>0
 end
 function c100278030.spfilter(c,e,tp)
 	return c:IsCode(100278031) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c100278030.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=e:GetLabelObject()
-	if chk==0 then return #g>0 and Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)>0
+	if chk==0 then return Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)>0
 		and Duel.IsExistingMatchingCard(c100278030.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
@@ -84,10 +89,9 @@ function c100278030.matfilter(c)
 	return c:IsAttribute(ATTRIBUTE_WATER) and c:IsCanOverlay()
 end
 function c100278030.spop(e,tp,eg,ep,ev,re,r,rp)
-	local mt=#e:GetLabelObject()
 	local ft=Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_XYZ)
-	if ft==0 then return end
-	ft=math.min(ft,mt)
+	if ft<=0 then return end
+	ft=math.min(ft,e:GetLabel())
 	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	local ect=c29724053 and Duel.IsPlayerAffectedByEffect(tp,29724053) and c29724053[tp]
 	if ect~=nil then ft=math.min(ft,ect) end
@@ -98,9 +102,9 @@ function c100278030.spop(e,tp,eg,ep,ev,re,r,rp)
 		local sg=Duel.GetMatchingGroup(aux.NecroValleyFilter(c100278030.matfilter),tp,LOCATION_GRAVE,0,nil)
 		local res=false
 		local tc=og:GetFirst()
-		while og do
-			if not tc then return end
-			if sg:GetCount()>0 and Duel.SelectEffectYesNo(tp,tc,aux.Stringid(100278030,2)) then
+		while tc do
+			if sg:GetCount()==0 then return end
+			if Duel.SelectEffectYesNo(tp,tc,aux.Stringid(100278030,2)) then
 				if res==false then
 					res=true
 					Duel.BreakEffect()
@@ -113,9 +117,4 @@ function c100278030.spop(e,tp,eg,ep,ev,re,r,rp)
 			tc=og:GetNext()
 		end
 	end
-end
-function c100278030.recordop(e,tp,eg,ep,ev,re,r,rp)
-	local g=e:GetHandler():GetOverlayGroup()
-	g:KeepAlive()
-	e:GetLabelObject():SetLabelObject(g)
 end
