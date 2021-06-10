@@ -26,30 +26,31 @@ function c101106059.initial_effect(c)
 	e3:SetDescription(aux.Stringid(101106059,1))
 	e3:SetCategory(CATEGORY_TODECK+CATEGORY_DRAW)
 	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetCountLimit(1,101106059)
 	e3:SetTarget(c101106059.drtg)
 	e3:SetOperation(c101106059.drop)
 	c:RegisterEffect(e3)
 end
-function c101106059.rmfilter(c)
-	return c:IsAbleToGrave()
+function c101106059.otfilter(c,tp)
+	return c:IsAbleToGrave() and Duel.GetMZoneCount(tp,c)>0
 end
 function c101106059.otcon(e,c,minc)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return minc<=2 and Duel.IsExistingMatchingCard(c101106059.rmfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(c101106059.rmfilter,tp,0,LOCATION_ONFIELD,1,nil)
+	return minc<=2
+		and Duel.IsExistingMatchingCard(c101106059.otfilter,tp,LOCATION_MZONE,0,1,nil,tp)
+		and Duel.IsExistingMatchingCard(Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,nil)
 end
 function c101106059.ottg(e,c)
 	local mi,ma=c:GetTributeRequirement()
 	return mi<=2 and ma>=2
 end
-function c101106059.otop(e,tp,eg,ep,ev,re,r,rp,c)
+function c101106059.otop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g1=Duel.SelectMatchingCard(tp,c101106059.rmfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	local g1=Duel.SelectMatchingCard(tp,c101106059.otfilter,tp,LOCATION_MZONE,0,1,1,nil,tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g2=Duel.SelectMatchingCard(tp,c101106059.rmfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
+	local g2=Duel.SelectMatchingCard(tp,Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,1,nil)
 	g1:Merge(g2)
 	Duel.SendtoGrave(g1,REASON_COST)
 end
@@ -66,10 +67,12 @@ function c101106059.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectMatchingCard(p,c101106059.drfilter,p,LOCATION_HAND,0,1,2,nil)
-	local ct=g:GetCount()
-	if ct>0 then
+	if g:GetCount()>0 then
 		Duel.ConfirmCards(1-p,g)
 		Duel.SendtoDeck(g,nil,0,REASON_EFFECT)
+		local og=Duel.GetOperatedGroup()
+		local ct=og:FilterCount(Card.IsLocation,nil,LOCATION_DECK)
+		if ct==0 then return end
 		Duel.SortDecktop(p,p,ct)
 		for i=1,ct do
 			local mg=Duel.GetDecktopGroup(p,1)
@@ -77,6 +80,5 @@ function c101106059.drop(e,tp,eg,ep,ev,re,r,rp)
 		end
 		Duel.BreakEffect()
 		Duel.Draw(p,ct,REASON_EFFECT)
-		Duel.ShuffleHand(p)
 	end
 end

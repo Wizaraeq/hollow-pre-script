@@ -29,7 +29,7 @@ function c101106058.initial_effect(c)
 	e2:SetOperation(c101106058.sumop)
 	c:RegisterEffect(e2)
 end
-function c101106058.rmcfilter(c,tp,code)
+function c101106058.rmcfilter(c,tp)
 	return c:IsLevel(1) and c:IsSetCard(0x26a) and c:IsSummonable(true,nil) and not c:IsPublic()
 		and Duel.IsExistingMatchingCard(c101106058.rmfilter,tp,LOCATION_DECK,0,1,nil,c:GetCode())
 end
@@ -44,17 +44,15 @@ end
 function c101106058.rmop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
 	local g1=Duel.SelectMatchingCard(tp,c101106058.rmcfilter,tp,LOCATION_HAND,0,1,1,nil,tp)
-	local tc=g1:GetFirst()
-	Duel.ConfirmCards(1-tp,g1)
-	if g1:GetCount()==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g2=Duel.SelectMatchingCard(tp,c101106058.rmfilter,tp,LOCATION_DECK,0,1,1,nil,tc:GetCode())
-	if g2:GetCount()==0 then return end
-	Duel.BreakEffect()
-	if Duel.Remove(g2,POS_FACEUP,REASON_EFFECT)==0 then return end
-	Duel.ConfirmCards(1-tp,g2)
-	Duel.BreakEffect()
-	Duel.Summon(tp,tc,true,nil)
+	if g1:GetCount()>0 then
+		Duel.ConfirmCards(1-tp,g1)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+		local g2=Duel.SelectMatchingCard(tp,c101106058.rmfilter,tp,LOCATION_DECK,0,1,1,nil,g1:GetFirst():GetCode())
+		if Duel.Remove(g2,POS_FACEUP,REASON_EFFECT)>0 then
+			Duel.BreakEffect()
+			Duel.Summon(tp,g1:GetFirst(),true,nil)
+		end
+	end
 end
 function c101106058.sumcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep~=tp
