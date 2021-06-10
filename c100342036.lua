@@ -1,8 +1,8 @@
 --運命の契約
 --scripted by XyLeN
 function c100342036.initial_effect(c)
-	c:EnableCounterPermit(0x70,LOCATION_SZONE)
-	c:SetCounterLimit(0x70,1)
+	c:EnableCounterPermit(0x15e,LOCATION_SZONE)
+	c:SetCounterLimit(0x15e,1)
 	--Activate
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_ACTIVATE)
@@ -31,12 +31,11 @@ function c100342036.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c100342036.cfilter(c,tp)
-	return c:GetPreviousControler()==tp and c:IsReason(REASON_BATTLE+REASON_EFFECT) 
+	return c:GetPreviousControler()==tp and c:IsReason(REASON_BATTLE+REASON_EFFECT) and c:IsPreviousLocation(LOCATION_ONFIELD)
 end
 function c100342036.ctop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if eg:IsExists(c100342036.cfilter,1,nil,tp) and c:IsCanAddCounter(0x70,1) then
-		c:AddCounter(0x70,1)
+	if eg:IsExists(c100342036.cfilter,1,nil,tp) then
+		e:GetHandler():AddCounter(0x15e,1)
 	end
 end
 function c100342036.cfilter2(c,tp)
@@ -46,9 +45,8 @@ function c100342036.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c100342036.cfilter2,1,nil,tp)
 end
 function c100342036.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsCanRemoveCounter(tp,0x70,1,REASON_COST) end
-	c:RemoveCounter(tp,0x70,1,REASON_COST)
+	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x15e,1,REASON_COST) end
+	e:GetHandler():RemoveCounter(tp,0x15e,1,REASON_COST)
 end
 function c100342036.tgfilter(c)
 	return (c:IsLocation(LOCATION_HAND+LOCATION_DECK) or c:IsFaceup())
@@ -60,8 +58,8 @@ function c100342036.spfilter(c,e,tp)
 end
 function c100342036.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c100342036.tgfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,1,nil)
-		and aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL)
-		and e:GetHandler():IsCanOverlay() and Duel.IsExistingMatchingCard(c100342036.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,e:GetHandler()) end
+		and aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL) and e:GetHandler():IsCanOverlay()
+		and Duel.IsExistingMatchingCard(c100342036.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
