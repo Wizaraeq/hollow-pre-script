@@ -46,9 +46,11 @@ function c101106022.spop(e,tp,eg,ep,ev,re,r,rp)
 	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local g=e:GetLabelObject()
 		local tc=g:GetFirst()
-		if tc:GetCode()==24639891 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.SelectYesNo(tp,aux.Stringid(101106022,2)) then
+		if tc:GetCode()==24639891 then
+		if tc:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.SelectYesNo(tp,aux.Stringid(101106022,2)) then
 			Duel.BreakEffect()
 			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+		end
 		elseif tc:IsAbleToDeck() then
 			Duel.BreakEffect()
 			Duel.SendtoDeck(tc,nil,2,REASON_EFFECT)
@@ -57,7 +59,7 @@ function c101106022.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101106022.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x166)
+	return c:IsFaceup() and c:IsSetCard(0x166) and c:IsLevelAbove(1)
 end
 function c101106022.lvltg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c101106022.filter(chkc) end
