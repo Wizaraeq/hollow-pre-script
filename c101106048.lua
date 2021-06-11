@@ -23,7 +23,7 @@ function c101106048.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetHintTiming(0,TIMING_MAIN_END)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
 	e2:SetCountLimit(1)
 	e2:SetCondition(c101106048.discon)
 	e2:SetTarget(c101106048.distg)
@@ -51,7 +51,9 @@ function c101106048.effop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if chk2 then
 		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(aux.Stringid(101106048,2))
 		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
 		e1:SetCode(EFFECT_DIRECT_ATTACK)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		c:RegisterEffect(e1)
@@ -59,31 +61,30 @@ function c101106048.effop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c101106048.discon(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase()
-	local turn=Duel.GetTurnPlayer()
-	if turn==tp then
+	if Duel.GetTurnPlayer()==tp then
 		return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
-	elseif turn~=tp then
+	else
 		return ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE
 	end
 end
 function c101106048.ctfilter(c)
-	return c:IsSummonLocation(LOCATION_EXTRA) and c:IsSetCard(0x166)
-end
-function c101106048.disfilter(c)
-	return c:IsFaceup() and not c:IsDisabled()
+	return c:GetSummonLocation()==LOCATION_EXTRA and c:IsSetCard(0x166)
 end
 function c101106048.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and aux.disfilter1(chkc) end
 	local ct=Duel.GetMatchingGroupCount(c101106048.ctfilter,tp,LOCATION_MZONE,0,nil)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c101106048.disfilter(chkc) end
-	if chk==0 then return ct>0 and Duel.IsExistingTarget(c101106048.disfilter,tp,0,LOCATION_MZONE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local g=Duel.SelectTarget(tp,c101106048.disfilter,tp,0,LOCATION_MZONE,1,ct,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
+	if chk==0 then return ct>0 and Duel.IsExistingTarget(aux.disfilter1,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local g=Duel.SelectTarget(tp,aux.disfilter1,tp,0,LOCATION_ONFIELD,1,ct,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,#g,0,0)
+end
+function c101106048.disfilter(c,e)
+	return aux.disfilter1(c) and c:IsRelateToEffect(e)
 end
 function c101106048.disop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
-	local tc=tg:GetFirst()
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(c101106048.disfilter,nil,e)
+	local tc=g:GetFirst()
 	while tc do
 		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 		local e1=Effect.CreateEffect(c)
@@ -102,10 +103,11 @@ function c101106048.disop(e,tp,eg,ep,ev,re,r,rp)
 		if tc:IsType(TYPE_TRAPMONSTER) then
 			local e3=Effect.CreateEffect(c)
 			e3:SetType(EFFECT_TYPE_SINGLE)
+			e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 			e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
 			e3:SetReset(RESET_EVENT+RESETS_STANDARD)
 			tc:RegisterEffect(e3)
 		end
-		tc=tg:GetNext()
+		tc=g:GetNext()
 	end
 end

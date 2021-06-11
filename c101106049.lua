@@ -68,8 +68,8 @@ function c101106049.indescon(e)
 	return Duel.IsExistingMatchingCard(Card.IsFaceup,e:GetHandlerPlayer(),LOCATION_FZONE,LOCATION_FZONE,1,nil)
 end
 function c101106049.indestg(e,c)
-	return c:IsSummonLocation(LOCATION_EXTRA) and c:IsSetCard(0x166)
+	return c:GetSummonLocation()==LOCATION_EXTRA and c:IsSetCard(0x166)
 end
 function c101106049.atkval(e,c)
-	return c:GetTextDefense()
+	return c:GetBaseDefense()
 end

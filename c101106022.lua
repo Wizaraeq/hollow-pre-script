@@ -71,28 +71,21 @@ end
 function c101106022.lvlop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	local sel=1
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
-		sel=Duel.SelectOption(tp,aux.Stringid(101106022,3),aux.Stringid(101106022,4))
-	else
-		sel=Duel.SelectOption(tp,aux.Stringid(101106022,3))+1
-	end
+	local lv=Duel.AnnounceLevel(tp,4,5,tc:GetLevel())
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetCode(EFFECT_CHANGE_LEVEL)
-	if opt==0 then
-		e1:SetValue(4)
-	else
-		e1:SetValue(5)
-	end
+	e1:SetValue(lv)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	tc:RegisterEffect(e1)
-	if Duel.IsExistingMatchingCard(c101106022.thfilter,tp,LOCATION_DECK,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(101106022,5)) then
-		Duel.BreakEffect()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local g=Duel.SelectMatchingCard(tp,c101106022.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,g)
+		if Duel.IsExistingMatchingCard(c101106022.thfilter,tp,LOCATION_DECK,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(101106022,3)) then
+			Duel.BreakEffect()
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+			local g=Duel.SelectMatchingCard(tp,c101106022.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+			Duel.SendtoHand(g,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,g)
+		end
 	end
 end
