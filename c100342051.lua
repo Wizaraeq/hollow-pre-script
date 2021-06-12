@@ -39,7 +39,7 @@ function c100342051.initial_effect(c)
 end
 c100342051.xyz_number=99
 function c100342051.counterfilter(c)
-	return not c:GetSummonLocation()==LOCATION_EXTRA or c:IsType(TYPE_XYZ)
+	return c:GetSummonLocation()~=LOCATION_EXTRA or c:IsType(TYPE_XYZ)
 end
 function c100342051.dacheck(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
