@@ -39,7 +39,7 @@ function c100342051.initial_effect(c)
 end
 c100342051.xyz_number=99
 function c100342051.counterfilter(c)
-	return c:GetSummonLocation()~=LOCATION_EXTRA or c:IsType(TYPE_XYZ)
+	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsType(TYPE_XYZ)
 end
 function c100342051.dacheck(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
@@ -93,15 +93,14 @@ function c100342051.spfilter(c,e,tp)
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
 function c100342051.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_SMATERIAL)
-		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	if chk==0 then return aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL)
 		and Duel.IsExistingMatchingCard(c100342051.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function c100342051.spop(e,tp,eg,ep,ev,re,r,rp)
-	if not aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_SMATERIAL) then return end
+	if not aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tc=Duel.SelectMatchingCard(tp,c100342051.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp):GetFirst() 
+	local tc=Duel.SelectMatchingCard(tp,c100342051.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp):GetFirst()
 	if tc then
 		Duel.SpecialSummon(tc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
 		tc:CompleteProcedure()
