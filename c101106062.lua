@@ -16,8 +16,7 @@ function c101106062.filter(c)
 end
 function c101106062.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and c101106062.filter(chkc) end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(c101106062.filter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(c101106062.filter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectTarget(tp,c101106062.filter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
@@ -25,19 +24,22 @@ end
 function c101106062.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	local ch=Duel.GetCurrentChain(true)-1
-	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,2,REASON_EFFECT)~=0 
-		and ch>0 and Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_PLAYER)~=tp then
-		--Unaffected
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_IMMUNE_EFFECT)
-		e1:SetTargetRange(LOCATION_MZONE,0)
-		e1:SetTarget(c101106062.etarget)
-		e1:SetValue(c101106062.efilter)
-		e1:SetLabelObject(Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_EFFECT))
-		e1:SetReset(RESET_CHAIN)
-		Duel.RegisterEffect(e1,tp)
+	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,0,REASON_EFFECT)~=0 then
+		local ct=Duel.GetCurrentChain()
+		if ct<2 then return end
+		local te,tep=Duel.GetChainInfo(ct-1,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)
+		if tep==1-tp and e:IsHasType(EFFECT_TYPE_ACTIVATE) then
+			Duel.BreakEffect()
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_FIELD)
+			e1:SetCode(EFFECT_IMMUNE_EFFECT)
+			e1:SetTargetRange(LOCATION_MZONE,0)
+			e1:SetTarget(c101106062.etarget)
+			e1:SetValue(c101106062.efilter)
+			e1:SetLabelObject(te)
+			e1:SetReset(RESET_EVENT+RESET_CHAIN)
+			Duel.RegisterEffect(e1,tp)
+		end
 	end
 end
 function c101106062.efilter(e,re)
