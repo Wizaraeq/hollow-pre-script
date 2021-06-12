@@ -66,7 +66,7 @@ end
 function c100278005.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase()
 	return (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE)
-		and Duel.GetTurnPlayer()==tp
+		and Duel.GetTurnPlayer()==tp and Duel.GetCurrentChain()==0
 end
 function c100278005.spfilter(c,e,tp)
 	return c:IsCode(40640057,100278001,100278002,100278003,100278004) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_ATTACK)
