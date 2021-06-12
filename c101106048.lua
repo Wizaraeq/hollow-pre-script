@@ -1,4 +1,4 @@
---超弩級軍貴一うに型二番艦
+--超弩級軍貫－うに型二番艦
 --scripted by XyLeN
 function c101106048.initial_effect(c)
 	--xyz summon
@@ -7,7 +7,6 @@ function c101106048.initial_effect(c)
 	--apply the effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101106048,0))
-	e1:SetCategory(CATEGORY_DRAW)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetCountLimit(1,101106048)
@@ -17,13 +16,13 @@ function c101106048.initial_effect(c)
 	c:RegisterEffect(e1)
 	--disable
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101106048,0))
+	e2:SetDescription(aux.Stringid(101106048,1))
 	e2:SetCategory(CATEGORY_DISABLE)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
+	e2:SetHintTiming(0,TIMING_MAIN_END)
 	e2:SetCountLimit(1)
 	e2:SetCondition(c101106048.discon)
 	e2:SetTarget(c101106048.distg)
@@ -39,7 +38,10 @@ function c101106048.efftg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local chk2=c:GetMaterial():FilterCount(Card.IsCode,nil,101106022)>0
 	if chk==0 then return (chk1 and Duel.IsPlayerCanDraw(tp,1) or chk2) end
 	if chk1 then
+		e:SetCategory(CATEGORY_DRAW)
 		Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
+	else
+		e:SetCategory(0)
 	end
 end
 function c101106048.effop(e,tp,eg,ep,ev,re,r,rp)
@@ -49,42 +51,37 @@ function c101106048.effop(e,tp,eg,ep,ev,re,r,rp)
 	if chk1 then
 		Duel.Draw(tp,1,REASON_EFFECT)
 	end
-	if chk2 then
+	if chk2 and c:IsRelateToEffect(e) then
+		Duel.BreakEffect()
 		local e1=Effect.CreateEffect(c)
 		e1:SetDescription(aux.Stringid(101106048,2))
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
 		e1:SetCode(EFFECT_DIRECT_ATTACK)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		c:RegisterEffect(e1)
 	end
 end
 function c101106048.discon(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase()
-	if Duel.GetTurnPlayer()==tp then
-		return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
-	else
-		return ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE
-	end
+	local turn=Duel.GetTurnPlayer()
+	return (turn==tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2) or turn==1-tp and (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE))
 end
 function c101106048.ctfilter(c)
-	return c:GetSummonLocation()==LOCATION_EXTRA and c:IsSetCard(0x166)
+	return c:GetSummonLocation()==LOCATION_EXTRA and c:IsFaceup() and c:IsSetCard(0x166)
 end
 function c101106048.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and aux.disfilter1(chkc) end
 	local ct=Duel.GetMatchingGroupCount(c101106048.ctfilter,tp,LOCATION_MZONE,0,nil)
-	if chk==0 then return ct>0 and Duel.IsExistingTarget(aux.disfilter1,tp,0,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectTarget(tp,aux.disfilter1,tp,0,LOCATION_ONFIELD,1,ct,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,#g,0,0)
-end
-function c101106048.disfilter(c,e)
-	return aux.disfilter1(c) and c:IsRelateToEffect(e)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and aux.disfilter1(chkc) end
+	if chk==0 then return ct>0 and Duel.IsExistingTarget(aux.disfilter1,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISABLE)
+	local g=Duel.SelectTarget(tp,aux.disfilter1,tp,0,LOCATION_MZONE,1,ct,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,g:GetCount(),0,0)
 end
 function c101106048.disop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(c101106048.disfilter,nil,e)
-	local tc=g:GetFirst()
+	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
+	local tc=tg:GetFirst()
 	while tc do
 		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 		local e1=Effect.CreateEffect(c)
@@ -103,11 +100,10 @@ function c101106048.disop(e,tp,eg,ep,ev,re,r,rp)
 		if tc:IsType(TYPE_TRAPMONSTER) then
 			local e3=Effect.CreateEffect(c)
 			e3:SetType(EFFECT_TYPE_SINGLE)
-			e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 			e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
 			e3:SetReset(RESET_EVENT+RESETS_STANDARD)
 			tc:RegisterEffect(e3)
 		end
-		tc=g:GetNext()
+		tc=tg:GetNext()
 	end
 end
