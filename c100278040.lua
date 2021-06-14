@@ -1,4 +1,6 @@
 --二重露光
+
+--Script by Chrono-Genex
 function c100278040.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -27,14 +29,14 @@ function c100278040.initial_effect(c)
 	e3:SetOperation(c100278040.nameop)
 	c:RegisterEffect(e3)
 end
-function c100278040.lvfilter(c)
-	return c:IsFaceup() and c:IsLevelBelow(6)
+function c100278040.lvfilter(c,e)
+	return c:IsFaceup() and c:IsLevelBelow(6) and c:IsCanBeEffectTarget(e)
 end
 function c100278040.fselect(g)
 	return g:GetClassCount(Card.GetCode)==1
 end
 function c100278040.lvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local g=Duel.GetMatchingGroup(c100278040.lvfilter,tp,LOCATION_MZONE,0,nil)
+	local g=Duel.GetMatchingGroup(c100278040.lvfilter,tp,LOCATION_MZONE,0,nil,e)
 	if chkc then return false end
 	if chk==0 then return g:CheckSubGroup(c100278040.fselect,2,2) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
@@ -50,7 +52,6 @@ function c100278040.lvop(e,tp,eg,ep,ev,re,r,rp)
 	for tc in aux.Next(g) do
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetCode(EFFECT_CHANGE_LEVEL)
 		e1:SetValue(tc:GetLevel()*2)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
@@ -74,7 +75,7 @@ function c100278040.nameop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		local code=tc:GetCode()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+		Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(100278040,3))
 		local g=Duel.SelectMatchingCard(tp,c100278040.namefilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,tc,code)
 		local sc=g:GetFirst()
 		if sc then
@@ -82,7 +83,7 @@ function c100278040.nameop(e,tp,eg,ep,ev,re,r,rp)
 			local e1=Effect.CreateEffect(e:GetHandler())
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_CHANGE_CODE)
-			e1:SetValue(code)
+			e1:SetValue(tc:GetCode())
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 			sc:RegisterEffect(e1)
 		end
