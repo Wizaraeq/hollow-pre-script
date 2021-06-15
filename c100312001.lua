@@ -16,11 +16,10 @@ function c100312001.initial_effect(c)
 	--reflect damage
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
+	e2:SetCode(EFFECT_ALSO_BATTLE_DAMAGE)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetTargetRange(LOCATION_MZONE,0)
 	e2:SetTarget(aux.TargetBoolFunction(Card.IsRace,RACE_FAIRY))
-	e2:SetValue(1)
 	c:RegisterEffect(e2)
 	--banish
 	local e3=Effect.CreateEffect(c)
@@ -65,13 +64,13 @@ function c100312001.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	if check then return e:GetHandler():GetFlagEffect(100312001)<2
 	else return e:GetHandler():GetFlagEffect(100312001)<1 end
 end
-function c100312001.costfilter(c)
-	return c:IsRace(RACE_FAIRY) and c:IsAbleToRemoveAsCost()
+function c100312001.costfilter(c,tp)
+	return c:IsRace(RACE_FAIRY) and c:IsAbleToRemoveAsCost() and Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,c)
 end
 function c100312001.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c100312001.costfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c100312001.costfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c100312001.costfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,c100312001.costfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,tp)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c100312001.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
