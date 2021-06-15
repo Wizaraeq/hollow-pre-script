@@ -1,4 +1,6 @@
 --光波干渉
+
+--Script by Chrono-Genex
 function c100278039.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -14,7 +16,6 @@ function c100278039.initial_effect(c)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetCountLimit(1,100278039)
 	e2:SetCondition(c100278039.atkcon)
-	e2:SetTarget(c100278039.atktg)
 	e2:SetOperation(c100278039.atkop)
 	c:RegisterEffect(e2)
 end
@@ -22,24 +23,14 @@ function c100278039.cfilter(c,code)
 	return c:IsFaceup() and c:IsCode(code)
 end
 function c100278039.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	local phase=Duel.GetCurrentPhase()
-	if Duel.IsDamageCalculated() then return false end
-	local tc=Duel.GetAttacker()
+	local tc=Duel.GetBattleMonster(tp)
 	if not tc then return false end
-	if tc:IsControler(1-tp) then 
-		tc=Duel.GetAttackTarget()
-	end
 	e:SetLabelObject(tc)
-	return tc and tc:IsFaceup() and tc:IsSetCard(0xe5) and tc:IsRelateToBattle() and Duel.IsExistingMatchingCard(c100278039.cfilter,0,LOCATION_MZONE,LOCATION_MZONE,1,tc,tc:GetCode())
-end
-function c100278039.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local tc=e:GetLabelObject()
-	if chk==0 then return tc and tc:IsOnField() end
-	e:SetLabelObject(nil)
-	Duel.SetTargetCard(tc)
+	return tc:IsFaceup() and tc:IsSetCard(0xe5)
+		and Duel.IsExistingMatchingCard(c100278039.cfilter,tp,LOCATION_MZONE,0,1,tc,tc:GetCode())
 end
 function c100278039.atkop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
+	local tc=e:GetLabelObject()
 	if tc:IsRelateToBattle() and tc:IsControler(tp) and tc:IsFaceup() and tc:IsSetCard(0xe5) then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
