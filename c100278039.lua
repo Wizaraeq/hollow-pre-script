@@ -27,7 +27,7 @@ function c100278039.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	if not tc then return false end
 	e:SetLabelObject(tc)
 	return tc:IsFaceup() and tc:IsSetCard(0xe5)
-		and Duel.IsExistingMatchingCard(c100278039.cfilter,tp,LOCATION_MZONE,0,1,tc,tc:GetCode())
+		and Duel.IsExistingMatchingCard(c100278039.cfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,tc,tc:GetCode())
 end
 function c100278039.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
