@@ -46,7 +46,7 @@ function c100342037.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100342037.setfilter(c,tp)
-	return c:IsSetCard(0x48) and c:IsType(TYPE_XYZ) and c:GetPreviousControler()==tp and c:IsReason(REASON_BATTLE+REASON_EFFECT) and c:IsPreviousLocation(LOCATION_MZONE)
+	return c:IsSetCard(0x48) and c:IsType(TYPE_XYZ) and c:GetPreviousControler()==tp and c:IsReason(REASON_BATTLE+REASON_EFFECT)
 end
 function c100342037.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c100342037.setfilter,1,nil,tp)
