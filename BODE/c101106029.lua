@@ -52,7 +52,7 @@ function c101106029.desop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-function c101106029.efilter(e,re,rp)
-	local rc=re:GetHandler()
-	return rc and e:GetHandler():IsRace(rc)
+function c101106029.efilter(e,re)
+	local tc=re:GetHandler()
+	return tc and e:GetHandler():IsRace(tc:GetRace())
 end
