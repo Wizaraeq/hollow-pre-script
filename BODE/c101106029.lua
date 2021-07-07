@@ -52,7 +52,7 @@ function c101106029.desop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-function c101106029.efilter(e,re)
-	local tc=re:GetHandler()
-	return tc and e:GetHandler():IsRace(tc:GetRace())
+function c101106029.efilter(e,re,rp)
+	local race=Duel.GetChainInfo(0,CHAININFO_TRIGGERING_RACE)
+	return re:IsActiveType(TYPE_MONSTER) and e:GetHandler():IsRace(race)
 end
