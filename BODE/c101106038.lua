@@ -73,5 +73,3 @@ function c101106038.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummonComplete()
 end
 
-
-
