@@ -1,10 +1,10 @@
 --赫の烙印
+--
+--Script by mercury233
 function c101106057.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101106057,1))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,101106057+EFFECT_COUNT_CODE_OATH)
@@ -13,7 +13,14 @@ function c101106057.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c101106057.filter(c)
-	return (c:IsSetCard(0x164) or c:IsCode(68468459)) and c:IsAbleToHand()
+	return (c:IsSetCard(0x164) and c:IsType(TYPE_MONSTER) or c:IsCode(68468459)) and c:IsAbleToHand()
+end
+function c101106057.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c101106057.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c101106057.filter,tp,LOCATION_GRAVE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,c101106057.filter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function c101106057.filter1(c,e)
 	return c:IsAbleToRemove() and not c:IsImmuneToEffect(e)
@@ -21,13 +28,6 @@ end
 function c101106057.filter2(c,e,tp,m,f,chkf)
 	return c:IsType(TYPE_FUSION) and c:IsLevelAbove(8) and (not f or f(c))
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
-end
-function c101106057.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:GetControler()==tp and chkc:GetLocation()==LOCATION_GRAVE and c101106057.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c101106057.filter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,c101106057.filter,tp,LOCATION_GRAVE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function c101106057.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
@@ -46,8 +46,9 @@ function c101106057.activate(e,tp,eg,ep,ev,re,r,rp)
 			local mf=ce:GetValue()
 			sg2=Duel.GetMatchingGroup(c101106057.filter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg2,mf,chkf)
 		end
-		if (sg1:GetCount()>0 or (sg2~=nil and sg2:GetCount()>0)) and Duel.SelectYesNo(tp,aux.Stringid(101106057,1)) then
+		if (sg1:GetCount()>0 or (sg2~=nil and sg2:GetCount()>0)) and Duel.SelectYesNo(tp,aux.Stringid(101106057,0)) then
 			Duel.BreakEffect()
+			Duel.ShuffleHand(tp)
 			local sg=sg1:Clone()
 			if sg2 then sg:Merge(sg2) end
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
