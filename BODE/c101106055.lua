@@ -34,10 +34,12 @@ function c101106055.initial_effect(c)
 	end
 end
 function c101106055.checkop(e,tp,eg,ep,ev,re,r,rp)
-	for tc in aux.Next(eg) do
-		if tc:IsType(TYPE_FUSION) and tc:IsControler(tp) then 
-			Duel.RegisterFlagEffect(tc:GetControler(),101106055,RESET_PHASE+PHASE_END,0,1)
+	local tc=eg:GetFirst()
+	while tc do
+		if tc:IsType(TYPE_FUSION) and tc:IsControler(tp) then
+		Duel.RegisterFlagEffect(tc:GetControler(),101106055,RESET_PHASE+PHASE_END,0,1)
 		end
+		tc=eg:GetNext()
 	end
 end
 function c101106055.revfilter(c,tp)
