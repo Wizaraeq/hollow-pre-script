@@ -21,7 +21,7 @@ function c101106028.initial_effect(c)
 	--negate
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(101106028,0))
-	e3:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)
+	e3:SetCategory(CATEGORY_NEGATE)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_CHAINING)
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
@@ -92,22 +92,14 @@ function c101106028.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		and Duel.IsExistingMatchingCard(c101106028.spfilter,tp,LOCATION_REMOVED,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_REMOVED)
 end
+function c101106028.spcheck(g)
+	return g:GetSum(Card.GetLevel)<=12
+end
 function c101106028.spop(e,tp,eg,ep,ev,re,r,rp)
 	local ft=math.min((Duel.GetLocationCount(tp,LOCATION_MZONE)),3)
-	local lv=12
 	local tg=Duel.GetMatchingGroup(c101106028.spfilter,tp,LOCATION_REMOVED,0,nil,e,tp)
-	if ft<=0 then return end
+	if ft<=0 or tg:GetCount()<0 then return end
 	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
-	local g=Group.CreateGroup()
-	while tg:GetCount()>0 and ft>0 and lv>0 do
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=tg:Select(tp,1,1,nil)
-		local tc=sg:GetFirst()
-		g:Merge(sg)
-		ft=ft-1
-		lv=lv-tc:GetLevel()
-		tg:Remove(Card.IsLevelAbove,nil,lv+1)
-		tg:RemoveCard(tc)
-	end
-	Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+	local sg=tg:SelectSubGroup(tp,c101106028.spcheck,false,1,ft)
+	Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 end
