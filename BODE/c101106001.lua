@@ -39,7 +39,7 @@ function c101106001.spcon(e,c)
 		tc=g:GetNext()
 	end
 	zone=bit.band(zone,0x1f)
-	return zone and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	return zone and Duel.GetLocationCount(tp,LOCATION_MZONE,tp,LOCATION_REASON_TOFIELD,zone)>0
 end
 function c101106001.spval(e,c) 
 	local tp=c:GetControler() 
