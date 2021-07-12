@@ -27,13 +27,12 @@ function c101106039.initial_effect(c)
 	--special summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(101106039,1))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_GRAVE_SPSUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetCountLimit(1,101106039+100)
 	e3:SetCondition(c101106039.regcon)
-	e3:SetTarget(c101106039.regtg)
 	e3:SetOperation(c101106039.regop)
 	c:RegisterEffect(e3)
 end
@@ -48,9 +47,9 @@ function c101106039.desfilter1(c)
 	return Duel.IsExistingMatchingCard(nil,0,LOCATION_ONFIELD,LOCATION_ONFIELD,1,c)
 end
 function c101106039.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101106039.desfilter1,tp,LOCATION_ONFIELD,0,1,nil) end
+    if chk==0 then return Duel.IsExistingMatchingCard(c101106039.desfilter1,tp,LOCATION_ONFIELD,0,1,nil) end
 	local g=Duel.GetMatchingGroup(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,2,0,0)
+    Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,2,0,0)
 end
 function c101106039.desop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
@@ -64,10 +63,6 @@ function c101106039.desop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c101106039.regcon(e,tp,eg,ep,ev,re,r,rp)
 	return bit.band(r,REASON_EFFECT+REASON_BATTLE)~=0
-end
-function c101106039.regtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
 end
 function c101106039.regop(e,tp,eg,ep,ev,re,r,rp)
 	local e1=Effect.CreateEffect(e:GetHandler())
