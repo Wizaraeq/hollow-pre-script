@@ -42,7 +42,7 @@ function c101106029.desop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(atk)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
 		c:RegisterEffect(e1)
-		if not c:IsRace(race) and Duel.SelectYesNo(tp,aux.Stringid(101106029,1)) then
+		if not c:IsRace(race) and atk>0 and Duel.SelectYesNo(tp,aux.Stringid(101106029,1)) then
 			Duel.BreakEffect()
 			local e2=e1:Clone()
 			e2:SetCode(EFFECT_CHANGE_RACE)
