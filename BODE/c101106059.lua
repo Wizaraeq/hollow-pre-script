@@ -32,15 +32,18 @@ function c101106059.initial_effect(c)
 	e3:SetOperation(c101106059.drop)
 	c:RegisterEffect(e3)
 end
-function c101106059.otfilter(c,tp)
-	return c:IsAbleToGrave() and Duel.GetMZoneCount(tp,c)>0
+function c101106059.otfilter1(c,e,tp)
+	return c:IsAbleToGrave() and Duel.GetMZoneCount(tp,c)>0 and not c:IsImmuneToEffect(e)
+end
+function c101106059.otfilter2(c,e)
+	return c:IsAbleToGrave() and not c:IsImmuneToEffect(e)
 end
 function c101106059.otcon(e,c,minc)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	return minc<=2
-		and Duel.IsExistingMatchingCard(c101106059.otfilter,tp,LOCATION_MZONE,0,1,nil,tp)
-		and Duel.IsExistingMatchingCard(Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,nil)
+		and Duel.IsExistingMatchingCard(c101106059.otfilter1,tp,LOCATION_MZONE,0,1,nil,e,tp)
+		and Duel.IsExistingMatchingCard(c101106059.otfilter2,tp,0,LOCATION_ONFIELD,1,nil,e)
 end
 function c101106059.ottg(e,c)
 	local mi,ma=c:GetTributeRequirement()
@@ -48,9 +51,9 @@ function c101106059.ottg(e,c)
 end
 function c101106059.otop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g1=Duel.SelectMatchingCard(tp,c101106059.otfilter,tp,LOCATION_MZONE,0,1,1,nil,tp)
+	local g1=Duel.SelectMatchingCard(tp,c101106059.otfilter1,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g2=Duel.SelectMatchingCard(tp,Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,1,nil)
+	local g2=Duel.SelectMatchingCard(tp,c101106059.otfilter2,tp,0,LOCATION_ONFIELD,1,1,nil,e)
 	g1:Merge(g2)
 	Duel.SendtoGrave(g1,REASON_COST)
 end

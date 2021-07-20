@@ -70,20 +70,20 @@ function c101106064.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummonComplete()
 	end
 end
-function c101106064.checkfilter(c)
+function c101106064.checkfilter(c,tp)
 	local att=c:GetAttribute()
 	local race=c:GetRace()
 	return c:IsFaceup() and bit.band(c:GetType(),0x81)==0x81
-		and Duel.IsExistingMatchingCard(c101106064.tgfilter,tp,LOCATION_DECK,0,1,nil,att,race)
+		and Duel.IsExistingMatchingCard(c101106064.tgfilter,tp,LOCATION_DECK,0,1,nil,tp,att,race)
 end
-function c101106064.tgfilter(c,att,race)
+function c101106064.tgfilter(c,tp,att,race)
 	return bit.band(c:GetType(),0x81)==0x81 and (c:IsAttribute(att) or c:IsRace(race)) and c:IsAbleToGrave()
 end
 function c101106064.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_MZONE) and c101106064.checkfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c101106064.checkfilter,tp,LOCATION_MZONE,0,1,nil) end
+	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_MZONE) and c101106064.checkfilter(chkc,tp) end
+	if chk==0 then return Duel.IsExistingTarget(c101106064.checkfilter,tp,LOCATION_MZONE,0,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,c101106064.checkfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	Duel.SelectTarget(tp,c101106064.checkfilter,tp,LOCATION_MZONE,0,1,1,nil,tp)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 function c101106064.tgop(e,tp,eg,ep,ev,re,r,rp)
@@ -92,7 +92,7 @@ function c101106064.tgop(e,tp,eg,ep,ev,re,r,rp)
 		local att=tc:GetAttribute()
 		local race=tc:GetRace()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local g=Duel.SelectMatchingCard(tp,c101106064.tgfilter,tp,LOCATION_DECK,0,1,1,nil,att,race)
+		local g=Duel.SelectMatchingCard(tp,c101106064.tgfilter,tp,LOCATION_DECK,0,1,1,nil,tp,att,race)
 		if g:GetCount()>0 then
 			Duel.SendtoGrave(g,REASON_EFFECT)
 		end
