@@ -29,7 +29,7 @@ function c101106047.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c101106047.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ) 
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
 end
 function c101106047.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
@@ -50,14 +50,14 @@ function c101106047.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-function c101106047.attrchkfilter(c,attr) 
+function c101106047.attrchkfilter(c,attr)
 	return c:IsAttribute(attr) and (c:IsType(TYPE_NORMAL) or c:IsSetCard(0x165))
 end
 function c101106047.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=c:GetBattleTarget()
 	e:SetLabelObject(tc)
-	return tc~=nil and c:GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_NORMAL) and tc:IsFaceup()
+	return tc~=nil and c:GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_NORMAL)
 		and Duel.IsExistingMatchingCard(c101106047.attrchkfilter,tp,LOCATION_GRAVE,0,1,nil,tc:GetAttribute())
 end
 function c101106047.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)

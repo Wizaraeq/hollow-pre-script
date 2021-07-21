@@ -50,7 +50,7 @@ function c101106010.spop1(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101106010.cfilter(c,tp)
-	return c:GetPreviousControler()==tp and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousPosition(POS_FACEUP)
+	return c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousPosition(POS_FACEUP)
 		and c:IsAttribute(ATTRIBUTE_WATER) and c:IsReason(REASON_BATTLE+REASON_EFFECT)
 end
 function c101106010.spcon(e,tp,eg,ep,ev,re,r,rp)

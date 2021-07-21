@@ -75,7 +75,7 @@ function c101106044.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetFlagEffect(101106044)~=0
 end
 function c101106044.setfilter(c)
-	return c:IsSetCard(0x165) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable() and not c:IsType(TYPE_FIELD)
+	return c:IsSetCard(0x165) and c:IsType(TYPE_SPELL+TYPE_TRAP) and not c:IsType(TYPE_FIELD) and c:IsSSetable()
 end
 function c101106044.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c101106044.setfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -88,7 +88,7 @@ function c101106044.setop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101106044.cfilter(c,tp)
-	return c:GetSummonPlayer()==1-tp
+	return c:IsSummonPlayer(1-tp)
 		and Duel.IsExistingMatchingCard(Card.IsAttribute,tp,LOCATION_GRAVE,0,1,nil,c:GetAttribute())
 end
 function c101106044.descon(e,tp,eg,ep,ev,re,r,rp)

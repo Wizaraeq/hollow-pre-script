@@ -68,10 +68,10 @@ function c101106048.discon(e,tp,eg,ep,ev,re,r,rp)
 	return (turn==tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2) or turn==1-tp and (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE))
 end
 function c101106048.ctfilter(c)
-	return c:GetSummonLocation()==LOCATION_EXTRA and c:IsFaceup() and c:IsSetCard(0x166)
+	return c:IsSummonLocation(LOCATION_EXTRA) and c:IsFaceup() and c:IsSetCard(0x166)
 end
 function c101106048.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local ct=Duel.GetMatchingGroupCount(c101106048.ctfilter,tp,LOCATION_MZONE,0,nil)
+	local ct=Duel.GetMatchingGroupCount(c101106048.ctfilter,tp,LOCATION_ONFIELD,0,nil)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and aux.disfilter1(chkc) end
 	if chk==0 then return ct>0 and Duel.IsExistingTarget(aux.disfilter1,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISABLE)

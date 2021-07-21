@@ -47,7 +47,7 @@ function c101106074.sumop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101106074.cfilter(c,tp)
-	return c:GetSummonPlayer()==tp and c:IsLevelAbove(7) and c:IsSummonType(SUMMON_TYPE_ADVANCE)
+	return c:IsSummonPlayer(tp) and c:IsLevelAbove(7) and c:IsSummonType(SUMMON_TYPE_ADVANCE)
 end
 function c101106074.poscon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c101106074.cfilter,1,nil,tp)

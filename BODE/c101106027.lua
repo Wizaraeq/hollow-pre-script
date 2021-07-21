@@ -53,7 +53,7 @@ function c101106027.setop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101106027.cfilter(c,tp)
-	return c:GetPreviousControler()==tp and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousPosition(POS_FACEUP)
+	return c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousPosition(POS_FACEUP)
 		and c:IsRace(RACE_DRAGON) and c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsLevel(7)
 end
 function c101106027.spcon(e,tp,eg,ep,ev,re,r,rp)

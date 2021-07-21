@@ -30,7 +30,7 @@ end
 function c101106026.cfilter(c,tp)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x5a)
 		and c:IsControler(tp) and c:GetReasonPlayer()==1-tp
-		and c:GetPreviousControler()==tp and c:IsPreviousLocation(LOCATION_MZONE)
+		and c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_MZONE)
 end
 function c101106026.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c101106026.cfilter,1,nil,tp)

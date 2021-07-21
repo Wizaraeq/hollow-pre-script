@@ -93,7 +93,7 @@ function c101106043.atkop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c101106043.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_SYNCHRO) and rp==1-tp and c:GetPreviousControler()==tp
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_SYNCHRO) and rp==1-tp and c:IsPreviousControler(tp)
 end
 function c101106043.thfilter(c)
 	return c:IsRace(RACE_REPTILE) and c:IsAbleToHand()

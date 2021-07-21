@@ -89,14 +89,15 @@ function c101106203.activate(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetCode(EFFECT_IMMUNE_EFFECT)
 		e2:SetValue(c101106203.immval)
 		tc:RegisterEffect(e2,true)
+		tc:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101106203,3))
 	end
 end
 function c101106203.descheck(g,mg2,dg)
 	return g:FilterCount(aux.IsInGroup,nil,dg)==#dg and mg2:FilterCount(aux.IsInGroup,nil,g)==#g
 end
 function c101106203.indval(e,c)
-	return c:GetSummonLocation()==LOCATION_EXTRA
+	return c:IsSummonLocation(LOCATION_EXTRA)
 end
 function c101106203.immval(e,te)
-	return te:IsActiveType(TYPE_MONSTER) and te:IsActivated() and te:GetHandler():GetSummonLocation()==LOCATION_EXTRA
+	return te:IsActiveType(TYPE_MONSTER) and te:IsActivated() and te:GetHandler():IsSummonLocation(LOCATION_EXTRA)
 end

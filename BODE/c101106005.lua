@@ -42,7 +42,7 @@ function c101106005.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-		if ft>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,101106103,0,0x4011+TYPE_TUNER,0,0,4,RACE_WYRM,ATTRIBUTE_WATER)
+		if ft>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,101106103,0,TYPES_TOKEN_MONSTER+TYPE_TUNER,0,0,4,RACE_WYRM,ATTRIBUTE_WATER)
 			and Duel.SelectYesNo(tp,aux.Stringid(101106005,2)) then
 				Duel.BreakEffect()
 				local token=Duel.CreateToken(tp,101106105)
