@@ -30,21 +30,22 @@ function c100417009.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c100417009.descon2(e,tp,eg,ep,ev,re,r,rp)
-	local ac=Duel.GetAttacker()
-	if not ac:IsSetCard(0x26f) or not ac:IsControler(tp) then return false end
-	local bc=ac:GetBattleTarget()
-	e:SetLabelObject(bc)
-	return bc and bc:IsControler(1-tp) and bc:IsRelateToBattle()
+	local a,at=Duel.GetAttacker(),Duel.GetAttackTarget()
+	if a:IsControler(1-tp) then a,at=at,a end
+	return a and at and a:IsSetCard(0x26f) and a:IsFaceup() and at:IsControler(1-tp)
 end
 function c100417009.destg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local bc=e:GetLabelObject()
-	if chk==0 then return bc end
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,bc,1,0,0)
+	if chk==0 then return true end
+	local a,at=Duel.GetAttacker(),Duel.GetAttackTarget()
+	if a:IsControler(1-tp) then a,at=at,a end
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,at,1,1-tp,LOCATION_MZONE)
 end
 function c100417009.desop2(e,tp,eg,ep,ev,re,r,rp)
-	local bc=e:GetLabelObject()
-	if bc and bc:IsControler(1-tp) and bc:IsRelateToBattle() then
-		Duel.Destroy(bc,REASON_EFFECT)
+	if not e:GetHandler():IsRelateToEffect(e) then return end
+	local a,at=Duel.GetAttacker(),Duel.GetAttackTarget()
+	if a:IsControler(1-tp) then a,at=at,a end
+	if at and at:IsRelateToBattle() and at:IsControler(1-tp) then
+		Duel.Destroy(at,REASON_EFFECT)
 	end
 end
 function c100417009.cfilter(c)
