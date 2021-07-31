@@ -63,7 +63,7 @@ function c101106064.activate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetRange(LOCATION_MZONE)
 			e1:SetCode(EFFECT_CHANGE_LEVEL)
 			e1:SetValue(lv)
-			e1:SetReset(RESET_EVENT+0xff0000)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 			tc:RegisterEffect(e1)
 			tc:CompleteProcedure()
 		end
