@@ -21,7 +21,7 @@ function c100312033.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
 	e2:SetRange(LOCATION_SZONE)
-	e2:SetCountLimit(1,100312033)
+	e2:SetCountLimit(1,100312033+100)
 	e2:SetCost(c100312033.discost)
 	e2:SetTarget(c100312033.distg)
 	e2:SetOperation(c100312033.disop)
@@ -34,6 +34,7 @@ function c100312033.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c100312033.setfilter,tp,LOCATION_DECK,0,1,nil) end
 end
 function c100312033.activate(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local g=Duel.SelectMatchingCard(tp,c100312033.setfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if #g>0 then

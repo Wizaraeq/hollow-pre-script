@@ -37,6 +37,9 @@ end
 function c100312053.recfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x44,0x26b)
 end
+function c100312053.cfilter(c)
+	return c:IsCode(56433456) and (c:IsFaceup() or c:IsLocation(LOCATION_GRAVE))
+end
 function c100312053.activate(e,tp,eg,ep,ev,re,r,rp)
 	local b1=Duel.IsExistingMatchingCard(c100312053.actfilter,tp,LOCATION_DECK,0,1,nil,tp)
 	local b2=Duel.IsExistingMatchingCard(c100312053.thfilter,tp,LOCATION_DECK,0,1,nil)
@@ -72,7 +75,6 @@ function c100312053.activate(e,tp,eg,ep,ev,re,r,rp)
 			local cost=te:GetCost()
 			if cost then cost(te,tep,eg,ep,ev,re,r,rp,1) end
 			Duel.RaiseEvent(tc,4179255,te,0,tp,tp,Duel.GetCurrentChain())
-			resolve=true
 		end
 	else
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
@@ -80,9 +82,9 @@ function c100312053.activate(e,tp,eg,ep,ev,re,r,rp)
 		if g:GetCount()>0 then
 			Duel.SendtoHand(g,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,g)
-			resolve=true
 		end
 	end
+	local resolve=Duel.IsExistingMatchingCard(c100312053.cfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,LOCATION_ONFIELD+LOCATION_GRAVE,1,nil)
 	local ct=Duel.GetMatchingGroupCount(c100312053.recfilter,tp,LOCATION_MZONE,0,nil)
 	if resolve and ct>0 and Duel.SelectYesNo(tp,aux.Stringid(100312053,2)) then
 		Duel.BreakEffect()
