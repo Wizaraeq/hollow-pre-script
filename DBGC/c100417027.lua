@@ -29,6 +29,26 @@ function c100417027.initial_effect(c)
 	e3:SetTarget(c100417027.settg)
 	e3:SetOperation(c100417027.setop)
 	c:RegisterEffect(e3)
+	if not c100417027.global_check then
+		c100417027.global_check=true
+		local ge1=Effect.GlobalEffect(c)
+		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		ge1:SetCode(EVENT_BATTLE_CONFIRM)
+		ge1:SetOperation(c100417027.checkop)
+		Duel.RegisterEffect(ge1,0)
+	end
+end
+function c100417027.check(c)
+	return c and aux.IsCodeListed(c,100417125)
+end
+function c100417027.checkop(e,tp,eg,ep,ev,re,r,rp)
+	local c0,c1=Duel.GetBattleMonster(0)
+	if c100417027.check(c0) then
+		Duel.RegisterFlagEffect(0,100417027,RESET_PHASE+PHASE_END,0,1)
+	end
+	if c100417027.check(c1) then
+		Duel.RegisterFlagEffect(1,100417027,RESET_PHASE+PHASE_END,0,1)
+	end
 end
 function c100417027.cfilter(c)
 	return c:IsCode(100417125) and c:IsFaceup()
@@ -37,7 +57,7 @@ function c100417027.atkcon(e)
 	return not Duel.IsExistingMatchingCard(c100417027.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
 end
 function c100417027.bravecon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c100417027.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.GetFlagEffect(tp,100417027)>0
 end
 function c100417027.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0

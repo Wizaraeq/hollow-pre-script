@@ -29,7 +29,7 @@ function c101105091.cfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x270)
 end
 function c101105091.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c101105091.filter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(c101105091.cfilter,tp,LOCATION_MZONE,0,1,nil)
 		and re:IsActiveType(TYPE_MONSTER) and Duel.IsChainNegatable(ev) and rp==1-tp
 end
 function c101105091.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
