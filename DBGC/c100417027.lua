@@ -57,7 +57,7 @@ function c100417027.atkcon(e)
 	return not Duel.IsExistingMatchingCard(c100417027.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
 end
 function c100417027.bravecon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFlagEffect(tp,100417027)>0
+	return Duel.IsExistingMatchingCard(c100417027.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c100417027.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -70,11 +70,8 @@ function c100417027.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
-function c100417027.btfilter(c)
-	return aux.IsCodeListed(c,100417125) and c:GetBattledGroupCount()>0
-end
 function c100417027.setcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c100417027.btfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.GetFlagEffect(tp,100417027)>0
 end
 function c100417027.setfilter(c)
 	return c:IsType(TYPE_TRAP) and aux.IsCodeListed(c,100417125) and c:IsSSetable()

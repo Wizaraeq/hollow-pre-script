@@ -4,7 +4,7 @@ function c100417036.initial_effect(c)
 	--SS + Equip
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(100417036,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_EQUIP)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,100417036+EFFECT_COUNT_CODE_OATH)
@@ -20,7 +20,7 @@ function c100417036.eqfilter2(c,tc)
 	return c:IsFaceup() and tc:CheckEquipTarget(c)
 end
 function c100417036.cfilter(c)
-	return c:IsFaceup() and c:GetCode(100417125)
+	return c:IsFaceup() and c:IsCode(100417125)
 end
 function c100417036.condition(e,tp,eg,ep,ev,re,r,rp) 
 	return Duel.IsExistingMatchingCard(c100417036.cfilter,tp,LOCATION_MZONE,0,1,nil)
@@ -43,7 +43,7 @@ function c100417036.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sg=g:SelectSubGroup(tp,aux.dncheck,false,1,ct)
 		if #sg>0 and Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)>0 then
-		local tc=g:GetFirst()
+		local tc=sg:GetFirst()
 		while tc do
 				local e1=Effect.CreateEffect(e:GetHandler())
 				e1:SetType(EFFECT_TYPE_SINGLE)
@@ -52,7 +52,7 @@ function c100417036.operation(e,tp,eg,ep,ev,re,r,rp)
 				e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
 				e1:SetValue(LOCATION_REMOVED)
 				tc:RegisterEffect(e1,true)
-			tc=g:GetNext()
+			tc=sg:GetNext()
 		end
 		if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(aux.NecroValleyFilter(c100417036.eqfilter),tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,tp) and Duel.SelectYesNo(tp,aux.Stringid(100417036,1)) then
 			Duel.BreakEffect()
