@@ -52,9 +52,10 @@ function c100417033.bcon(e,tp,eg,ep,ev,re,r,rp)
 	return rc:IsRelateToBattle() and rc:IsStatus(STATUS_OPPO_BATTLE) and rc:IsControler(tp) and rc:IsFaceup() and rc:IsCode(100417125)
 end
 function c100417033.btg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.RegisterFlagEffect(tp,100417033,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
-	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,eg:GetFirst():GetBattleTarget():GetTextAttack(),1-tp,0)
+	local atk=eg:GetFirst():GetBattleTarget():GetTextAttack()
+	if chk==0 then return atk>0 end
+	Duel.RegisterFlagEffect(tp,100417033,RESET_PHASE+PHASE_END,0,1)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,atk,1-tp,0)
 end
 function c100417033.bop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Damage(1-tp,eg:GetFirst():GetBattleTarget():GetTextAttack(),REASON_EFFECT)

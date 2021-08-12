@@ -23,7 +23,7 @@ function c100417036.cfilter(c)
 	return c:IsFaceup() and c:IsCode(100417125)
 end
 function c100417036.condition(e,tp,eg,ep,ev,re,r,rp) 
-	return Duel.IsExistingMatchingCard(c100417036.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(c100417036.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 function c100417036.filter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)

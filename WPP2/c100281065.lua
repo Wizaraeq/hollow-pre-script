@@ -91,7 +91,7 @@ function c100281065.setfilter(c,tp)
 		and not Duel.IsExistingMatchingCard(c100281065.scfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil,c:GetCode())
 end
 function c100281065.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c100281065.setfilter3,tp,LOCATION_DECK,0,1,nil,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c100281065.setfilter,tp,LOCATION_DECK,0,1,nil,tp) end
 end
 function c100281065.setop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)

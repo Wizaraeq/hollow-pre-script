@@ -22,7 +22,7 @@ function c100417025.filter(c)
 	return c:IsFaceup() and c:IsCode(100417125)
 end
 function c100417025.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(c100417025.filter,tp,LOCATION_MZONE,0,1,nil)
+	return not Duel.IsExistingMatchingCard(c100417025.filter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 function c100417025.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetCustomActivityCount(100417025,tp,ACTIVITY_CHAIN)==0 end
@@ -57,7 +57,7 @@ function c100417025.spop(e,tp,eg,ep,ev,re,r,rp)
 	if not c100417025.sptg(e,tp,eg,ep,ev,re,r,rp,0) then return end
 	local token=Duel.CreateToken(tp,100417125)
 	if Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and not Duel.IsExistingMatchingCard(c100417025.cfilter2,tp,LOCATION_SZONE,0,1,nil)
+		and not Duel.IsExistingMatchingCard(c100417025.cfilter2,tp,LOCATION_ONFIELD,0,1,nil)
 		and Duel.IsExistingMatchingCard(c100417025.plfilter,tp,LOCATION_DECK,0,1,nil) 
 		and Duel.SelectYesNo(tp,aux.Stringid(100417025,1)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
