@@ -11,11 +11,11 @@ function c100417029.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(100417029,0))
 	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+	e2:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetTargetRange(LOCATION_MZONE,0)
 	e2:SetCountLimit(1)
-	e2:SetValue(1)
+	e2:SetValue(c100417029.valcon)
 	e2:SetTarget(c100417029.indtg)
 	c:RegisterEffect(e2)
 	-- Search
@@ -46,6 +46,9 @@ function c100417029.initial_effect(c)
 end
 function c100417029.indtg(e,c)
 	return c:GetEquipCount()>0
+end
+function c100417029.valcon(e,re,r,rp)
+	return bit.band(r,REASON_BATTLE)~=0
 end
 function c100417029.mthfilter(c)
 	return c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,100417125) and c:IsAbleToHand()
