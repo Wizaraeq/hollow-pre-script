@@ -51,7 +51,7 @@ end
 function c100281062.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local g=eg:Filter(c100281062.cfilter,nil,tp)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c100281062.tgfilter(chkc,e,tp,g) end
-	if chk==0 then return Duel.IsExistingTarget(c100281062.tgfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,e,tp,g) end
+	if chk==0 then return Duel.IsExistingTarget(c100281062.tgfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,e,tp,g) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
 	if g:GetCount()==1 then
 		Duel.SetTargetCard(g)
 	else
@@ -61,6 +61,7 @@ function c100281062.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
 end
 function c100281062.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		local code=tc:GetCode()
