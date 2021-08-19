@@ -20,7 +20,7 @@ function c100417015.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_MOVE)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,100417014+100)
+	e2:SetCountLimit(1,100417015+100)
 	e2:SetCondition(c100417015.spcon)
 	e2:SetTarget(c100417015.sptg)
 	e2:SetOperation(c100417015.spop)
@@ -57,7 +57,7 @@ function c100417015.drop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100417015.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp~=tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
+	return rp==1-tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
 end
 function c100417015.spfilter(c,e,tp,mc)
 	return c:IsSetCard(0x271) and c:IsType(TYPE_XYZ) and mc:IsCanBeXyzMaterial(c)

@@ -36,9 +36,6 @@ function c100417013.hsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
-	if Duel.IsExistingMatchingCard(c100417013.cfilter2,tp,LOCATION_ONFIELD,0,1,nil) then
-		Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,800)
-	end
 end
 function c100417013.cfilter2(c)
 	return c:IsFaceup() and c:IsCode(100417014)
@@ -52,7 +49,7 @@ function c100417013.hspop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100417013.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp~=tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
+	return rp==1-tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
 end
 function c100417013.spfilter(c,e,tp,mc)
 	return c:IsSetCard(0x271) and c:IsType(TYPE_XYZ) and mc:IsCanBeXyzMaterial(c)

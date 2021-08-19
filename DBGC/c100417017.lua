@@ -4,11 +4,9 @@ function c100417017.initial_effect(c)
 	aux.AddXyzProcedure(c,nil,4,2)
 	-- Check materials on Xyz Summon
 	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e0:SetCondition(c100417017.regcon)
-	e0:SetOperation(c100417017.regop)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_MATERIAL_CHECK)
+	e0:SetValue(c100417017.valcheck)
 	c:RegisterEffect(e0)
 	--battle indes
 	local e1=Effect.CreateEffect(c)
@@ -47,12 +45,11 @@ end
 function c100417017.indes(e,c)
 	return c:IsSummonLocation(LOCATION_GRAVE)
 end
-function c100417017.regcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsSummonType(SUMMON_TYPE_XYZ) and c:GetMaterial():IsExists(Card.IsSetCard,1,nil,0x271)
-end
-function c100417017.regop(e,tp,eg,ep,ev,re,r,rp)
-	e:GetHandler():RegisterFlagEffect(100417017,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
+function c100417017.valcheck(e,c)
+	local g=c:GetMaterial()
+	if g:IsExists(Card.IsSetCard,1,nil,0x271) then
+		c:RegisterFlagEffect(100417017,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+RESET_PHASE+PHASE_END,0,1)
+	end
 end
 function c100417017.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetFlagEffect(100417017)~=0

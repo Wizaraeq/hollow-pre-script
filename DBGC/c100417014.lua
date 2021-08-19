@@ -47,7 +47,7 @@ function c100417014.hspop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100417014.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp~=tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
+	return rp==1-tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
 end
 function c100417014.spfilter(c,e,tp,mc)
 	return c:IsSetCard(0x271) and c:IsType(TYPE_XYZ) and mc:IsCanBeXyzMaterial(c)

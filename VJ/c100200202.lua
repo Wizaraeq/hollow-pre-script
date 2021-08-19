@@ -1,4 +1,4 @@
---モーターシェル
+-モーターシェル
 --Sctipt By JSY1728
 function c100200202.initial_effect(c)
 	--"Motor Token" Summon
@@ -18,13 +18,13 @@ function c100200202.tkcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c100200202.tktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-	and Duel.IsPlayerCanSpecialSummonMonster(tp,82556059,0,0x4011,200,200,1,RACE_MACHINE,ATTRIBUTE_EARTH) end
+	and Duel.IsPlayerCanSpecialSummonMonster(tp,82556059,0,TYPES_TOKEN_MONSTER,200,200,1,RACE_MACHINE,ATTRIBUTE_EARTH) end
 	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
 end
 function c100200202.tkop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	if Duel.IsPlayerCanSpecialSummonMonster(tp,82556059,0,0x4011,200,200,1,RACE_MACHINE,ATTRIBUTE_EARTH) then
+	if Duel.IsPlayerCanSpecialSummonMonster(tp,82556059,0,TYPES_TOKEN_MONSTER,200,200,1,RACE_MACHINE,ATTRIBUTE_EARTH) then
 		local token=Duel.CreateToken(tp,100200302)
 		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP_ATTACK)
 	end

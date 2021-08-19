@@ -2,6 +2,12 @@
 function c100417020.initial_effect(c)
 	c:EnableReviveLimit()
 	aux.AddXyzProcedure(c,nil,4,2)
+	-- Check materials on Xyz Summon
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_MATERIAL_CHECK)
+	e0:SetValue(c100417020.valcheck)
+	c:RegisterEffect(e0)
 	--indes effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -33,6 +39,12 @@ function c100417020.initial_effect(c)
 	e3:SetOperation(c100417020.thop)
 	c:RegisterEffect(e3)
 end
+function c100417020.valcheck(e,c)
+	local g=c:GetMaterial()
+	if g:IsExists(Card.IsSetCard,1,nil,0x271) then
+		c:RegisterFlagEffect(100417020,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+RESET_PHASE+PHASE_END,0,1)
+	end
+end
 function c100417020.indval(e,te)
 	local tc=te:GetHandler()
 	return te:GetOwner()~=e:GetHandler() and te:IsActiveType(TYPE_MONSTER)
@@ -40,7 +52,7 @@ function c100417020.indval(e,te)
 end
 function c100417020.limcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsSummonType(SUMMON_TYPE_XYZ) and c:GetMaterial():IsExists(Card.IsSetCard,1,nil,0x271)
+	return c:IsSummonType(SUMMON_TYPE_XYZ) and c:GetFlagEffect(100417020)>0
 end
 function c100417020.limop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

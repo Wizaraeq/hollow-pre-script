@@ -37,9 +37,6 @@ function c100417016.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetTargetPlayer(tp)
 	Duel.SetTargetParam(1)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
-	if Duel.IsExistingMatchingCard(c100417016.cfilter2,tp,LOCATION_ONFIELD,0,1,nil) then
-		Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,800)
-	end
 end
 function c100417016.cfilter2(c)
 	return c:IsFaceup() and c:IsCode(100417015)
@@ -53,7 +50,7 @@ function c100417016.drop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100417016.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp~=tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
+	return rp==1-tp and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_GRAVE)
 end
 function c100417016.spfilter(c,e,tp,mc)
 	return c:IsSetCard(0x271) and c:IsType(TYPE_XYZ) and mc:IsCanBeXyzMaterial(c)

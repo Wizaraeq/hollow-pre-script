@@ -4,11 +4,9 @@ function c100417019.initial_effect(c)
 	aux.AddXyzProcedure(c,nil,4,2)
 	-- Check materials on Xyz Summon
 	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e0:SetCondition(c100417019.regcon)
-	e0:SetOperation(c100417019.regop)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_MATERIAL_CHECK)
+	e0:SetValue(c100417019.valcheck)
 	c:RegisterEffect(e0)
 	--indes effect
 	local e1=Effect.CreateEffect(c)
@@ -48,15 +46,14 @@ function c100417019.indval(e,te)
 	return te:GetOwner()~=e:GetHandler() and te:IsActiveType(TYPE_MONSTER)
 		and te:IsActivated() and tc:IsSummonType(SUMMON_TYPE_SPECIAL) and tc:IsSummonLocation(LOCATION_GRAVE)
 end
-function c100417019.regcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsSummonType(SUMMON_TYPE_XYZ) and c:GetMaterial():IsExists(Card.IsSetCard,1,nil,0x271)
-end
-function c100417019.regop(e,tp,eg,ep,ev,re,r,rp)
-	e:GetHandler():RegisterFlagEffect(100417019,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
+function c100417019.valcheck(e,c)
+	local g=c:GetMaterial()
+	if g:IsExists(Card.IsSetCard,1,nil,0x271) then
+		c:RegisterFlagEffect(100417019,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+RESET_PHASE+PHASE_END,0,1)
+	end
 end
 function c100417019.ngcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetFlagEffect(100417019)~=0
+	return e:GetHandler():GetFlagEffect(100417019)>0
 end
 function c100417019.ngtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and aux.NegateEffectMonsterFilter(chkc) end
