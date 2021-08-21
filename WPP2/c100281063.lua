@@ -1,16 +1,19 @@
 --切り裂かれし闇
+--
+--Scripted by KillerDJ & mercury233
 function c100281063.initial_effect(c)
-	--activate
+	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
 	--draw
 	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(100281063,0))
 	e2:SetCategory(CATEGORY_DRAW)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_PLAYER_TARGET)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetCountLimit(1,100281063)
 	e2:SetCondition(c100281063.drcon)
@@ -22,6 +25,7 @@ function c100281063.initial_effect(c)
 	c:RegisterEffect(e3)
 	--atk up
 	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(100281063,1))
 	e4:SetCategory(CATEGORY_ATKCHANGE)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e4:SetCode(EVENT_ATTACK_ANNOUNCE)
@@ -46,11 +50,11 @@ function c100281063.valcheck(e,c)
 		c:RegisterFlagEffect(100281063,RESET_EVENT+0x4fe0000,0,1)
 	end
 end
-function c100281063.drcfilter(c,tp)
-	return c:IsType(TYPE_NORMAL) and not c:IsType(TYPE_TOKEN) and c:IsSummonPlayer(tp)
+function c100281063.cfilter(c,tp)
+	return c:IsFaceup() and c:IsType(TYPE_NORMAL) and c:IsSummonPlayer(tp) and not c:IsType(TYPE_TOKEN)
 end
 function c100281063.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(c100281063.drcfilter,1,nil,tp)
+	return eg:IsExists(c100281063.cfilter,1,nil,tp)
 end
 function c100281063.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
@@ -59,35 +63,24 @@ function c100281063.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 end
 function c100281063.drop(e,tp,eg,ep,ev,re,r,rp)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
 end
-function c100281063.atkfilter(c)
-	if c:IsType(TYPE_NORMAL) then
-		return c:IsLevelAbove(5)
-	else
-		return c:GetFlagEffect(100281063)>0 and (c:IsSummonType(SUMMON_TYPE_RITUAL) or c:IsSummonType(SUMMON_TYPE_FUSION) or c:IsSummonType(SUMMON_TYPE_SYNCHRO) or c:IsSummonType(SUMMON_TYPE_XYZ))
-	end
-end
 function c100281063.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	local a=Duel.GetAttacker()
-	local d=a:GetBattleTarget()
-	if a:IsControler(1-tp) then a,d=d,a end
-	return a and a:IsFaceup() and a:IsRelateToBattle() and c100281063.atkfilter(a)
-		and d and d:IsFaceup() and d:IsRelateToBattle()
-		and d:GetAttack()>0 and a:GetControler()~=d:GetControler()
+	local a,at=Duel.GetBattleMonster(tp)
+	return a and at and (a:IsType(TYPE_NORMAL) and a:IsLevelAbove(5)
+		or a:GetFlagEffect(100281063)>0 and (a:IsSummonType(SUMMON_TYPE_RITUAL)
+			or a:IsSummonType(SUMMON_TYPE_FUSION)
+			or a:IsSummonType(SUMMON_TYPE_SYNCHRO)
+			or a:IsSummonType(SUMMON_TYPE_XYZ)))
 end
-function c100281063.atkop(e,tp,ep,ev,re,r,rp)
-	local a=Duel.GetAttacker()
-	local d=a:GetBattleTarget()
-	if a:IsControler(1-tp) then a,d=d,a end
-	if e:GetHandler():IsRelateToEffect(e) and a:IsFaceup() and a:IsRelateToBattle() and d:IsFaceup() and d:IsRelateToBattle() then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetValue(d:GetAttack())
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		a:RegisterEffect(e1)
-	end
+function c100281063.atkop(e,tp,eg,ep,ev,re,r,rp)
+	local a,at=Duel.GetBattleMonster(tp)
+	if not a:IsRelateToBattle() or a:IsFacedown() or not at:IsRelateToBattle() or at:IsFacedown() then return end
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_UPDATE_ATTACK)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	e1:SetValue(at:GetAttack())
+	a:RegisterEffect(e1)
 end
