@@ -1,114 +1,103 @@
 --運命の旅路
--- Journey of Destiny
+--
+--Script by IceBarrierTrishula
 function c100417029.initial_effect(c)
 	aux.AddCodeList(c,100417125)
-	-- Activate
+	--Activate 
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_ACTIVATE)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	c:RegisterEffect(e0)
+	--to hand
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetDescription(aux.Stringid(100417029,0))
+	e1:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_HANDES)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_SZONE)
+	e1:SetCountLimit(1,100417029)
+	e1:SetTarget(c100417029.thtg)
+	e1:SetOperation(c100417029.thop) 
 	c:RegisterEffect(e1)
-	-- Prevent battle destruction once
+	--equip 
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100417029,0))
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
+	e2:SetDescription(aux.Stringid(100417029,1))
+	e2:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_EQUIP)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_SUMMON_SUCCESS)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetRange(LOCATION_SZONE)
-	e2:SetTargetRange(LOCATION_MZONE,0)
-	e2:SetCountLimit(1)
-	e2:SetValue(c100417029.valcon)
-	e2:SetTarget(c100417029.indtg)
-	c:RegisterEffect(e2)
-	-- Search
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(100417029,1))
-	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_TOGRAVE)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetRange(LOCATION_SZONE)
-	e3:SetCountLimit(1,100417029)
-	e3:SetTarget(c100417029.mthtg)
-	e3:SetOperation(c100417029.mthop)
+	e2:SetCountLimit(1,100417029+100)
+	e2:SetTarget(c100417029.eqtg)
+	e2:SetOperation(c100417029.eqop)
+	c:RegisterEffect(e2)	
+	local e3=e2:Clone()
+	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
-	--Equip
+	--indes
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(100417029,2))
-	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_EQUIP)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
 	e4:SetRange(LOCATION_SZONE)
-	e4:SetCountLimit(1,100417029+100)
-	e4:SetTarget(c100417029.sthtg)
-	e4:SetOperation(c100417029.sthop)
+	e4:SetTargetRange(LOCATION_MZONE,0)
+	e4:SetTarget(c100417029.indtg)
+	e4:SetCountLimit(1)
+	e4:SetValue(c100417029.indct)
 	c:RegisterEffect(e4)
-	local e5=e4:Clone()
-	e5:SetCode(EVENT_SUMMON_SUCCESS)
-	c:RegisterEffect(e5)
+end
+function c100417029.thfilter(c)
+	return aux.IsCodeListed(c,100417125) and c:IsAbleToHand() and c:IsType(TYPE_MONSTER)
+end
+function c100417029.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(c100417029.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,0,0)
+end
+function c100417029.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,c100417029.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if g:GetCount()>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
+		Duel.BreakEffect()
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+		Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT)
+	end
+end
+function c100417029.eqfilter(c,equip,tp)
+	return c:IsType(TYPE_EQUIP) and aux.IsCodeListed(c,100417125)
+		and (c:IsAbleToHand() or equip and c:CheckUniqueOnField(tp) and not c:IsForbidden())
+end
+function c100417029.cfilter(c)
+	return c:IsCode(100417125) and c:IsFaceup()
+end
+function c100417029.eqtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		local equip=Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+			and Duel.IsExistingMatchingCard(c100417029.cfilter,tp,LOCATION_MZONE,0,1,nil)
+		return Duel.IsExistingMatchingCard(c100417029.eqfilter,tp,LOCATION_DECK,0,1,nil,equip,tp)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,0,0)
+end
+function c100417029.eqop(e,tp,eg,ep,ev,re,r,rp)
+	local equip=Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+		and Duel.IsExistingMatchingCard(c100417029.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_OPERATECARD)
+	local g=Duel.SelectMatchingCard(tp,c100417029.eqfilter,tp,LOCATION_DECK,0,1,1,nil,equip,tp)
+	local tc=g:GetFirst()
+	if g:GetCount()>0 then
+		if equip and tc:CheckUniqueOnField(tp) and not tc:IsForbidden()
+			and (not tc:IsAbleToHand() or Duel.SelectOption(tp,1190,aux.Stringid(100417029,2))==1) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+			local sc=Duel.SelectMatchingCard(tp,c100417029.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
+			Duel.Equip(tp,tc,sc:GetFirst())
+		else
+			Duel.SendtoHand(g,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,g)
+		end
+	end
 end
 function c100417029.indtg(e,c)
 	return c:GetEquipCount()>0
 end
-function c100417029.valcon(e,re,r,rp)
+function c100417029.indct(e,re,r,rp)
 	return bit.band(r,REASON_BATTLE)~=0
-end
-function c100417029.mthfilter(c)
-	return c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,100417125) and c:IsAbleToHand()
-end
-function c100417029.mthtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c100417029.mthfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,1,tp,1)
-end
-function c100417029.mthop(e,tp,eg,ep,ev,re,r,rp)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,c100417029.mthfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then
-		Duel.ConfirmCards(1-tp,g)
-		Duel.ShuffleHand(tp)
-		Duel.BreakEffect()
-		Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT)
-	end
-end
-function c100417029.bravefilter(c,ec)
-	return c:IsFaceup() and c:IsCode(100417125) and ec:CheckEquipTarget(c)
-end
-function c100417029.eqfilter(c,tp)
-	return c:CheckUniqueOnField(tp) and not c:IsForbidden()
-		and Duel.IsExistingTarget(c100417029.bravefilter,tp,LOCATION_MZONE,0,1,nil,c)
-end
-function c100417029.sthfilter(c,tp)
-	return c:IsType(TYPE_EQUIP) and aux.IsCodeListed(c,100417125)
-		and (c:IsAbleToHand() or c100417029.eqfilter(c,tp))
-end
-function c100417029.sthtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c100417029.sthfilter,tp,LOCATION_DECK,0,1,nil,tp) end
-end
-function c100417029.sthop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,c100417029.sthfilter,tp,LOCATION_DECK,0,1,1,nil,tp)
-	local tc=g:GetFirst()
-	if tc then
-		local b1=tc:IsAbleToHand()
-		local b2=c100417029.eqfilter(tc,tp) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		if b1 and (not b2 or Duel.SelectOption(tp,1190,aux.Stringid(100417029,3))==0) then
-			Duel.SendtoHand(tc,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,tc)
-		else
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-			local et=Duel.SelectMatchingCard(tp,c100417029.bravefilter,tp,LOCATION_MZONE,0,1,1,nil,tc):GetFirst()
-			if et and Duel.Equip(tp,tc,et) then
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_EQUIP_LIMIT)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			e1:SetValue(c100417029.eqlimit)
-			e1:SetLabelObject(et)
-			tc:RegisterEffect(e1)
-			end
-		end
-	end
-end
-function c100417029.eqlimit(e,c)
-	return c==e:GetLabelObject()
 end
