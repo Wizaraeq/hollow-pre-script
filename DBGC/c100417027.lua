@@ -31,9 +31,9 @@ function c100417027.initial_effect(c)
 	c:RegisterEffect(e3)
 	if not c100417027.global_check then
 		c100417027.global_check=true
-		local ge1=Effect.GlobalEffect(c)
+		local ge1=Effect.CreateEffect(c)
 		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_BATTLE_CONFIRM)
+		ge1:SetCode(EVENT_BATTLED)
 		ge1:SetOperation(c100417027.checkop)
 		Duel.RegisterEffect(ge1,0)
 	end
@@ -61,7 +61,7 @@ function c100417027.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-	end 
+	end
 end
 function c100417027.atkcon(e)
 	return not Duel.IsExistingMatchingCard(c100417027.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
