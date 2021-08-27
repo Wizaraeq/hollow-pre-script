@@ -1,3 +1,0 @@
-# hollow pre-script
-
-プレリリーススクリプト
