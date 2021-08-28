@@ -42,15 +42,16 @@ function c101105090.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c101105090.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+	if not tc:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_ATTACK)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1,true)
-		Duel.SetLP(tp,Duel.GetLP(tp)-tc:GetBaseAttack())
 	end
 	Duel.SpecialSummonComplete()
+	Duel.SetLP(tp,Duel.GetLP(tp)-tc:GetBaseAttack())
 end
 function c101105090.cfilter(c,tp)
 	return c:IsReason(REASON_BATTLE+REASON_EFFECT) and c:IsPreviousLocation(LOCATION_MZONE)

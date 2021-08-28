@@ -54,7 +54,7 @@ function c100417013.filter(c)
 	return c:IsPreviousLocation(LOCATION_GRAVE)
 end
 function c100417013.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and eg:IsExists(c100417013.filter,1,nil)
+	return (rp==1-tp or eg:IsExists(Card.IsSummonPlayer,1,nil,1-tp)) and eg:IsExists(c100417013.filter,1,nil)
 end
 function c100417013.spfilter(c,e,tp,mc)
 	return c:IsSetCard(0x271) and c:IsType(TYPE_XYZ) and mc:IsCanBeXyzMaterial(c)
