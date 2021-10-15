@@ -40,19 +40,16 @@ end
 function c101107071.operation(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
 		or not Duel.IsPlayerCanSpecialSummonMonster(tp,101107171,0,TYPES_TOKEN_MONSTER,0,3000,10,RACE_DINOSAUR,ATTRIBUTE_DARK) then return end
-		local token=Duel.CreateToken(tp,101107171)
-		if Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)>0 then
-			--Cannot target other monsters for attacks
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetType(EFFECT_TYPE_FIELD)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetCode(EFFECT_CANNOT_SELECT_BATTLE_TARGET)
-			e1:SetRange(LOCATION_MZONE)
-			e1:SetTargetRange(0,LOCATION_MZONE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			e1:SetValue(c101107071.atklimit)
-			token:RegisterEffect(e1)
-	end
+	local token=Duel.CreateToken(tp,101107171)
+	Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CANNOT_SELECT_BATTLE_TARGET)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetTargetRange(0,LOCATION_MZONE)
+	e1:SetValue(c101107171.atklimit)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	token:RegisterEffect(e1)
 end
 function c101107071.atklimit(e,c)
 	return c~=e:GetHandler()

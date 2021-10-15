@@ -11,6 +11,7 @@ function c101107039.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetTargetRange(1,0)
+	e1:SetCondition(c101107039.costcon)
 	e1:SetValue(c101107039.costchange)
 	c:RegisterEffect(e1)
 	--damage
@@ -39,9 +40,11 @@ end
 function c101107039.ffilter(c,fc,sub,mg,sg)
 	return c:IsFusionSetCard(0x273) and (not sg or not sg:IsExists(Card.IsFusionCode,1,c,c:GetFusionCode()))
 end
+function c101107039.costcon(e)
+	return Duel.GetLP(e:GetHandlerPlayer())<=2000
+end
 function c101107039.costchange(e,re,rp,val)
-	if re and re:GetHandler():IsSetCard(0x273) 
-		and (re:IsActiveType(TYPE_MONSTER) or (re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsType(TYPE_TRAP))) then
+	if re and ((re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsType(TYPE_TRAP)) or (re:GetHandler():IsSetCard(0x273) and re:IsActiveType(TYPE_MONSTER))) then
 		return 0
 	else return val end
 end
@@ -50,14 +53,14 @@ function c101107039.damcon(e,tp,eg,ep,ev,re,r,rp)
 	return rp~=tp and re:IsActiveType(TYPE_MONSTER)
 end
 function c101107039.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
 	local rc=re:GetHandler()
-	local atk=rc:GetTextAttack()
+	local atk=rc:GetBaseAttack()
+	if chk==0 then return atk>0 end
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,atk)
 end
 function c101107039.damop(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
-	local atk=rc:GetTextAttack()
+	local atk=rc:GetBaseAttack()
 	Duel.Damage(1-tp,atk,REASON_EFFECT)
 end
 function c101107039.spcon(e,tp,eg,ep,ev,re,r,rp)
