@@ -1,7 +1,9 @@
 --電気海月－フィサリア－
+--
+--Script by JustFish
 function c100426019.initial_effect(c)
 	aux.AddCodeList(c,22702055)
-	-- Special Summon
+	--SpecialSummon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(100426019,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -12,26 +14,26 @@ function c100426019.initial_effect(c)
 	e1:SetTarget(c100426019.sptg)
 	e1:SetOperation(c100426019.spop)
 	c:RegisterEffect(e1)
-	--Negate
+	--negate
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(100426019,1))
 	e2:SetCategory(CATEGORY_DISABLE+CATEGORY_ATKCHANGE)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
-	e2:SetCountLimit(1,100426019+100)
+	e2:SetCountLimit(1)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCondition(c100426019.negcon)
-	e2:SetTarget(c100426019.negtg)
-	e2:SetOperation(c100426019.negop)
+	e2:SetCondition(c100426019.discon)
+	e2:SetTarget(c100426019.distg)
+	e2:SetOperation(c100426019.disop)
 	c:RegisterEffect(e2)
 end
-function c100426019.spcostfilter(c)
-	return c:IsCode(22702055) and c:IsAbleToGraveAsCost() and (c:IsFaceup() or not c:IsOnField())
+function c100426019.cfilter(c)
+	return c:IsCode(22702055) and c:IsAbleToGraveAsCost() and (not c:IsOnField() or c:IsFaceup())
 end
 function c100426019.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c100426019.spcostfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c100426019.cfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,c100426019.spcostfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,c100426019.cfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,1,1,nil)
 	Duel.SendtoGrave(g,REASON_COST)
 end
 function c100426019.spfilter(c,e,tp)
@@ -43,31 +45,30 @@ function c100426019.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND)
 end
 function c100426019.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<1 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,c100426019.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
-	if #g>0 then
+	if g:GetCount()>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
-function c100426019.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) and Duel.IsChainDisablable(ev) and (re:IsActiveType(TYPE_SPELL) or re:IsActiveType(TYPE_MONSTER))
-		and Duel.IsEnvironment(22702055)
+function c100426019.discon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsEnvironment(22702055) and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
+		and ep==1-tp and re:IsActiveType(TYPE_SPELL+TYPE_MONSTER) and Duel.IsChainDisablable(ev)
 end
-function c100426019.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function c100426019.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
-function c100426019.negop(e,tp,eg,ep,ev,re,r,rp)
+function c100426019.disop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if Duel.NegateEffect(ev) and c:IsFaceup() and c:IsRelateToEffect(e) and Duel.SelectYesNo(tp,aux.Stringid(100426019,2)) then
+	if Duel.NegateEffect(ev) and c:IsRelateToEffect(e) and Duel.SelectYesNo(tp,aux.Stringid(100426019,2)) then
 		Duel.BreakEffect()
-		-- Gain ATK/DEF
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(600)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
 		c:RegisterEffect(e1)
 		local e2=e1:Clone()
 		e2:SetCode(EFFECT_UPDATE_DEFENSE)

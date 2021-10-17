@@ -71,7 +71,7 @@ function c101107044.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c101107044.discon(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
-	return not e:GetHandler():IsStatus(STATUS_CHAINING+STATUS_BATTLE_DESTROYED) 
+	return not e:GetHandler():IsStatus(STATUS_CHAINING+STATUS_BATTLE_DESTROYED) and rp==1-tp
 		and (rc:GetOriginalType()&TYPE_MONSTER)~=0 and rc:IsOnField() and not re:IsHasType(EFFECT_TYPE_ACTIVATE)
 end
 function c101107044.desfilter(c)

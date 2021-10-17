@@ -35,7 +35,7 @@ function c101107017.mfilter(c)
 	return c:IsLocation(LOCATION_MZONE)
 end
 function c101107017.exmfilter(c)
-	return c:IsLocation(LOCATION_HAND) and c:IsCode(30114823)
+	return c:IsLocation(LOCATION_HAND) and c:IsCode(101107017)
 end
 function c101107017.matval(e,lc,mg,c,tp)
 	if not lc:IsSetCard(0x156) then return false,nil end

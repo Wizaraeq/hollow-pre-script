@@ -1,27 +1,28 @@
 --デス・クラーケン
+--
+--Script by JustFish
 function c100426018.initial_effect(c)
 	aux.AddCodeList(c,22702055)
-	-- Special Summon
+	--SpecialSummon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(100426018,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOHAND+CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCountLimit(1,100426018)
 	e1:SetCondition(c100426018.spcon)
 	e1:SetTarget(c100426018.sptg)
 	e1:SetOperation(c100426018.spop)
 	c:RegisterEffect(e1)
-	-- Return self to hand
+	--NegateAttack
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(100426018,1))
-	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetRange(LOCATION_MZONE)
+	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e2:SetCountLimit(1,100426018+100)
 	e2:SetCondition(c100426018.thcon)
 	e2:SetTarget(c100426018.thtg)
@@ -32,49 +33,47 @@ function c100426018.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsEnvironment(22702055)
 end
 function c100426018.thfilter(c)
-	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_WATER) and not c:IsCode(100426018) and c:IsAbleToHand()
+	return c:IsFaceup() and not c:IsCode(100426018) and c:IsAttribute(ATTRIBUTE_WATER) and c:IsAbleToHand()
 end
 function c100426018.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
-	local c=e:GetHandler()
-	if chk==0 then
-		return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
-			and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-			and Duel.IsExistingTarget(c100426018.thfilter,tp,LOCATION_MZONE,0,1,nil)
-			and Duel.IsExistingTarget(nil,tp,0,LOCATION_MZONE,1,nil)
-	end
+	if chk==0 then return Duel.IsExistingTarget(c100426018.thfilter,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_MZONE,1,nil)
+		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local g1=Duel.SelectTarget(tp,c100426018.thfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	e:SetLabelObject(g1:GetFirst())
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g2=Duel.SelectTarget(tp,nil,tp,0,LOCATION_MZONE,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g1,2,0,0)
+	local g2=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_MZONE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g1,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g2,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function c100426018.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not c:IsRelateToEffect(e) or Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 then return end
+	if not c:IsRelateToEffect(e) then return end
+	local hc=e:GetLabelObject()
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	local th=e:GetLabelObject()
-	local tc2=g:GetFirst()
-	if tc2==th then tc2=g:GetNext() end
-	if th and g:IsContains(th) and Duel.SendtoHand(th,nil,REASON_EFFECT)>0 and #g==2 then
-		Duel.Destroy(g-th,REASON_EFFECT)
-	end
-end
-function c100426018.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsAbleToHand() end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,c,1,0,0)
-end
-function c100426018.thop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and Duel.SendtoHand(c,nil,REASON_EFFECT)>0 then
-		Duel.NegateAttack()
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
+		local tc=g:GetFirst()
+		if tc==hc then tc=g:GetNext() end
+		if hc:IsRelateToEffect(e) and hc:IsControler(tp)
+			and Duel.SendtoHand(hc,nil,REASON_EFFECT)~=0 and hc:IsLocation(LOCATION_HAND)
+			and tc:IsRelateToEffect(e) and tc:IsControler(1-tp) then
+			Duel.Destroy(tc,REASON_EFFECT)
+		end
 	end
 end
 function c100426018.thcon(e,tp,eg,ep,ev,re,r,rp)
-	local at=Duel.GetAttacker()
-	return at and at:IsControler(1-tp) and at:IsRelateToBattle()
+	return Duel.GetAttacker():IsControler(1-tp)
+end
+function c100426018.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsAbleToHand() end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,e:GetHandler(),1,0,0)
+end
+function c100426018.thop(e,tp,eg,ep,ev,re,r,rp)
+	if e:GetHandler():IsRelateToEffect(e) and Duel.SendtoHand(e:GetHandler(),nil,REASON_EFFECT) then
+		Duel.NegateAttack()
+	end
 end

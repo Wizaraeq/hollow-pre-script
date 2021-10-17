@@ -32,8 +32,11 @@ function c101107006.initial_effect(c)
 	e3:SetValue(-1000)
 	c:RegisterEffect(e3)
 end
-function c101107006.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_FZONE,LOCATION_FZONE,1,nil)
+function c101107006.spcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_FZONE,LOCATION_FZONE,1,nil)
 end
 function c101107006.actfilter(c)
 	return c:IsCode(101107052) and c:IsFaceup()
@@ -45,10 +48,12 @@ function c101107006.actlimit(e,re,tp)
 	return re:IsActiveType(TYPE_MONSTER) and not re:GetHandler():IsStatus(STATUS_SUMMON_TURN+STATUS_FLIP_SUMMON_TURN+STATUS_SPSUMMON_TURN)
 end
 function c101107006.atkcon(e)
-	return Duel.GetCurrentPhase()==PHASE_DAMAGE_CAL and Duel.GetAttackTarget()
+	local tp=e:GetHandlerPlayer()
+	local a,d=Duel.GetBattleMonster(tp)
+	return Duel.GetCurrentPhase()==PHASE_DAMAGE_CAL and a and d and a:IsSetCard(0x16c)
 end
 function c101107006.atktg(e,c)
 	local tp=e:GetHandlerPlayer()
-	local bc=c:GetBattleTarget()
-	return c:IsControler(1-tp) and bc and bc:IsSetCard(0x16c) and bc:IsControler(tp)
+	local a,d=Duel.GetBattleMonster(tp)
+	return c==d
 end

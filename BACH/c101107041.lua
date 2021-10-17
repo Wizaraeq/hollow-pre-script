@@ -43,12 +43,10 @@ function c101107041.initial_effect(c)
 	e3:SetOperation(c101107041.remop2)
 	c:RegisterEffect(e3)
 end
-function c101107041.cfilter(c,e,tp)
-	return c:IsFaceup() and c:IsType(TYPE_SYNCHRO) and c:IsSummonType(SUMMON_TYPE_SYNCHRO)
-		and c:IsRace(RACE_WYRM) and c:IsSummonPlayer(tp)
-end
 function c101107041.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(c101107041.cfilter,1,e:GetHandler(),e,tp)
+	local tc=eg:GetFirst()
+	return eg:GetCount()==1 and tc~=e:GetHandler() and tc:IsSummonType(SUMMON_TYPE_SYNCHRO) and tc:IsSummonPlayer(tp)
+		and tc:IsRace(RACE_WYRM)
 end
 function c101107041.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
