@@ -1,92 +1,103 @@
 --ダイノルフィア・リヴァージョン
+--
+--Script by mercury233
 function c101107073.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101107073,0))
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,101107073,EFFECT_COUNT_CODE_OATH)
+	e1:SetCode(EVENT_CHAINING)
+	e1:SetCountLimit(1,101107073+EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(c101107073.condition)
 	e1:SetCost(c101107073.cost)
-	e1:SetTarget(c101107073.target)
+	e1:SetTarget(c101107073.target(EVENT_CHAINING))
+	e1:SetOperation(c101107073.operation)
 	c:RegisterEffect(e1)
-	local e1a=e1:Clone()
-	e1a:SetCode(EVENT_SUMMON)
-	c:RegisterEffect(e1a)
-	local e1b=e1:Clone()
-	e1b:SetCode(EVENT_FLIP_SUMMON)
-	c:RegisterEffect(e1b)
-	local e1c=e1:Clone()
-	e1c:SetCode(EVENT_SPSUMMON)
-	c:RegisterEffect(e1c)
-	--No battle damage
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101107073,1))
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
-	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCondition(c101107073.nodamcon)
-	e2:SetCost(aux.bfgcost)
-	e2:SetOperation(c101107073.nodamop)
+	local e2=e1:Clone()
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetHintTiming(TIMING_BATTLE_END,TIMING_BATTLE_START+TIMING_BATTLE_END)
+	e2:SetTarget(c101107073.target(EVENT_FREE_CHAIN))
 	c:RegisterEffect(e2)
+	local e3=e1:Clone()
+	e3:SetCode(EVENT_SUMMON)
+	e3:SetTarget(c101107073.target(EVENT_SUMMON))
+	c:RegisterEffect(e3)
+	local e4=e1:Clone()
+	e4:SetCode(EVENT_FLIP_SUMMON)
+	e4:SetTarget(c101107073.target(EVENT_FLIP_SUMMON))
+	c:RegisterEffect(e4)
+	local e5=e1:Clone()
+	e5:SetCode(EVENT_SPSUMMON)
+	e5:SetTarget(c101107073.target(EVENT_SPSUMMON))
+	c:RegisterEffect(e5)
+	local e6=e1:Clone()
+	e6:SetCode(EVENT_TO_HAND)
+	e6:SetTarget(c101107073.target(EVENT_TO_HAND))
+	c:RegisterEffect(e6)
+	local e7=e1:Clone()
+	e7:SetCode(EVENT_ATTACK_ANNOUNCE)
+	e7:SetTarget(c101107073.target(EVENT_ATTACK_ANNOUNCE))
+	c:RegisterEffect(e7)
+	--negate damage
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_QUICK_O)
+	e0:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
+	e0:SetRange(LOCATION_GRAVE)
+	e0:SetCondition(c101107073.damcon)
+	e0:SetCost(aux.bfgcost)
+	e0:SetOperation(c101107073.damop)
+	c:RegisterEffect(e0)
 end
 function c101107073.cfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x273) and c:IsType(TYPE_FUSION)
+	return c:IsSetCard(0x273) and c:IsType(TYPE_FUSION) and c:IsFaceup()
 end
 function c101107073.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(c101107073.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
-function c101107073.effilter(c)
-	return c:IsAbleToRemoveAsCost() and c:IsType(TYPE_COUNTER)
-		and c:CheckActivateEffect(c101107073.summonnegcheck(),true,false)~=nil
-		and c:CheckActivateEffect(c101107073.summonnegcheck(),true,false):GetOperation()~=nil
-end
-function c101107073.summonnegcheck()
-	return Duel.CheckEvent(EVENT_SUMMON)
-		or Duel.CheckEvent(EVENT_FLIP_SUMMON)
-		or Duel.CheckEvent(EVENT_SPSUMMON)
-end
 function c101107073.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101107073.effilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.PayLPCost(tp,Duel.GetLP(tp)//2)
+	e:SetLabel(1)
+	return true
 end
-function c101107073.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then
-		local te=e:GetLabelObject()
-		if not te then return end
-		local tg=te:GetTarget()
-		return tg and tg(e,tp,eg,ep,ev,re,r,rp,0,chkc)
-	end
-	if chk==0 then return true end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c101107073.effilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	if Duel.Remove(g,POS_FACEUP,REASON_COST)==0 then return end
-	local te,ceg,cep,cev,cre,cr,crp=g:GetFirst():CheckActivateEffect(c101107073.summonnegcheck(),true,true)
-	e:SetLabel(te:GetLabel())
-	e:SetLabelObject(te:GetLabelObject())
-	local tg=te:GetTarget()
-	if tg then tg(e,tp,ceg,cep,cev,cre,cr,crp,1) end
-	te:SetLabel(e:GetLabel())
-	te:SetLabelObject(e:GetLabelObject())
-	e:SetLabelObject(te)
-	Duel.ClearOperationInfo(0)
-	e:SetOperation(c101107073.activate)
+function c101107073.filter(c,event)
+	if not (c:GetType()==TYPE_TRAP+TYPE_COUNTER and c:IsAbleToRemoveAsCost()) then return false end
+	local te=c:CheckActivateEffect(false,true,false)
+	return te and te:GetCode()==event
 end
-function c101107073.activate(e,tp,eg,ep,ev,re,r,rp)
+function c101107073.target(event)
+	return 	function(e,tp,eg,ep,ev,re,r,rp,chk)
+			if chk==0 then
+				if e:GetLabel()==0 then return false end
+				e:SetLabel(0)
+				return Duel.IsExistingMatchingCard(c101107073.filter,tp,LOCATION_GRAVE,0,1,nil,event)
+			end
+			e:SetLabel(0)
+			local _GetCurrentChain=Duel.GetCurrentChain
+			Duel.GetCurrentChain=function() return _GetCurrentChain()-1 end
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+			local g=Duel.SelectMatchingCard(tp,c101107073.filter,tp,LOCATION_GRAVE,0,1,1,nil,event)
+			local te,ceg,cep,cev,cre,cr,crp=g:GetFirst():CheckActivateEffect(false,true,true)
+			Duel.GetCurrentChain=_GetCurrentChain
+			Duel.PayLPCost(tp,math.floor(Duel.GetLP(tp)/2))
+			Duel.Remove(g,POS_FACEUP,REASON_COST)
+			e:SetProperty(te:GetProperty())
+			local tg=te:GetTarget()
+			if tg then tg(e,tp,ceg,cep,cev,cre,cr,crp,1) end
+			te:SetLabelObject(e:GetLabelObject())
+			e:SetLabelObject(te)
+			Duel.ClearOperationInfo(0)
+		end
+end
+function c101107073.operation(e,tp,eg,ep,ev,re,r,rp)
 	local te=e:GetLabelObject()
 	if not te then return end
-	e:SetLabel(te:GetLabel())
 	e:SetLabelObject(te:GetLabelObject())
 	local op=te:GetOperation()
 	if op then op(e,tp,eg,ep,ev,re,r,rp) end
-	te:SetLabel(e:GetLabel())
-	te:SetLabelObject(e:GetLabelObject())
-	e:SetOperation(nil)
 end
-function c101107073.nodamcon(e,tp,eg,ep,ev,re,r,rp)
+function c101107073.damcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetLP(tp)<=2000 and Duel.GetBattleDamage(tp)>0
 end
-function c101107073.nodamop(e,tp,eg,ep,ev,re,r,rp)
+function c101107073.damop(e,tp,eg,ep,ev,re,r,rp)
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)

@@ -9,7 +9,6 @@ function c100426022.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,100426022+EFFECT_COUNT_CODE_OATH)
-	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
 	e1:SetCost(c100426022.cost)
 	e1:SetTarget(c100426022.target)
 	e1:SetOperation(c100426022.activate)
@@ -50,7 +49,7 @@ function c100426022.activate(e,tp,eg,ep,ev,re,r,rp)
 	local ft1=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	local g2=Duel.GetMatchingGroup(c100426022.spfilter1,tp,LOCATION_HAND+LOCATION_DECK,0,nil,e,tp)
 	if ft1>1 and Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
-	if ft1>0 and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil)
+	if ft1>0 and Duel.IsExistingMatchingCard(nil,tp,0,LOCATION_MZONE,1,nil)
 		and #g2>0 and Duel.SelectYesNo(tp,aux.Stringid(100426022,0)) then
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
@@ -72,6 +71,7 @@ function c100426022.activate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetReset(RESET_PHASE+PHASE_END+RESET_SELF_TURN,1)
 		end
 		Duel.RegisterEffect(e1,tp)
+	end
 end
 function c100426022.splimit(e,c)
 	return not c:IsAttribute(ATTRIBUTE_WATER)

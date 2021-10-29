@@ -11,7 +11,6 @@ function c101107039.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetTargetRange(1,0)
-	e1:SetCondition(c101107039.costcon)
 	e1:SetValue(c101107039.costchange)
 	c:RegisterEffect(e1)
 	--damage
@@ -40,11 +39,10 @@ end
 function c101107039.ffilter(c,fc,sub,mg,sg)
 	return c:IsFusionSetCard(0x273) and (not sg or not sg:IsExists(Card.IsFusionCode,1,c,c:GetFusionCode()))
 end
-function c101107039.costcon(e)
-	return Duel.GetLP(e:GetHandlerPlayer())<=2000
-end
 function c101107039.costchange(e,re,rp,val)
-	if re and ((re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsType(TYPE_TRAP)) or (re:GetHandler():IsSetCard(0x273) and re:IsActiveType(TYPE_MONSTER))) then
+	if Duel.GetLP(e:GetHandlerPlayer())<=2000 and re
+		and (re:GetHandler():IsSetCard(0x273) and re:IsActiveType(TYPE_MONSTER)
+			or re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsType(TYPE_TRAP)) then
 		return 0
 	else return val end
 end

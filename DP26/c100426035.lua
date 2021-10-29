@@ -1,4 +1,6 @@
 --海晶乙女の潜逅
+--
+--Script by JustFish
 function c100426035.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -10,17 +12,14 @@ function c100426035.initial_effect(c)
 	e1:SetOperation(c100426035.activate)
 	c:RegisterEffect(e1)
 end
-function c100426035.spgfilter(c,e,tp)
-	return c:IsSetCard(0x12b) and not c:IsType(TYPE_LINK) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-end
-function c100426035.spdfilter(c,e,tp)
-	return c:IsSetCard(0x12b) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function c100426035.spfilter(c,e,tp)
+	return c:IsSetCard(0x12b) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsType(TYPE_LINK)
 end
 function c100426035.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c100426035.spgfilter(chkc,e,tp) end
-	local b1=Duel.IsExistingTarget(c100426035.spgfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
-	local b2=Duel.IsEnvironment(91027843,tp,LOCATION_FZONE)
-		and Duel.IsExistingMatchingCard(c100426035.spdfilter,tp,LOCATION_DECK,0,1,nil,e,tp)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c100426035.spfilter(chkc,e,tp) end
+	local b1=Duel.IsExistingTarget(c100426035.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
+	local b2=Duel.IsExistingMatchingCard(c100426035.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp)
+		and Duel.IsEnvironment(91027843,tp,LOCATION_FZONE)
 	if chk==0 then return (b1 or b2) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
 	local op=0
 	if b1 and b2 then
@@ -34,7 +33,7 @@ function c100426035.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if op==0 then
 		e:SetProperty(EFFECT_FLAG_CARD_TARGET)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectTarget(tp,c100426035.spgfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+		local g=Duel.SelectTarget(tp,c100426035.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 	else
 		e:SetProperty(0)
@@ -42,28 +41,31 @@ function c100426035.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	end
 end
 function c100426035.activate(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	if e:GetLabel()==0 then
+	local op=e:GetLabel()
+	if op==0 then
 		local tc=Duel.GetFirstTarget()
 		if tc:IsRelateToEffect(e) then
 			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 		end
 	else
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,c100426035.spdfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-		if #g>0 then
-			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+			local g=Duel.SelectMatchingCard(tp,c100426035.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+			if g:GetCount()>0 then
+				Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+			end
 		end
 	end
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e1:SetTargetRange(1,0)
-	e1:SetTarget(c100426035.splimit)
-	e1:SetReset(RESET_PHASE+PHASE_END)
-	Duel.RegisterEffect(e1,tp)
+	if e:IsHasType(EFFECT_TYPE_ACTIVATE) then
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+		e1:SetTargetRange(1,0)
+		e1:SetTarget(c100426035.splimit)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
+	end
 end
 function c100426035.splimit(e,c)
 	return not c:IsAttribute(ATTRIBUTE_WATER)

@@ -1,19 +1,18 @@
 --ピースリア
+--
+--Script by Trishula9
 function c101107032.initial_effect(c)
-	c:EnableCounterPermit(0x61)
-	c:SetCounterLimit(0x61,4)
-	--battle indestructable
+	c:EnableCounterPermit(0x161)
+	c:SetCounterLimit(0x161,4)
+	--battle indes
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e1:SetRange(LOCATION_MZONE)
 	e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
 	e1:SetValue(1)
 	c:RegisterEffect(e1)
-	--place counter
+	--add counter
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101107032,0))
-	e2:SetCategory(CATEGORY_COUNTER+CATEGORY_DRAW+CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e2:SetCategory(CATEGORY_COUNTER)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_DAMAGE_STEP_END)
 	e2:SetTarget(c101107032.cttg)
@@ -21,24 +20,20 @@ function c101107032.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c101107032.cttg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	local bc=c:GetBattleTarget()
-	if chk==0 then return bc and c:IsLocation(LOCATION_MZONE) and c:IsRelateToBattle() 
-		and c:IsCanAddCounter(0x61,1) end
-end
-function c101107032.thfilter1(c)
-	return c:IsAbleToHand() and c:IsType(TYPE_MONSTER)
-end
-function c101107032.thfilter2(c)
-	return c:IsAbleToHand()
+	local tc=e:GetHandler():GetBattleTarget()
+	if chk==0 then return tc and e:GetHandler():IsCanAddCounter(0x161,1) end
+	Duel.SetOperationInfo(0,CATEGORY_COUNTER,nil,1,0,0x161)
 end
 function c101107032.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:AddCounter(0x61,1) then
-		local ct=c:GetCounter(0x61)
-		if ct==1 and Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_DECK,0,1,nil,TYPE_MONSTER) and Duel.SelectYesNo(tp,aux.Stringid(101107032,1)) then
-			Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(101107032,2))
-			local g=Duel.SelectMatchingCard(tp,Card.IsType,tp,LOCATION_DECK,0,1,1,nil,TYPE_MONSTER)
+	if c:IsRelateToEffect(e) then
+		c:AddCounter(0x161,1)
+		local ct=c:GetCounter(0x161)
+		local dg=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_DECK,0,nil,TYPE_MONSTER)
+		if ct==1 and dg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(101107032,0)) then
+			Duel.BreakEffect()
+			Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(101107032,1))
+			local g=dg:Select(tp,1,1,nil)
 			local tc=g:GetFirst()
 			if tc then
 				Duel.ShuffleDeck(tp)
@@ -46,19 +41,32 @@ function c101107032.ctop(e,tp,eg,ep,ev,re,r,rp)
 				Duel.ConfirmDecktop(tp,1)
 			end
 		end
-		if ct==2 and Duel.IsPlayerCanDraw(tp,1) and Duel.SelectYesNo(tp,aux.Stringid(101107032,1)) then
+		if ct==2 and Duel.IsPlayerCanDraw(tp,1) and Duel.SelectYesNo(tp,aux.Stringid(101107032,0)) then
+			Duel.BreakEffect()
 			Duel.Draw(tp,1,REASON_EFFECT)
 		end
-		if ct==3 and Duel.IsExistingMatchingCard(c101107032.thfilter1,tp,LOCATION_DECK,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(101107032,1)) then
+		local mg=Duel.GetMatchingGroup(c101107032.mfilter,tp,LOCATION_DECK,0,nil)
+		if ct==3 and mg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(101107032,0)) then
+			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-			local g=Duel.SelectMatchingCard(tp,c101107032.thfilter1,tp,LOCATION_DECK,0,1,1,nil)
-			Duel.SendtoHand(g,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,g)
+			local g=mg:Select(tp,1,1,nil)
+			if g:GetCount()>0 then
+				Duel.SendtoHand(g,nil,REASON_EFFECT)
+				Duel.ConfirmCards(1-tp,g)
+			end
 		end
-		if ct==4 and Duel.IsExistingMatchingCard(c101107032.thfilter2,tp,LOCATION_DECK,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(101107032,1)) then
+		local cg=Duel.GetMatchingGroup(Card.IsAbleToHand,tp,LOCATION_DECK,0,nil)
+		if ct==4 and cg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(101107032,0)) then
+			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-			local g=Duel.SelectMatchingCard(tp,c101107032.thfilter2,tp,LOCATION_DECK,0,1,1,nil)
-			Duel.SendtoHand(g,nil,REASON_EFFECT)
+			local g=cg:Select(tp,1,1,nil)
+			if g:GetCount()>0 then
+				Duel.SendtoHand(g,nil,REASON_EFFECT)
+				Duel.ConfirmCards(1-tp,g)
+			end
 		end
 	end
+end
+function c101107032.mfilter(c)
+	return c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
