@@ -27,21 +27,21 @@ function c100426017.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e3:SetTargetRange(1,1)
 	e3:SetCondition(c100426017.condition)
+	e3:SetTargetRange(1,1)
 	e3:SetTarget(c100426017.sumlimit)
 	c:RegisterEffect(e3)
+	local e4=e3:Clone()
+	e4:SetCode(EFFECT_CANNOT_SUMMON)
+	c:RegisterEffect(e4)
 	local e5=e3:Clone()
-	e5:SetCode(EFFECT_CANNOT_SUMMON)
+	e5:SetCode(EFFECT_CANNOT_FLIP_SUMMON)
 	c:RegisterEffect(e5)
-	local e6=e3:Clone()
-	e6:SetCode(EFFECT_CANNOT_FLIP_SUMMON)
-	c:RegisterEffect(e6)
 end
 c100426017[0]=0
 c100426017[1]=0
 function c100426017.thfilter(c)
-	return ((c:IsSetCard(0x275,0x276) and c:IsType(TYPE_SPELL+TYPE_TRAP)) or c:IsCode(22702055)) and c:IsAbleToHand()
+	return (c:IsCode(22702055) or (c:IsSetCard(0x275,0x276)and c:IsType(TYPE_SPELL+TYPE_TRAP))) and c:IsAbleToHand()
 end
 function c100426017.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c100426017.thfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -80,7 +80,7 @@ function c100426017.adjustop(e,tp,eg,ep,ev,re,r,rp)
 	if g1:GetCount()==0 then c100426017[tp]=0
 	else
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local sg=g1:SelectSubGroup(tp,c100426017.tgselect,false,1,#g1,g1)
+		local sg=g1:SelectSubGroup(tp,c100426017.tgselect,false,#g1-1,#g1-1,g1)
 		if sg then
 			g1:Sub(g1-sg)   
 		else
@@ -91,9 +91,9 @@ function c100426017.adjustop(e,tp,eg,ep,ev,re,r,rp)
 	if g2:GetCount()==0 then c100426017[1-tp]=0
 	else
 		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_TOGRAVE)
-		local sg=g2:SelectSubGroup(1-tp,c100426017.tgselect,false,1,#g2,g2)
+		local sg=g2:SelectSubGroup(1-tp,c100426017.tgselect,false,#g2-1,#g2-1,g2)
 		if sg then
-			g2:Sub(g2-sg)		  
+			g2:Sub(g2-sg)		 
 		else
 			g2:Sub(g2)
 		end
