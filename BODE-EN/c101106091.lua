@@ -1,4 +1,5 @@
 --Beetrooper Squad
+--Scripted by: XGlitchy30
 function c101106091.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -13,50 +14,43 @@ function c101106091.initial_effect(c)
 	e1:SetOperation(c101106091.activate)
 	c:RegisterEffect(e1)
 end
-function c101106091.costfilter(c,tp)
-	return c:IsRace(RACE_INSECT) and c:GetTextAttack()>=1000 and Duel.GetMZoneCount(tp,c)>0 and not c:IsType(TYPE_TOKEN)
-end
 function c101106091.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		e:SetLabel(100)
-		return true
-	end
+	e:SetLabel(100)
+	if chk==0 then return true end
+end
+function c101106091.cfilter(c,tp)
+	return c:IsType(TYPE_MONSTER) and not c:IsType(TYPE_TOKEN) and c:IsRace(RACE_INSECT) and c:GetBaseAttack()>=1000
+		and Duel.GetMZoneCount(tp,c)>0 and (c:IsControler(tp) or c:IsFaceup())
 end
 function c101106091.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		if e:GetLabel()~=100 then return false end
 		e:SetLabel(0)
-		return Duel.CheckReleaseGroup(tp,c101106091.costfilter,1,nil,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		return Duel.CheckReleaseGroup(tp,c101106091.cfilter,1,nil,tp)
+			and Duel.IsPlayerCanSpecialSummonMonster(tp,64213018,0x170,TYPES_TOKEN_MONSTER,1000,1000,3,RACE_INSECT,ATTRIBUTE_EARTH)
 	end
-	local g=Duel.SelectReleaseGroup(tp,c101106091.costfilter,1,1,nil,tp)
-	local atk=g:GetFirst():GetTextAttack()
+	local g=Duel.SelectReleaseGroup(tp,c101106091.cfilter,1,1,nil,tp)
+	local atk=g:GetFirst():GetBaseAttack()
 	Duel.Release(g,REASON_COST)
-	local ct=math.floor(atk/1000)
-	e:SetLabel(ct)
+	e:SetLabel(math.floor(atk/1000))
 	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,0)
 end
 function c101106091.activate(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local ct=e:GetLabel()
-	if ft>0 and ct>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,64213018,0x172,TYPES_TOKEN_MONSTER,1000,1000,3,RACE_INSECT,ATTRIBUTE_EARTH)then
-		local count=math.min(ft,ct)
-		if Duel.IsPlayerAffectedByEffect(tp,59822133) then count=1 end
-		if count>1 then
-			local num={}
-			local i=1
-			while i<=count do
-				num[i]=i
-				i=i+1
-			end
-			Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(101106091,1))
-			count=Duel.AnnounceNumber(tp,table.unpack(num))
-		end
-		repeat
-			local token=Duel.CreateToken(tp,101106191)
-			Duel.SpecialSummonStep(token,0,tp,tp,false,false,POS_FACEUP)
-			count=count-1
-		until count==0
-		Duel.SpecialSummonComplete()
+	if ft<=0 or not Duel.IsPlayerCanSpecialSummonMonster(tp,64213018,0x170,TYPES_TOKEN_MONSTER,1000,1000,3,RACE_INSECT,ATTRIBUTE_EARTH) then return end
+	local ct=(Duel.IsPlayerAffectedByEffect(tp,59822133)) and 1 or math.min(ft,e:GetLabel())
+	local range={}
+	for i=1,ct do
+		table.insert(range,i)
 	end
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(101106091,1))
+	local n=Duel.AnnounceNumber(tp,table.unpack(range)) 
+	local sg=Group.CreateGroup()
+	for i=1,n do
+		local token=Duel.CreateToken(tp,101106091+100)
+		sg:AddCard(token)
+	end
+	if #sg<=0 then return end
+	Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 end

@@ -1,17 +1,19 @@
 --Beetrooper Landing
+--Scripted by: XGlitchy30
 function c101106090.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	e1:SetDescription(aux.Stringid(101106090,0))
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetTarget(c101106090.target)
 	e1:SetOperation(c101106090.activate)
 	c:RegisterEffect(e1)
-	--salvage
+	--recycle
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetDescription(aux.Stringid(101106090,1))
+	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetCountLimit(1,101106090)
@@ -74,7 +76,7 @@ function c101106090.activate(e,tp,eg,ep,ev,re,r,rp)
 		else
 			local mat2=Duel.SelectFusionMaterial(tp,tc,mg2,nil,chkf)
 			local fop=ce:GetOperation()
-			fop(ce,e,tp,tc,mat2)
+			fop(ce,e,tp,tc,mat2,SUMMON_TYPE_FUSION)
 		end
 		tc:CompleteProcedure()
 	end
@@ -83,19 +85,21 @@ function c101106090.cfilter(c)
 	return c:IsRace(RACE_INSECT) and c:IsAbleToRemoveAsCost()
 end
 function c101106090.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101106090.cfilter,tp,LOCATION_GRAVE,0,2,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c101106090.cfilter,tp,LOCATION_GRAVE,0,2,e:GetHandler()) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c101106090.cfilter,tp,LOCATION_GRAVE,0,2,2,nil)
-	Duel.Remove(g,POS_FACEUP,REASON_COST)
+	local g=Duel.SelectMatchingCard(tp,c101106090.cfilter,tp,LOCATION_GRAVE,0,2,2,e:GetHandler())
+	if #g>0 then
+		Duel.Remove(g,POS_FACEUP,REASON_COST)
+	end
 end
 function c101106090.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToHand() end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,e:GetHandler(),1,0,0)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsAbleToHand() end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,c,1,0,0)
 end
 function c101106090.thop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.SendtoHand(c,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,c)
 	end
 end

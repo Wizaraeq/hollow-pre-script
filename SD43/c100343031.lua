@@ -9,6 +9,7 @@ function c100343031.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,100343031)
+	e1:SetHintTiming(0,TIMING_END_PHASE)
 	e1:SetCost(c100343031.spcost)
 	e1:SetTarget(c100343031.sptg)
 	e1:SetOperation(c100343031.spop)
@@ -16,9 +17,11 @@ function c100343031.initial_effect(c)
 	--to hand
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetHintTiming(0,TIMING_END_PHASE)
 	e2:SetCountLimit(1,100343031)
 	e2:SetCost(aux.bfgcost)
 	e2:SetTarget(c100343031.thtg)
@@ -40,7 +43,7 @@ function c100343031.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		return ft>0 and Duel.IsExistingMatchingCard(c100343031.costfilter,tp,LOCATION_GRAVE,0,1,nil)
 			and Duel.IsPlayerCanSpecialSummonMonster(tp,100343131,0,TYPES_TOKEN_MONSTER,2500,2000,8,RACE_DRAGON,ATTRIBUTE_DARK)
 	end
-	e:SetLabel(0)   
+	e:SetLabel(0)
 	if ft>1 and Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectMatchingCard(tp,c100343031.costfilter,tp,LOCATION_GRAVE,0,1,ft,nil)
@@ -50,16 +53,17 @@ function c100343031.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,#g,0,0)
 end
 function c100343031.spop(e,tp,eg,ep,ev,re,r,rp)
+	local ct=e:GetLabel()
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if ft<=0 or not Duel.IsPlayerCanSpecialSummonMonster(tp,100343131,0,TYPES_TOKEN_MONSTER,2500,2000,8,RACE_DRAGON,ATTRIBUTE_DARK) then return end
-	if ft>1 and Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
-	for i=1,math.min(ft,e:GetLabel()) do
+	if ct>ft or not Duel.IsPlayerCanSpecialSummonMonster(tp,100343131,0,TYPES_TOKEN_MONSTER,2500,2000,8,RACE_DRAGON,ATTRIBUTE_DARK) then return end
+	if ct>1 and Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
+	for i=1,ct do
 		local token=Duel.CreateToken(tp,100343131)
 		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
 function c100343031.thfilter(c)
-	return (c:IsCode(68468459) or aux.IsCodeListed(c,68468459) and c:IsType(TYPE_MONSTER)) and c:IsAbleToHand()
+	return (c:IsCode(68468459) or aux.IsCodeListed(c,68468459) and c:IsType(TYPE_MONSTER)) and c:IsFaceup() and c:IsAbleToHand()
 end
 function c100343031.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_REMOVED) and chkc:IsControler(tp) and c100343031.thfilter(chkc) end

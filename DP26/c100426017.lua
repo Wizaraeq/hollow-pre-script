@@ -41,7 +41,7 @@ end
 c100426017[0]=0
 c100426017[1]=0
 function c100426017.thfilter(c)
-	return (c:IsCode(22702055) or (c:IsSetCard(0x275,0x276)and c:IsType(TYPE_SPELL+TYPE_TRAP))) and c:IsAbleToHand()
+	return (c:IsCode(22702055) or c:IsSetCard(0x275,0x276) and c:IsType(TYPE_SPELL+TYPE_TRAP)) and c:IsAbleToHand()
 end
 function c100426017.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c100426017.thfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -82,7 +82,7 @@ function c100426017.adjustop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 		local sg=g1:SelectSubGroup(tp,c100426017.tgselect,false,#g1-1,#g1-1,g1)
 		if sg then
-			g1:Sub(g1-sg)   
+			g1:Sub(g1-sg)
 		else
 			g1:Sub(g1)
 		end
@@ -93,7 +93,7 @@ function c100426017.adjustop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_TOGRAVE)
 		local sg=g2:SelectSubGroup(1-tp,c100426017.tgselect,false,#g2-1,#g2-1,g2)
 		if sg then
-			g2:Sub(g2-sg)		 
+			g2:Sub(g2-sg)
 		else
 			g2:Sub(g2)
 		end
