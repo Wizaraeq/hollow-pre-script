@@ -53,7 +53,7 @@ function c100426019.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100426019.discon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsEnvironment(22702055) and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
+	return Duel.IsEnvironment(22702055)
 		and ep==1-tp and re:IsActiveType(TYPE_SPELL+TYPE_MONSTER) and Duel.IsChainDisablable(ev)
 end
 function c100426019.distg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -62,7 +62,8 @@ function c100426019.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c100426019.disop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if Duel.NegateEffect(ev) and c:IsRelateToEffect(e) and Duel.SelectYesNo(tp,aux.Stringid(100426019,2)) then
+	if Duel.NegateEffect(ev) and c:IsRelateToEffect(e) and c:IsFaceup()
+		and Duel.SelectYesNo(tp,aux.Stringid(100426019,2)) then
 		Duel.BreakEffect()
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
