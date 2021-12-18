@@ -12,7 +12,7 @@ function c101108041.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,101108041)
 	e1:SetTarget(c101108041.tgtg)
-	e1:SetOperation(c101108041.tgop)	
+	e1:SetOperation(c101108041.tgop)
 	c:RegisterEffect(e1)
 	--spsummon
 	local e2=Effect.CreateEffect(c)
@@ -48,11 +48,11 @@ function c101108041.tgop(e,tp,eg,ep,ev,re,r,rp)
 		c:RegisterEffect(e1)
 	end
 end
-function c101108041.cfilter(c)
-	return c:GetPreviousRaceOnField()&RACE_ZOMBIE~=0
+function c101108041.cfilter(c,tp)
+	return c:GetPreviousRaceOnField()&RACE_ZOMBIE~=0 and c:IsPreviousControler(tp)
 end
 function c101108041.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(c101108041.cfilter,1,nil) and not eg:IsContains(e:GetHandler())
+	return eg:IsExists(c101108041.cfilter,1,nil,tp)
 end
 function c101108041.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0

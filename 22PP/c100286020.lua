@@ -6,6 +6,7 @@ function c100286020.initial_effect(c)
 	aux.EnablePendulumAttribute(c)
 	--destroy
 	local e1=Effect.CreateEffect(c)
+	e1:SetCategory(CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e1:SetRange(LOCATION_PZONE)

@@ -68,4 +68,4 @@ end
 function c100286015.damop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Damage(tp,Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)*300,REASON_EFFECT)
 	Duel.Damage(1-tp,Duel.GetFieldGroupCount(1-tp,LOCATION_HAND,0)*300,REASON_EFFECT)
-end 
+end

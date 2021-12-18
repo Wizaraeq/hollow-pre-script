@@ -54,5 +54,5 @@ function c100286014.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100286014.spfilter(c,e,tp)
-	return not c.xyz_number and c:IsRankBelow(3) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return not c:IsSetCard(0x48) and c:IsRankBelow(3) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end 

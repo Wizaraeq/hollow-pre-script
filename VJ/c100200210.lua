@@ -37,34 +37,34 @@ function c100200210.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c100200210.tdfilter(c)
-	return (c:IsLevel(8) or c:IsRank(8)) and (c:IsType(TYPE_SYNCHRO) or c:IsType(TYPE_FUSION) or c:IsType(TYPE_RITUAL) or c:IsType(TYPE_XYZ))
+	return ((c:IsType(TYPE_RITUAL+TYPE_FUSION+TYPE_SYNCHRO) and c:IsLevel(8))
+		or (c:IsType(TYPE_XYZ) and c:IsRank(8))) and c:IsAbleToDeck()
 end
 function c100200210.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local c=e:GetHandler()
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and chkc:IsAbleToDeckAsCost() and c100200210.tdfilter(chkc) end
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c100200210.tdfilter(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(c100200210.tdfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectTarget(tp,c100200210.tdfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	local tc=g:GetFirst()
-	if (tc:IsType(TYPE_RITUAL) or tc:IsType(TYPE_FUSION)) then
-		Duel.SetOperationInfo(0,CATEGORY_TODECK,tc,1,0,0)
-		Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
-	else
-		Duel.SetOperationInfo(0,CATEGORY_TODECK,tc,1,0,0)
-		Duel.SetOperationInfo(0,CATEGORY_ATKCHANGE,c,1,0,1000)
-	end
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
 end
 function c100200210.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	local c=e:GetHandler()
-	if tc and tc:IsRelateToEffect(e) and (tc:IsType(TYPE_RITUAL) or tc:IsType(TYPE_FUSION)) and Duel.SendtoDeck(tc,nil,2,REASON_EFFECT)>0 then
-		Duel.Draw(tp,1,REASON_EFFECT)
-	elseif tc and tc:IsRelateToEffect(e) and (tc:IsType(TYPE_SYNCHRO) or tc:IsType(TYPE_XYZ)) and Duel.SendtoDeck(tc,nil,2,REASON_EFFECT)>0 then
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		e1:SetValue(1000)
-		c:RegisterEffect(e1)
+	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 and
+		((tc:IsType(TYPE_RITUAL) and tc:IsLocation(LOCATION_DECK)) or
+		(tc:IsType(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ) and tc:IsLocation(LOCATION_EXTRA))) then
+		if tc:IsType(TYPE_RITUAL+TYPE_FUSION) then
+			Duel.BreakEffect()
+			Duel.ShuffleDeck(tp)
+			Duel.Draw(tp,1,REASON_EFFECT)
+		end
+		if tc:IsType(TYPE_SYNCHRO+TYPE_XYZ) then
+			Duel.BreakEffect()
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_UPDATE_ATTACK)
+			e1:SetValue(1000)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
+			e:GetHandler():RegisterEffect(e1)
+		end
 	end
-end 
+end
