@@ -1,17 +1,19 @@
 --捕食植物ブフォリキュラ
+--
+--Script by JSY1728
 function c101108018.initial_effect(c)
-	--pendulum summon
 	aux.EnablePendulumAttribute(c)
-	-- Fusion Summon
+	--Pendulum Effect : Fusion Summon
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(101108018,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_PZONE)
 	e1:SetCountLimit(1,101108018)
-	e1:SetTarget(c101108018.sptg)
-	e1:SetOperation(c101108018.spop)
+	e1:SetTarget(c101108018.fustg)
+	e1:SetOperation(c101108018.fusop)
 	c:RegisterEffect(e1)
-	-- Add
+	--Monster Effect : Send to Hand (Pendulum Monster)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(101108018,1))
 	e2:SetCategory(CATEGORY_TOHAND)
@@ -24,35 +26,35 @@ function c101108018.initial_effect(c)
 	e2:SetOperation(c101108018.thop)
 	c:RegisterEffect(e2)
 end
-function c101108018.pffilter1(c,e)
+function c101108018.fusfilter1(c,e)
 	return not c:IsImmuneToEffect(e)
 end
-function c101108018.pffilter2(c,e,tp,m,f,chkf)
+function c101108018.fusfilter2(c,e,tp,m,f,chkf)
 	return c:IsType(TYPE_FUSION) and c:IsAttribute(ATTRIBUTE_DARK) and (not f or f(c))
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
 end
-function c101108018.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function c101108018.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
 		local mg1=Duel.GetFusionMaterial(tp)
-		local res=Duel.IsExistingMatchingCard(c101108018.pffilter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
+		local res=Duel.IsExistingMatchingCard(c101108018.fusfilter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
 		if not res then
 			local ce=Duel.GetChainMaterial(tp)
 			if ce~=nil then
 				local fgroup=ce:GetTarget()
 				local mg2=fgroup(ce,e,tp)
 				local mf=ce:GetValue()
-				res=Duel.IsExistingMatchingCard(c101108018.pffilter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg2,mf,chkf)
+				res=Duel.IsExistingMatchingCard(c101108018.fusfilter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg2,mf,chkf)
 			end
 		end
 		return res
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-function c101108018.spop(e,tp,eg,ep,ev,re,r,rp)
+function c101108018.fusop(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
-	local mg1=Duel.GetFusionMaterial(tp):Filter(c101108018.pffilter1,nil,e)
-	local sg1=Duel.GetMatchingGroup(c101108018.pffilter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,chkf)
+	local mg1=Duel.GetFusionMaterial(tp):Filter(c101108018.fusfilter1,nil,e)
+	local sg1=Duel.GetMatchingGroup(c101108018.fusfilter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,chkf)
 	local mg2=nil
 	local sg2=nil
 	local ce=Duel.GetChainMaterial(tp)
@@ -60,7 +62,7 @@ function c101108018.spop(e,tp,eg,ep,ev,re,r,rp)
 		local fgroup=ce:GetTarget()
 		mg2=fgroup(ce,e,tp)
 		local mf=ce:GetValue()
-		sg2=Duel.GetMatchingGroup(c101108018.pffilter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg2,mf,chkf)
+		sg2=Duel.GetMatchingGroup(c101108018.fusfilter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg2,mf,chkf)
 	end
 	if sg1:GetCount()>0 or (sg2~=nil and sg2:GetCount()>0) then
 		local sg=sg1:Clone()
@@ -84,12 +86,10 @@ function c101108018.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c101108018.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return r==REASON_FUSION and c:IsFaceup()
-		and c:IsLocation(LOCATION_GRAVE+LOCATION_EXTRA) 
+	return (c:IsLocation(LOCATION_GRAVE) or c:IsFaceup() and c:IsLocation(LOCATION_EXTRA)) and r==REASON_FUSION
 end
 function c101108018.thfilter(c)
-	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_DARK) and c:IsType(TYPE_PENDULUM)
-		and not c:IsCode(101108018) and c:IsAbleToHand()
+	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_DARK) and c:IsType(TYPE_PENDULUM) and not c:IsCode(101108018) and c:IsAbleToHand()
 end
 function c101108018.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c101108018.thfilter,tp,LOCATION_EXTRA,0,1,nil) end
@@ -98,7 +98,8 @@ end
 function c101108018.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectMatchingCard(tp,c101108018.thfilter,tp,LOCATION_EXTRA,0,1,1,nil)
-	if #g>0 then
-		Duel.SendtoHand(g,tp,REASON_EFFECT)
+	if g:GetCount()>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
 	end
-end 
+end

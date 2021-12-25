@@ -1,17 +1,19 @@
 --捕食植物ビブリスプ
+--
+--Script by JSY1728
 function c101108017.initial_effect(c)
-	--to hand
+	--Effect 1 : Search
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101108017,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e1:SetCode(EVENT_TO_GRAVE)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
+	e1:SetCode(EVENT_TO_GRAVE)
 	e1:SetCountLimit(1,101108017)
 	e1:SetTarget(c101108017.thtg)
 	e1:SetOperation(c101108017.thop)
 	c:RegisterEffect(e1)
-	--special summon
+	--Effect 2 : Special Summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(101108017,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -24,7 +26,7 @@ function c101108017.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c101108017.thfilter(c)
-	return c:IsSetCard(0x10f3) and c:IsAbleToHand() and not c:IsCode(5929801)
+	return c:IsSetCard(0x10f3) and c:IsType(TYPE_MONSTER) and not c:IsCode(101108017) and c:IsAbleToHand()
 end
 function c101108017.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c101108017.thfilter,tp,LOCATION_DECK,0,1,nil) end
