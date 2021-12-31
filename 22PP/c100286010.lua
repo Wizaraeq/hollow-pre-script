@@ -22,7 +22,7 @@ function c100286010.initial_effect(c)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCondition(aux.exccon)
-	e2:SetCountLimit(1,100286010+100)
+	e2:SetCountLimit(1,100286110)
 	e2:SetCost(c100286010.thcost)
 	e2:SetTarget(c100286010.target1)
 	e2:SetOperation(c100286010.activate1)
@@ -55,7 +55,7 @@ end
 function c100286010.target1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_REMOVED) and chkc:IsControler(tp) and c100286010.filter0(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(c100286010.filter0,tp,LOCATION_REMOVED,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectTarget(tp,c100286010.filter0,tp,LOCATION_REMOVED,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end

@@ -6,7 +6,6 @@ function c100286020.initial_effect(c)
 	aux.EnablePendulumAttribute(c)
 	--destroy
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e1:SetRange(LOCATION_PZONE)
@@ -26,7 +25,6 @@ function c100286020.initial_effect(c)
 	c:RegisterEffect(e2)
 	--pendulum set
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(100286020,1))
 	e3:SetCategory(CATEGORY_LEAVE_GRAVE)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_BATTLE_DAMAGE)
@@ -38,7 +36,6 @@ function c100286020.initial_effect(c)
 	c:RegisterEffect(e3)
 	--end battle phase
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(100286020,2))
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e4:SetCode(EVENT_DESTROYED)
 	e4:SetCondition(c100286020.endcon)
@@ -83,6 +80,7 @@ function c100286020.pencon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c100286020.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1) end
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,e:GetHandler(),1,0,0)
 end
 function c100286020.penop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return end

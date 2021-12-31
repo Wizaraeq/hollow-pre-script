@@ -29,7 +29,7 @@ function c100286011.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e4:SetCode(EVENT_PHASE+PHASE_END)
 	e4:SetRange(LOCATION_REMOVED)
-	e4:SetCountLimit(1,100286011+100)
+	e4:SetCountLimit(1,100286111)
 	e4:SetCondition(c100286011.sumcon)
 	e4:SetTarget(c100286011.sumtg)
 	e4:SetOperation(c100286011.sumop)
@@ -63,8 +63,6 @@ end
 function c100286011.sumtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.IsExistingMatchingCard(c100286011.thcheck,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 function c100286011.sumop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_OPERATECARD)

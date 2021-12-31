@@ -1,7 +1,9 @@
 --ブラックマンバ
+--script by Raye
 function c100286005.initial_effect(c)
 	--special summon
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(100286005,0))
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
@@ -9,49 +11,51 @@ function c100286005.initial_effect(c)
 	e1:SetCountLimit(1,100286005+EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(c100286005.spcon)
 	c:RegisterEffect(e1)
-	--position
+	--to grave
 	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(100286005,1))
 	e2:SetCategory(CATEGORY_TOGRAVE+CATEGORY_POSITION)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e2:SetCountLimit(1,100286005+100)
-	e2:SetTarget(c100286005.destg)
-	e2:SetOperation(c100286005.desop)
+	e2:SetTarget(c100286005.tgtg)
+	e2:SetOperation(c100286005.tgop)
 	c:RegisterEffect(e2)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
 end
-function c100286005.filter(c)
+function c100286005.cfilter(c)
 	return c:IsFaceup() and c:IsRace(RACE_REPTILE)
 end
 function c100286005.spcon(e,c)
 	if c==nil then return true end
-	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(c100286005.filter,c:GetControler(),LOCATION_MZONE,0,1,nil)
+	local tp=c:GetControler()
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(c100286005.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
-function c100286005.poscheck(c)
-	return c:IsCanChangePosition()
-end
-function c100286005.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c100286005.poscheck(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c100286005.poscheck,tp,0,LOCATION_MZONE,1,nil) and Duel.IsExistingMatchingCard(c100286005.tgcheck,tp,LOCATION_DECK,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
-	local g=Duel.SelectTarget(tp,c100286005.poscheck,tp,0,LOCATION_MZONE,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_POSITION,g,1,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
-end
-function c100286005.tgcheck(c)
+function c100286005.tgfilter(c)
 	return c:IsRace(RACE_REPTILE) and c:IsAbleToGrave()
 end
-function c100286005.desop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local sg=Duel.SelectMatchingCard(tp,c100286005.tgcheck,tp,LOCATION_DECK,0,1,1,nil)
-		if sg:GetCount()>0 then
-			Duel.SendtoGrave(sg,REASON_EFFECT)
+function c100286005.posfilter(c)
+	return c:IsCanChangePosition()
+end
+function c100286005.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c100286005.posfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c100286005.posfilter,tp,0,LOCATION_MZONE,1,nil)
+		and Duel.IsExistingMatchingCard(c100286005.tgfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
+	local g=Duel.SelectTarget(tp,c100286005.posfilter,tp,0,LOCATION_MZONE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_POSITION,g,g:GetCount(),0,0)
+end
+function c100286005.tgop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,c100286005.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if g:GetCount()>0 and Duel.SendtoGrave(g,REASON_EFFECT)~=0 and g:GetFirst():IsLocation(LOCATION_GRAVE) then
+		local tc=Duel.GetFirstTarget()
+		if tc:IsRelateToEffect(e) then
 			Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
 		end
 	end

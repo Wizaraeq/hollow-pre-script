@@ -27,7 +27,7 @@ function c100286004.initial_effect(c)
 	e3:SetCondition(c100286004.tgcon)
 	e3:SetTarget(c100286004.tgtg)
 	e3:SetOperation(c100286004.tgop)
-	c:RegisterEffect(e3)	
+	c:RegisterEffect(e3)
 	if not c100286004.global_check then
 		c100286004.global_check=true
 		local ge1=Effect.GlobalEffect(c)
@@ -37,17 +37,11 @@ function c100286004.initial_effect(c)
 		Duel.RegisterEffect(ge1,0)
 	end
 end
-function c100286004.check(c)
-	return c
-end
 function c100286004.checkop(e,tp,eg,ep,ev,re,r,rp)
-	if c100286004.check(Duel.GetAttacker()) or c100286004.check(Duel.GetAttackTarget()) then
-		Duel.RegisterFlagEffect(tp,100286004,RESET_PHASE+PHASE_END,0,1)
-		Duel.RegisterFlagEffect(1-tp,100286004,RESET_PHASE+PHASE_END,0,1)
-	end
+	if Duel.GetAttackTarget() then Duel.RegisterFlagEffect(0,100286004,RESET_PHASE+PHASE_END,0,1) end
 end
 function c100286004.sscon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFlagEffect(tp,100286004)==0 and Duel.GetCurrentPhase()==PHASE_MAIN2
+	return Duel.GetFlagEffect(0,100286004)==0 and Duel.GetCurrentPhase()==PHASE_MAIN2
 end
 function c100286004.sscost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
@@ -67,7 +61,7 @@ function c100286004.ssop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c100286004.tgcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFlagEffect(tp,100286004)>0
+	return Duel.GetFlagEffect(0,100286004)>0
 end
 function c100286004.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -75,4 +69,4 @@ function c100286004.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c100286004.tgop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.DiscardDeck(Duel.GetTurnPlayer(),5,REASON_EFFECT)
-end 
+end
