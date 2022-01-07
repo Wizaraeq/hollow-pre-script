@@ -108,10 +108,10 @@ function c101108050.retcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnCount()~=e:GetLabel() and tc:GetFlagEffect(101108050)~=0
 end
 function c101108050.retop(e,tp,eg,ep,ev,re,r,rp)
-    local tc=e:GetLabelObject()
-    if not Duel.ReturnToField(tc)~=0 then
-    Duel.MoveToField(tc,tc:GetPreviousControler(),tc:GetPreviousControler(),LOCATION_MZONE,tc:GetPreviousPosition(),true)
-    end
+	local tc=e:GetLabelObject()
+	Duel.ReturnToField(tc,tc:GetPreviousPosition())~=0 then
+	Duel.MoveToField(tc,tc:GetPreviousControler(),tc:GetPreviousControler(),LOCATION_MZONE,tc:GetPreviousPosition(),true)
+	end
 end
 function c101108050.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
