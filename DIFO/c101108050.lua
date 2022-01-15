@@ -109,7 +109,7 @@ function c101108050.retcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c101108050.retop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	Duel.ReturnToField(tc,tc:GetPreviousPosition())~=0 then
+	if Duel.ReturnToField(tc,tc:GetPreviousPosition())~=0 and not tc:IsType(TYPE_TOKEN) then
 	Duel.MoveToField(tc,tc:GetPreviousControler(),tc:GetPreviousControler(),LOCATION_MZONE,tc:GetPreviousPosition(),true)
 	end
 end

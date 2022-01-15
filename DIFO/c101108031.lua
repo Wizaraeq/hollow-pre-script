@@ -6,8 +6,7 @@ function c101108031.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101108031,0))
 	e1:SetCategory(CATEGORY_POSITION+CATEGORY_TOHAND)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_FLIP+EFFECT_TYPE_TRIGGER_F)
-	e1:SetProperty(EFFECT_FLAG_DELAY)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_FLIP)
 	e1:SetCountLimit(1,101108031)
 	e1:SetTarget(c101108031.target)
 	e1:SetOperation(c101108031.operation)
@@ -56,8 +55,8 @@ function c101108031.operation(e,tp,eg,ep,ev,re,r,rp)
 				setg2=sg2:SelectSubGroup(1-turnp,c101108031.fselect,false,1,math.min(ct2,ft2+1),ft2)
 			end
 			if sg1:GetCount()>0 or sg2:GetCount()>0 then Duel.BreakEffect() end
-			if sg1:GetCount()>0 then Duel.SSet(turnp,setg1,turnp,false) end
-			if sg2:GetCount()>0 then Duel.SSet(1-turnp,setg2,1-turnp,false) end
+			if sg1:GetCount()>0 then Duel.SSet(turnp,sg1,turnp,false) end
+			if sg2:GetCount()>0 then Duel.SSet(1-turnp,sg2,1-turnp,false) end
 		end
 	end
 end
