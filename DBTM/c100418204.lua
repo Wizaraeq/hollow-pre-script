@@ -41,7 +41,7 @@ function c100418204.cfilter(c)
 	return c:IsSetCard(0x27c) and c:IsAttribute(ATTRIBUTE_WATER) and c:IsFaceup()
 end
 function c100418204.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsEnvironment(100418211) or Duel.IsExistingMatchingCard(c100418204.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsEnvironment(100418211,PLAYER_ALL,LOCATION_FZONE) or Duel.IsExistingMatchingCard(c100418204.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c100418204.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -110,7 +110,6 @@ end
 function c100418204.mvop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local chkf=tp
-	if not c:IsRelateToEffect(e) or c:IsImmuneToEffect(e) then return end
 	local mg1=Duel.GetFusionMaterial(tp):Filter(c100418204.ffilter1,nil,e)
 	mg1:Merge(Duel.GetMatchingGroup(c100418204.ffilter0,tp,LOCATION_PZONE,0,nil,e))
 	local sg1=Duel.GetMatchingGroup(c100418204.ffilter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,chkf)

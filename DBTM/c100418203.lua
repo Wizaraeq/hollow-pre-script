@@ -40,7 +40,7 @@ function c100418203.cfilter(c)
 	return c:IsSetCard(0x27c) and c:IsAttribute(ATTRIBUTE_WATER) and c:IsFaceup()
 end
 function c100418203.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsEnvironment(100418211) or Duel.IsExistingMatchingCard(c100418203.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsEnvironment(100418211,PLAYER_ALL,LOCATION_FZONE) or Duel.IsExistingMatchingCard(c100418203.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c100418203.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -81,7 +81,7 @@ function c100418203.seqop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOZONE)
 	local i=0
 	if sq~=tp then i=16 end
-	local s=Duel.SelectDisableField(tp,1,LOCATION_MZONE,LOCATION_MZONE,~(flag<<i))
+	local s=Duel.SelectField(tp,1,LOCATION_MZONE,LOCATION_MZONE,~(flag<<i))
 	local nseq=math.log(s,2)-i
 	Duel.MoveSequence(tc,nseq)
 end
@@ -92,7 +92,7 @@ function c100418203.mvcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c100418203.spfilter(c,e,tp)
 	local zone=1<<c:GetSequence()
-	return c:IsSetCard(0x27c) and c:IsFaceup()
+	return c:IsSetCard(0x27c) and c:IsFaceup() and c:GetSequence()<=4 and c:GetOriginalType()&TYPE_MONSTER~=0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,tp,zone)
 end
 function c100418203.mvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -104,7 +104,8 @@ function c100418203.mvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c100418203.mvop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP,1<<tc:GetSequence())
+	local zone=1<<tc:GetSequence()
+	if tc:IsRelateToEffect(e) then
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP,zone)
 	end
 end

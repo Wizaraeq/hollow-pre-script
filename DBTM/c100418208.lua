@@ -40,7 +40,7 @@ function c100418208.cfilter(c)
 	return c:IsSetCard(0x27c) and c:IsAttribute(ATTRIBUTE_FIRE) and c:IsFaceup()
 end
 function c100418208.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsEnvironment(100418212) or Duel.IsExistingMatchingCard(c100418208.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsEnvironment(100418212,PLAYER_ALL,LOCATION_FZONE) or Duel.IsExistingMatchingCard(c100418208.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c100418208.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -93,26 +93,18 @@ end
 function c100418208.mvop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.GetControl(tc,tp)~=0 then
+	if tc:IsRelateToEffect(e) and tc:IsFaceup() and Duel.GetControl(tc,tp)~=0 then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_ATTACK)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
+		local e2=e1:Clone()
 		e2:SetCode(EFFECT_CANNOT_TRIGGER)
-		e2:SetCondition(c100418208.limitcon)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e2)
-		local e3=Effect.CreateEffect(c)
-		e3:SetType(EFFECT_TYPE_SINGLE)
+		local e3=e1:Clone()
 		e3:SetCode(EFFECT_ADD_SETCODE)
 		e3:SetValue(0x27c)
-		e3:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e3)
 	end
-end
-function c100418208.limitcon(e)
-	return e:GetHandler():IsControler(e:GetOwnerPlayer())
 end
