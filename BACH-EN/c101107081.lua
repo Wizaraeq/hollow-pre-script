@@ -1,5 +1,6 @@
 --Dragonbite
-local s,id=GetID()
+--Script by HKunogi
+local s,id,o=GetID()
 function s.initial_effect(c)
 	--SP Summon
 	local e1=Effect.CreateEffect(c)
@@ -14,10 +15,11 @@ function s.initial_effect(c)
 	--Level Change (Increase)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_LVCHANGE)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,{id,1})
+	e2:SetCountLimit(1,id+o)
 	e2:SetCost(s.cost2)
 	e2:SetTarget(s.target2)
 	e2:SetOperation(s.activate2)
@@ -46,21 +48,19 @@ function s.filter2(c,tp)
 	return c:IsLevelBelow(4) and c:IsRace(RACE_INSECT) and (not c:IsOnField() or c:IsFaceup()) and c:IsAbleToRemoveAsCost()
 		and Duel.IsExistingTarget(s.targetfilter2,tp,LOCATION_MZONE,0,1,c)
 end
+function s.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,tp)
+	Duel.Remove(g,POS_FACEUP,REASON_COST)
+	e:SetLabel(g:GetFirst():GetLevel())
+end
 function s.target2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.targetfilter2(chkc) end
 	if chk==0 then return true end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local g=Duel.SelectTarget(tp,s.targetfilter2,tp,LOCATION_MZONE,0,1,1,nil)
-end
-function s.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,tp)
-	if Duel.Remove(g,POS_FACEUP,REASON_COST)>0 then
-		e:SetLabel(g:GetFirst():GetLevel())
-	else
-		e:SetLabel(nil)
-	end
+	Duel.SetOperationInfo(0,CATEGORY_LVCHANGE,g,1,0,0)
 end
 function s.activate2(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()

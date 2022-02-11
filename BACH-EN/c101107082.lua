@@ -1,5 +1,6 @@
 --Flowerdino
-local s,id=GetID()
+--Script by HKunogi
+local s,id,o=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--Cannot SP Sum self
@@ -18,7 +19,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_CHAIN_SOLVED)
 	e2:SetRange(LOCATION_HAND)
 	e2:SetCountLimit(1,id)
-	e2:SetCondition(s.filter1)
+	e2:SetCondition(s.condition1)
 	e2:SetTarget(s.target1)
 	e2:SetOperation(s.activate1)
 	c:RegisterEffect(e2)
@@ -29,12 +30,12 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_TO_GRAVE)
-	e3:SetCountLimit(1,{id,1})
+	e3:SetCountLimit(1,id+o)
 	e3:SetTarget(s.target2)
 	e3:SetOperation(s.activate2)
 	c:RegisterEffect(e3)
 end
-function s.filter1(e,tp,eg,ep,ev,re,r,rp)
+function s.condition1(e,tp,eg,ep,ev,re,r,rp)
 	return (rp==1-tp and re:IsActiveType(TYPE_SPELL)) or (rp==tp and re:IsActiveType(TYPE_TRAP))
 end
 function s.target1(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -45,11 +46,10 @@ function s.target1(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.activate1(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)>0 then
+		c:CompleteProcedure()
 	end
 end
-
 function s.filter2(c)
 	return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToDeck()
 end
@@ -66,11 +66,11 @@ function s.dfilter(c,tp)
 	return c:IsLocation(LOCATION_DECK) and c:IsControler(tp)
 end
 function s.activate2(e,tp,eg,ep,ev,re,r,rp)
-	local gs=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if #gs>0 and Duel.SendtoDeck(gs,nil,SEQ_DECKTOP,REASON_EFFECT)>0 then
+	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
+	if #tg>0 and Duel.SendtoDeck(tg,nil,SEQ_DECKTOP,REASON_EFFECT)>0 then
 		local p=tp
 		for i=1,2 do
-			local dg=gs:Filter(s.dfilter,nil,p)
+			local dg=tg:Filter(s.dfilter,nil,p)
 			if #dg>1 then
 				Duel.SortDecktop(tp,p,#dg)
 			end

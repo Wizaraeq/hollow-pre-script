@@ -1,74 +1,73 @@
 --Libromancer Doombroker
-function c101107089.initial_effect(c)
+--Script by HKunogi
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	-- Check materials on Ritual Summon
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(EFFECT_MATERIAL_CHECK)
-	e0:SetValue(c101107089.matcheck)
-	c:RegisterEffect(e0)
-	-- Can attack directly
+	--Ritual mats
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_DIRECT_ATTACK)
-	e1:SetCondition(c101107089.matcon)
+	e1:SetCode(EFFECT_MATERIAL_CHECK)
+	e1:SetValue(s.matcheck)
 	c:RegisterEffect(e1)
-	-- Set 1 "Libromancer" Trap from the Deck
+	--direct atk
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101107089,0))
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,101107089)
-	e2:SetTarget(c101107089.settg)
-	e2:SetOperation(c101107089.setop)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_DIRECT_ATTACK)
+	e2:SetCondition(s.matcon)
 	c:RegisterEffect(e2)
-	-- Shuffle 1 card to the Deck
+	--set trap from deck
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101107089,1))
-	e3:SetCategory(CATEGORY_TODECK)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCode(EVENT_BATTLE_DAMAGE)
-	e3:SetCountLimit(1,101107089+100)
-	e3:SetCondition(c101107089.tdcon)
-	e3:SetTarget(c101107089.tdtg)
-	e3:SetOperation(c101107089.tdop)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1,id)
+	e3:SetTarget(s.settg)
+	e3:SetOperation(s.setop)
 	c:RegisterEffect(e3)
+	--shuffle face-up opp monster to deck
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,2))
+	e4:SetCategory(CATEGORY_TODECK)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e4:SetCode(EVENT_BATTLE_DAMAGE)
+	e4:SetCountLimit(1,id+o)
+	e4:SetCondition(function(e,tp,eg,ep) return ep==1-tp end)
+	e4:SetTarget(s.f2dtg)
+	e4:SetOperation(s.f2dop)
+	c:RegisterEffect(e4)
 end
-function c101107089.matcheck(e,c)
+function s.matcheck(e,c)
 	if c:GetMaterial():IsExists(Card.IsLocation,1,nil,LOCATION_MZONE) then
 		local reset=RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD
-		c:RegisterFlagEffect(101107089,reset,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101107089,2))
+		c:RegisterFlagEffect(id,reset,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(id,0))
 	end
 end
-function c101107089.matcon(e)
+function s.matcon(e)
 	local c=e:GetHandler()
-	return c:IsSummonType(SUMMON_TYPE_RITUAL) and c:GetFlagEffect(101107089)>0
+	return c:IsSummonType(SUMMON_TYPE_RITUAL) and c:GetFlagEffect(id)>0
 end
-function c101107089.setfilter(c)
+function s.setfilter(c)
 	return c:IsSetCard(0x27d) and c:IsType(TYPE_TRAP) and c:IsSSetable()
 end
-function c101107089.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101107089.setfilter,tp,LOCATION_DECK,0,1,nil) end
+function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) end
 end
-function c101107089.setop(e,tp,eg,ep,ev,re,r,rp)
+function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local g=Duel.SelectMatchingCard(tp,c101107089.setfilter,tp,LOCATION_DECK,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if #g>0 then
 		Duel.SSet(tp,g)
 	end
 end
-function c101107089.tdcon(e,tp,eg,ep,ev,re,r,rp)
-	return ep~=tp
-end
-function c101107089.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.f2dtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() and chkc:IsAbleToDeck() end
 	if chk==0 then return Duel.IsExistingTarget(aux.AND(Card.IsFaceup,Card.IsAbleToDeck),tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectTarget(tp,aux.AND(Card.IsFaceup,Card.IsAbleToDeck),tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
 end
-function c101107089.tdop(e,tp,eg,ep,ev,re,r,rp)
+function s.f2dop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)

@@ -1,60 +1,70 @@
 --Libromancer Firestarter
-function c101107088.initial_effect(c)
+--Script by HKunogi
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	-- Check materials on Ritual Summon
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(EFFECT_MATERIAL_CHECK)
-	e0:SetValue(c101107088.matcheck)
-	c:RegisterEffect(e0)
-	-- Cannot be destroyed by card effects
+	--Ritual mats
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetCondition(c101107088.matcon)
-	e1:SetValue(1)
+	e1:SetCode(EFFECT_MATERIAL_CHECK)
+	e1:SetValue(s.matcheck)
 	c:RegisterEffect(e1)
-	-- Cannot be banished by card effects
+	--cant destroy by eff
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e2:SetCode(EFFECT_CANNOT_REMOVE)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetTargetRange(1,1)
-	e2:SetTarget(c101107088.rmlimit)
-	e2:SetCondition(c101107088.matcon)
+	e2:SetCondition(s.matcon)
+	e2:SetValue(1)
 	c:RegisterEffect(e2)
-	-- Gain ATK/DEF
+	--cant banish by eff
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(EVENT_CHAINING)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e3:SetCode(EFFECT_CANNOT_REMOVE)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCondition(c101107088.atkcon)
-	e3:SetOperation(c101107088.atkop)
+	e3:SetTargetRange(1,1)
+	e3:SetTarget(function(e,c,tp,r) return c==e:GetHandler() and r==REASON_EFFECT end)
+	e3:SetCondition(s.matcon)
 	c:RegisterEffect(e3)
+	--buff atk/def
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e4:SetCode(EVENT_CHAINING)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e4:SetOperation(s.regop)
+	c:RegisterEffect(e4)
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e5:SetCode(EVENT_CHAIN_SOLVED)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetCondition(s.atkcon)
+	e5:SetOperation(s.atkop)
+	c:RegisterEffect(e5)
 end
-function c101107088.matcheck(e,c)
+function s.matcheck(e,c)
 	if c:GetMaterial():IsExists(Card.IsLocation,1,nil,LOCATION_MZONE) then
 		local reset=RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD
-		c:RegisterFlagEffect(101107088,reset,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101107088,0))
+		c:RegisterFlagEffect(id,reset,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(id,0))
 	end
 end
-function c101107088.rmlimit(e,c,tp,r)
-	return c==e:GetHandler() and r==REASON_EFFECT
-end
-function c101107088.matcon(e)
+function s.matcon(e)
 	local c=e:GetHandler()
-	return c:IsSummonType(SUMMON_TYPE_RITUAL) and c:GetFlagEffect(101107088)>0
+	return c:IsSummonType(SUMMON_TYPE_RITUAL) and c:GetFlagEffect(id)>0
 end
-function c101107088.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return ep==1-tp and e:GetHandler():GetAttack()<3000
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET+RESET_CHAIN,0,1)
 end
-function c101107088.atkop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_CARD,0,101107088)
+function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	-- Gain ATK/DEF
+	return ep~=tp and c:GetAttack()<3000 and c:GetFlagEffect(id)~=0
+end
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_CARD,0,id)
+	local c=e:GetHandler()
+	--buff stats
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_UPDATE_ATTACK)
