@@ -41,7 +41,7 @@ function c100418204.cfilter(c)
 	return c:IsSetCard(0x27c) and c:IsAttribute(ATTRIBUTE_WATER) and c:IsFaceup()
 end
 function c100418204.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsEnvironment(100418211,PLAYER_ALL,LOCATION_FZONE) or Duel.IsExistingMatchingCard(c100418204.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsEnvironment(100418211) or Duel.IsExistingMatchingCard(c100418204.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c100418204.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

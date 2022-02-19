@@ -40,7 +40,7 @@ function c100418203.cfilter(c)
 	return c:IsSetCard(0x27c) and c:IsAttribute(ATTRIBUTE_WATER) and c:IsFaceup()
 end
 function c100418203.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsEnvironment(100418211,PLAYER_ALL,LOCATION_FZONE) or Duel.IsExistingMatchingCard(c100418203.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsEnvironment(100418211) or Duel.IsExistingMatchingCard(c100418203.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c100418203.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -72,17 +72,14 @@ function c100418203.seqop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not tc:IsRelateToEffect(e) then return end
 	local seq=tc:GetSequence()
-	local sq=tc:GetControler()
 	if seq>4 then return end
 	local flag=0
-	if seq>0 and Duel.CheckLocation(sq,LOCATION_MZONE,seq-1) then flag=flag|(1<<(seq-1)) end
-	if seq<4 and Duel.CheckLocation(sq,LOCATION_MZONE,seq+1) then flag=flag|(1<<(seq+1)) end
+	if seq>0 and Duel.CheckLocation(tp,LOCATION_MZONE,seq-1) then flag=flag|(1<<(seq-1)) end
+	if seq<4 and Duel.CheckLocation(tp,LOCATION_MZONE,seq+1) then flag=flag|(1<<(seq+1)) end
 	if flag==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOZONE)
-	local i=0
-	if sq~=tp then i=16 end
-	local s=Duel.SelectField(tp,1,LOCATION_MZONE,LOCATION_MZONE,~(flag<<i))
-	local nseq=math.log(s,2)-i
+	local s=Duel.SelectField(tp,1,LOCATION_MZONE,0,~flag)
+	local nseq=math.log(s,2)
 	Duel.MoveSequence(tc,nseq)
 end
 function c100418203.mvcon(e,tp,eg,ep,ev,re,r,rp)
