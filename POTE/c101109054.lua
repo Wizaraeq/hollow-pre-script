@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	aux.AddSetNameMonsterList(c,0x3008)
 	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_TODECK+CATEGORY_TOHAND)
+	e1:SetCategory(CATEGORY_TOGRAVE+CATEGORY_TODECK+CATEGORY_DECKDES)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
@@ -20,25 +20,23 @@ function s.tgfilter(c,tp)
 end
 function s.cfilter(c,tc,tp)
 	if c:IsCode(tc:GetFusionCode()) then return false end
-	return (c:IsSetCard(0x1f) or c:IsSetCard(0x3008) or c:IsLevel(10)) and not c:IsPublic()
-end
-function s.neosfilter(c)
-	return c:IsCode(89943723) and (c:IsFaceup() or not c:IsOnField())
+	return c:IsType(TYPE_MONSTER) and (c:IsSetCard(0x1f) or c:IsSetCard(0x3008) or c:IsLevel(10))
 end
 function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.tgfilter(chkc,tp) end
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_MZONE,0,1,nil,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_MZONE,0,1,1,nil,tp)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_EXTRA)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_HAND)
+	Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,tp)
+end
+function s.neosfilter(c)
+	return c:IsCode(89943723) and (c:IsFaceup() or not c:IsOnField())
 end
 function s.fsop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not tc:IsRelateToEffect(e) or tc:IsFacedown() then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
 	local cg=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_EXTRA,0,1,1,nil,tc,tp):GetFirst()
-	if not cg then return end
+	if cg==nil then return end
 	Duel.ConfirmCards(1-tp,cg)
 	local code1,code2=cg:GetOriginalCodeRule()
 	local e1=Effect.CreateEffect(e:GetHandler())

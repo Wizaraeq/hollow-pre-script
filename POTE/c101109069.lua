@@ -15,10 +15,12 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.fsfilter1(c,e)
-	return c:IsAbleToDeck() and not c:IsImmuneToEffect(e)
+	return (c:IsFaceup() or not c:IsLocation(LOCATION_REMOVED)) and c:IsType(TYPE_MONSTER)
+		and c:IsAbleToDeck() and not c:IsImmuneToEffect(e)
 end
 function s.fsfilter2(c,e,tp,m,chkf)
-	return c:IsType(TYPE_FUSION) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and c:CheckFusionMaterial(m,nil,chkf,true)
+	return c:IsType(TYPE_FUSION) and aux.IsMaterialListSetCard(c,0x8)
+		and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and c:CheckFusionMaterial(m,nil,chkf,true)
 end
 function s.fscheck(tp,sg,fc)
 	return sg:IsExists(Card.IsFusionSetCard,1,nil,0x8)
@@ -55,18 +57,18 @@ function s.fsop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.ConfirmCards(1-tp,cf)
 		end
 		if #mat>0 and Duel.SendtoDeck(mat,nil,SEQ_DECKTOP,REASON_EFFECT)>0 then
-		local p=tp
-		for i=1,2 do
-			local dg=mat:Filter(s.dfilter,nil,p)
-			if #dg>1 then
-				Duel.SortDecktop(tp,p,#dg)
+			local p=tp
+			for i=1,2 do
+				local dg=mat:Filter(s.dfilter,nil,p)
+				if #dg>1 then
+					Duel.SortDecktop(tp,p,#dg)
+				end
+				for i=1,#dg do
+					local mg=Duel.GetDecktopGroup(p,1)
+					Duel.MoveSequence(mg:GetFirst(),1)
+				end
+				p=1-tp
 			end
-			for i=1,#dg do
-				local mg=Duel.GetDecktopGroup(p,1)
-				Duel.MoveSequence(mg:GetFirst(),1)
-			end
-			p=1-tp
-		end
 		end
 		Duel.BreakEffect()
 		Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)
