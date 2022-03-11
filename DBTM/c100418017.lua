@@ -45,13 +45,12 @@ function c100418017.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-function c100418017.cfilter(c,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsPreviousLocation(LOCATION_ONFIELD) and c:GetReason()&REASON_EFFECT>0
-		and c:GetReasonEffect():GetHandler():GetType()==TYPE_TRAP
-		and c:GetReasonEffect():IsActiveType(TYPE_TRAP) and c:GetReasonEffect():GetHandlerPlayer()==tp
+function c100418017.cfilter(c,tp,re,r,rp)
+	return bit.band(c:GetPreviousTypeOnField(),TYPE_MONSTER)~=0 and bit.band(r,REASON_EFFECT)~=0 and rp==tp
+		and re:GetHandler():GetType()==TYPE_TRAP and re:IsActiveType(TYPE_TRAP)
 end
 function c100418017.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(c100418017.cfilter,1,nil,tp) and not eg:IsContains(e:GetHandler())
+	return eg:IsExists(c100418017.cfilter,1,nil,tp,re,r,rp) and not eg:IsContains(e:GetHandler())
 end
 function c100418017.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
@@ -62,32 +61,35 @@ end
 function c100418017.spfilter(c,e,tp)
 	return c:IsRace(RACE_FIEND) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
+function c100418017.stfilter(c)
+	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
+end
 function c100418017.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	if Duel.Draw(p,d,REASON_EFFECT)>0 then
-		Duel.BreakEffect()
-		local spg=Duel.GetMatchingGroup(c100418017.spfilter,tp,LOCATION_HAND,0,nil,e,tp)
-		local stg=Duel.GetMatchingGroup(Card.IsSSetable,tp,LOCATION_HAND,0,nil)
-		if ((#spg>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0) or #stg>0) and Duel.SelectYesNo(tp,aux.Stringid(100418017,2)) then
-			local op=0
-			if #spg>0 and #stg==0 then
-				op=Duel.SelectOption(tp,aux.Stringid(100418017,3))+1
-			end
-			if #spg==0 and #stg>0 then
-				op=Duel.SelectOption(tp,aux.Stringid(100418017,4))+2
-			end
-			if #spg>0 and #stg>0 then
-				op=Duel.SelectOption(tp,aux.Stringid(100418017,3),aux.Stringid(100418017,4))+1
-			end
-			if op==1 then
-				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-				local sg=spg:Select(tp,1,1,nil)
-				Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
-			end
-			if op==2 then
-				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-				local sg=stg:Select(tp,1,1,nil)
-				Duel.SSet(tp,sg)
+	if Duel.Draw(p,d,REASON_EFFECT)==0 then return end
+	local b1=Duel.IsExistingMatchingCard(c100418017.spfilter,tp,LOCATION_HAND,0,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	local b2=Duel.IsExistingMatchingCard(c100418017.stfilter,tp,LOCATION_HAND,0,1,nil)
+	if (b1 or b2) and Duel.SelectYesNo(tp,aux.Stringid(100418017,2)) then
+		if b1 and b2 then
+			op=Duel.SelectOption(tp,aux.Stringid(100418017,3),aux.Stringid(100418017,4))
+		elseif b1 then
+			op=Duel.SelectOption(tp,aux.Stringid(100418017,3))
+		else
+			op=Duel.SelectOption(tp,aux.Stringid(100418017,4))+1
+		end
+		if op==0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+			local g=Duel.SelectMatchingCard(tp,c100418017.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
+			if #g>0 then
+				Duel.BreakEffect()
+				Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+			 end
+		elseif op==1 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
+			local g=Duel.SelectMatchingCard(tp,c100418017.stfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
+			if #g>0 then
+				Duel.BreakEffect()
+				Duel.SSet(tp,g)
 			end
 		end
 	end

@@ -31,7 +31,6 @@ function c101109018.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local fe=Duel.IsPlayerAffectedByEffect(tp,101109061)
 	local cg=Duel.GetMatchingGroup(c101109018.costfilter,tp,LOCATION_HAND,0,e:GetHandler())
 	if chk==0 then return e:GetHandler():IsDiscardable() and (fe or #cg>0) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 	if fe then ct=0 else ct=1 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 	local g=Duel.SelectMatchingCard(tp,c101109018.costfilter,tp,LOCATION_HAND,0,ct,1,e:GetHandler())

@@ -33,8 +33,8 @@ end
 function c100418020.filter(c)
 	return c:IsSetCard(0x280) and c:IsFaceup()
 end
-function c100418020.actcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c100418020.filter,tp,LOCATION_MZONE,0,1,nil)
+function c100418020.actcon(e)
+	return Duel.IsExistingMatchingCard(c100418020.filter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
 end
 function c100418020.acttg(e,c)
 	return c:GetType()==TYPE_TRAP
@@ -51,8 +51,13 @@ function c100418020.operation(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e1,tp)
 end
+function c100418020.cfilter(c,tp,re,r,rp)
+	if not c:IsPreviousLocation(LOCATION_HAND) or rp~=tp or not re then return end
+	local rc=re:GetHandler()
+	return (rc:IsSetCard(0x280) and not rc:IsCode(100418020)) or (re:IsActiveType(TYPE_TRAP) and rc:GetType()==TYPE_TRAP)
+end
 function c100418020.tscon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==tp and r&REASON_COST==REASON_COST and re and re:IsActivated() and eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_HAND) and (re:GetActiveType()==TYPE_TRAP or (re:GetHandler():IsSetCard(0x280) and not re:GetHandler():IsCode(100418020))) and not eg:IsContains(e:GetHandler())
+	return rp==tp and r&REASON_COST==REASON_COST and re and re:IsActivated() and eg:IsExists(c100418020.cfilter,1,nil,tp,re,r,rp) and not eg:IsContains(e:GetHandler())
 end
 function c100418020.tstg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToHand()

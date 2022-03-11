@@ -32,7 +32,6 @@ function c101109016.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsDiscardable() and (fe or #cg>0) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 	if fe then ct=0 else ct=1 end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 	local g=Duel.SelectMatchingCard(tp,c101109016.costfilter,tp,LOCATION_HAND,0,ct,1,e:GetHandler())
 	g:AddCard(e:GetHandler())
 	if #g<2 then

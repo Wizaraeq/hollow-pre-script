@@ -48,12 +48,16 @@ function c100418024.stfilter(c)
 end
 function c100418024.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
+	local res=0
 	local g=Duel.GetMatchingGroup(c100418024.stfilter,tp,LOCATION_HAND+LOCATION_DECK,0,nil)
-	if Duel.NegateAttack() and tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)>0
-		and g:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(100418024,0)) then
+	if Duel.NegateAttack() and tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)>0 then
+		local res=1
+		if g:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(100418024,0)) then
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 		local sg=g:Select(tp,1,1,nil)
 		Duel.SSet(tp,sg)
+		end
 	end
+	aux.LabrynthDestroyOp(e,tp,res)
 end
