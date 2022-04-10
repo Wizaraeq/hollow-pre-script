@@ -4,8 +4,7 @@
 function c101109017.initial_effect(c)
 	--to grave
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101109017,0))
-	e1:SetCategory(CATEGORY_TOGRAVE+CATEGORY_SPECIAL_SUMMON)
+	e1:SetCategory(CATEGORY_TOGRAVE+CATEGORY_SPECIAL_SUMMON+CATEGORY_GRAVE_SPSUMMON)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1,101109017)
@@ -15,7 +14,6 @@ function c101109017.initial_effect(c)
 	c:RegisterEffect(e1)
 	--atk up
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101109017,1))
 	e2:SetCategory(CATEGORY_ATKCHANGE)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
@@ -29,18 +27,20 @@ function c101109017.costfilter(c)
 	return (c:IsType(TYPE_MONSTER) or c:IsSetCard(0x281)) and c:IsDiscardable()
 end
 function c101109017.tgcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
 	local fe=Duel.IsPlayerAffectedByEffect(tp,101109061)
-	local cg=Duel.GetMatchingGroup(c101109017.costfilter,tp,LOCATION_HAND,0,e:GetHandler())
-	if chk==0 then return e:GetHandler():IsDiscardable() and (fe or #cg>0) end
-	if fe then ct=0 else ct=1 end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
-	local g=Duel.SelectMatchingCard(tp,c101109017.costfilter,tp,LOCATION_HAND,0,ct,1,e:GetHandler())
-	g:AddCard(e:GetHandler())
-	if #g<2 then
+	local b2=Duel.IsExistingMatchingCard(c101109017.costfilter,tp,LOCATION_HAND,0,1,c)
+	if chk==0 then return c:IsDiscardable() and (fe or b2) end
+	if fe and (not b2 or Duel.SelectYesNo(tp,aux.Stringid(101109061,0))) then
 		Duel.Hint(HINT_CARD,0,101109061)
 		fe:UseCountLimit(tp)
+		Duel.SendtoGrave(c,REASON_COST+REASON_DISCARD)
+	else
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
+		local g=Duel.SelectMatchingCard(tp,c101109017.costfilter,tp,LOCATION_HAND,0,1,1,c)
+		g:AddCard(c)
+		Duel.SendtoGrave(g,REASON_COST+REASON_DISCARD)
 	end
-	Duel.SendtoGrave(g,REASON_COST+REASON_DISCARD)
 end
 function c101109017.tgfilter(c)
 	return c:IsAttribute(ATTRIBUTE_EARTH) and c:IsSummonableCard() and c:IsAbleToGrave()
@@ -58,7 +58,7 @@ function c101109017.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	if g:GetCount()>0 and Duel.SendtoGrave(g,REASON_EFFECT)>0 and tc:IsLocation(LOCATION_GRAVE) then
 		local sg=Duel.GetMatchingGroup(c101109017.spfilter,tp,LOCATION_GRAVE,0,nil,e,tp,tc:GetCode())
-		if sg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(101109017,2)) then
+		if sg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(101109017,0)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local sc=sg:Select(tp,1,1,nil)
@@ -92,6 +92,7 @@ function c101109017.atkop(e,tp,eg,ep,ev,re,r,rp)
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetValue(tc:GetAttack()*2)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)

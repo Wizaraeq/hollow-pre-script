@@ -2,8 +2,7 @@
 function c101109019.initial_effect(c)
 	--draw
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101109019,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON+CATEGORY_GRAVE_SPSUMMON)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1,101109019)
@@ -13,7 +12,6 @@ function c101109019.initial_effect(c)
 	c:RegisterEffect(e1)
 	--atk twice
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101109019,1))
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
@@ -27,18 +25,20 @@ function c101109019.costfilter(c)
 	return (c:IsType(TYPE_MONSTER) or c:IsSetCard(0x281)) and c:IsDiscardable()
 end
 function c101109019.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
 	local fe=Duel.IsPlayerAffectedByEffect(tp,101109061)
-	local cg=Duel.GetMatchingGroup(c101109019.costfilter,tp,LOCATION_HAND,0,e:GetHandler())
-	if chk==0 then return e:GetHandler():IsDiscardable() and (fe or #cg>0) end
-	if fe then ct=0 else ct=1 end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
-	local g=Duel.SelectMatchingCard(tp,c101109019.costfilter,tp,LOCATION_HAND,0,ct,1,e:GetHandler())
-	g:AddCard(e:GetHandler())
-	if #g<2 then
+	local b2=Duel.IsExistingMatchingCard(c101109019.costfilter,tp,LOCATION_HAND,0,1,c)
+	if chk==0 then return c:IsDiscardable() and (fe or b2) end
+	if fe and (not b2 or Duel.SelectYesNo(tp,aux.Stringid(101109061,0))) then
 		Duel.Hint(HINT_CARD,0,101109061)
 		fe:UseCountLimit(tp)
+		Duel.SendtoGrave(c,REASON_COST+REASON_DISCARD)
+	else
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
+		local g=Duel.SelectMatchingCard(tp,c101109019.costfilter,tp,LOCATION_HAND,0,1,1,c)
+		g:AddCard(c)
+		Duel.SendtoGrave(g,REASON_COST+REASON_DISCARD)
 	end
-	Duel.SendtoGrave(g,REASON_COST+REASON_DISCARD)
 end
 function c101109019.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
@@ -53,7 +53,7 @@ function c101109019.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	if Duel.Draw(p,d,REASON_EFFECT)>0 then
 		local sg=Duel.GetMatchingGroup(aux.NecroValleyFilter(c101109019.spfilter),tp,LOCATION_GRAVE,0,nil,e,tp)
-		if sg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(101109019,2)) then
+		if sg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(101109019,0)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local sc=sg:Select(tp,1,1,nil)
@@ -88,8 +88,9 @@ function c101109019.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetDescription(aux.Stringid(101109019,1))
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
 		e1:SetCode(EFFECT_EXTRA_ATTACK)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		e1:SetValue(1)

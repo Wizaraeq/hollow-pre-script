@@ -1,5 +1,8 @@
 --お代狸様の代算様
-function c101109037.initial_effect(c)
+--Script by mercury233
+--not fully implemented
+local s,id,o=GetID()
+function s.initial_effect(c)
 	--cannot release
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -11,40 +14,54 @@ function c101109037.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EFFECT_UNRELEASABLE_NONSUM)
 	c:RegisterEffect(e2)
-	--extra material
+	--extra ritual material
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
-	e3:SetCode(101109037)
+	e3:SetCode(EFFECT_EXTRA_RITUAL_MATERIAL)
 	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1,id)
 	e3:SetTargetRange(LOCATION_EXTRA,0)
-	e3:SetCountLimit(1,101109037)
-	e3:SetTarget(c101109037.mttg)
 	e3:SetValue(1)
 	c:RegisterEffect(e3)
-	--extra material
+	--workaround
 	if not aux.rit_mat_hack_check then
-	aux.rit_mat_hack_check=true
+		aux.rit_mat_hack_check=true
 		function aux.rit_mat_hack_exmat_filter(c)
-			return c:IsHasEffect(101109037,c:GetControler())
+			return c:IsHasEffect(EFFECT_EXTRA_RITUAL_MATERIAL,c:GetControler()) and c:IsLocation(LOCATION_EXTRA)
+				and (c:IsLevelAbove(0) or c22398665~=nil)
 		end
-		local _GetRitualMaterial=Duel.GetRitualMaterial
-		local _ReleaseRitualMaterial=Duel.ReleaseRitualMaterial
+		function aux.RitualCheckGreater(g,c,lv)
+			if g:FilterCount(aux.rit_mat_hack_exmat_filter,nil)>1 then return false end
+			Duel.SetSelectedCard(g)
+			return g:CheckWithSumGreater(Card.GetRitualLevel,lv,c)
+		end
+		function aux.RitualCheckEqual(g,c,lv)
+			if g:FilterCount(aux.rit_mat_hack_exmat_filter,nil)>1 then return false end
+			return g:CheckWithSumEqual(Card.GetRitualLevel,lv,#g,#g,c)
+		end
+		_GetRitualMaterial=Duel.GetRitualMaterial
 		function Duel.GetRitualMaterial(tp)
 			local g=_GetRitualMaterial(tp)
-			local xg=Duel.GetMatchingGroup(aux.rit_mat_hack_exmat_filter,tp,LOCATION_EXTRA,0,nil)
-			for xc in aux.Next(xg) do
-				g:Merge(xg)
-			end
-			return g
+			local exg=Duel.GetMatchingGroup(aux.rit_mat_hack_exmat_filter,tp,LOCATION_EXTRA,0,nil)
+			return g+exg
 		end
+		_GetRitualMaterialEx=Duel.GetRitualMaterialEx
+		function Duel.GetRitualMaterialEx(tp)
+			local g=_GetRitualMaterialEx(tp)
+			local exg=Duel.GetMatchingGroup(aux.rit_mat_hack_exmat_filter,tp,LOCATION_EXTRA,0,nil)
+			return g+exg
+		end
+		_ReleaseRitualMaterial=Duel.ReleaseRitualMaterial
 		function Duel.ReleaseRitualMaterial(mat)
-			local xmat=mat:Filter(Card.IsLocation,nil,LOCATION_EXTRA)
-			mat:Sub(xmat)
-			Duel.SendtoGrave(xmat,REASON_RITUAL+REASON_EFFECT+REASON_MATERIAL)
-			_ReleaseRitualMaterial(mat)
+			local rg=mat:Filter(Card.IsLocation,nil,LOCATION_EXTRA)
+			mat:Sub(rg)
+			local tc=rg:Filter(aux.rit_mat_hack_exmat_filter,nil):GetFirst()
+			if tc then
+				local te=tc:IsHasEffect(EFFECT_EXTRA_RITUAL_MATERIAL,tc:GetControler())
+				te:UseCountLimit(tc:GetControler())
+			end
+			Duel.SendtoGrave(rg,REASON_EFFECT+REASON_MATERIAL+REASON_RITUAL)
+			return _ReleaseRitualMaterial(mat)
 		end
 	end
-end
-function c101109037.mttg(e,c)
-	return c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
 end

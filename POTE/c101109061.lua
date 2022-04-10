@@ -1,4 +1,6 @@
 --春化精の花冠
+--
+--Script by Trishula9
 function c101109061.initial_effect(c)
 	--activate
 	local e1=Effect.CreateEffect(c)
@@ -14,13 +16,13 @@ function c101109061.initial_effect(c)
 	e2:SetCode(EFFECT_ADD_SETCODE)
 	e2:SetValue(0x281)
 	c:RegisterEffect(e2)
-	--
+	--change cost
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e3:SetCode(101109061)
 	e3:SetRange(LOCATION_SZONE)
-	e3:SetTargetRange(1,0)
+	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e3:SetCountLimit(1)
+	e3:SetTargetRange(1,0)
 	c:RegisterEffect(e3)
 end
