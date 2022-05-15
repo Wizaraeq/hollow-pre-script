@@ -16,15 +16,20 @@ end
 function c101108090.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0x17c)
 end
+function c101108090.filter2(c)
+	local tp=c:GetControler()
+	return c:IsAbleToChangeControler()
+		and Duel.GetMZoneCount(tp,c,tp,LOCATION_REASON_CONTROL)>0
+end
 function c101108090.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	if chk==0 then return Duel.IsExistingTarget(c101108090.filter,tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingTarget(Card.IsControlerCanBeChanged,tp,0,LOCATION_MZONE,1,nil) end
+		and Duel.IsExistingTarget(c101108090.filter2,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local g1=Duel.SelectTarget(tp,c101108090.filter,tp,LOCATION_MZONE,0,1,1,nil)
 	e:SetLabelObject(g1:GetFirst())
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONTROL)
-	local g2=Duel.SelectTarget(tp,Card.IsControlerCanBeChanged,tp,0,LOCATION_MZONE,1,1,nil)
+	local g2=Duel.SelectTarget(tp,c101108090.filter2,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g1,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_CONTROL,g2,1,0,0)
 end

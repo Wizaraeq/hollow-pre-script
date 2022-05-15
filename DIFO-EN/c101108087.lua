@@ -55,9 +55,9 @@ function c101108087.atkcfilter(c)
 end
 function c101108087.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsExistingMatchingCard(c101108087.atkcfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,c) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c101108087.atkcfilter,tp,LOCATION_GRAVE,0,1,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c101108087.atkcfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,c)
+	local g=Duel.SelectMatchingCard(tp,c101108087.atkcfilter,tp,LOCATION_GRAVE,0,1,1,c)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c101108087.atkop(e,tp,eg,ep,ev,re,r,rp)

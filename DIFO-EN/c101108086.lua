@@ -11,12 +11,12 @@ function c101108086.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetTargetRange(LOCATION_MZONE,0)
-	e1:SetCondition(c101108086.immcon)
-	e1:SetTarget(c101108086.immtg)
-	e1:SetValue(c101108086.imval)
+	e1:SetCondition(c101108086.imcon)
+	e1:SetTarget(c101108086.imval)
+	e1:SetValue(c101108086.imfilter)
 	c:RegisterEffect(e1)
 	--Change ATK to 0 and negate effects
 	local e2=Effect.CreateEffect(c)
@@ -36,11 +36,11 @@ function c101108086.matcheck(e,c)
 		c:RegisterFlagEffect(101108086,reset,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101108086,0))
 	end
 end
-function c101108086.immcon(e)
+function c101108086.imcon(e)
 	local c=e:GetHandler()
 	return c:IsSummonType(SUMMON_TYPE_RITUAL) and c:GetFlagEffect(101108086)>0
 end
-function c101108086.immtg(e,re,rp)
+function c101108086.imfilter(e,re,rp)
 	return aux.tgoval(e,re,rp) and re:IsActiveType(TYPE_MONSTER)
 end
 function c101108086.imval(e,c)
