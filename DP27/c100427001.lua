@@ -1,9 +1,10 @@
---Ｄ・テレホン
+--D・テレホン
+--Script by Ruby
 function c100427001.initial_effect(c)
-	--atk pos
+	--speical summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(100427001,0))
-	e1:SetCategory(CATEGORY_DICE+CATEGORY_RECOVER+CATEGORY_SPECIAL_SUMMON+CATEGORY_GRAVE_SPSUMMON)
+	e1:SetCategory(CATEGORY_DICE+CATEGORY_SPECIAL_SUMMON+CATEGORY_RECOVER+CATEGORY_GRAVE_SPSUMMON)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1)
@@ -11,9 +12,9 @@ function c100427001.initial_effect(c)
 	e1:SetTarget(c100427001.tga)
 	e1:SetOperation(c100427001.opa)
 	c:RegisterEffect(e1)
-	--def pos
+	--to grave
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100427001,1))
+	e2:SetDescription(aux.Stringid(100427001,2))
 	e2:SetCategory(CATEGORY_DICE+CATEGORY_TOGRAVE+CATEGORY_DECKDES)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
@@ -27,29 +28,27 @@ c100427001.toss_dice=true
 function c100427001.cona(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsAttackPos()
 end
-function c100427001.cond(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsDefensePos()
-end
 function c100427001.tga(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_DICE,nil,0,tp,1)
-	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,0)
 end
-function c100427001.spfilter(c,lv,e,tp)
-	return c:IsSetCard(0x26) and c:IsLevelBelow(lv) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function c100427001.spfilter(c,e,tp,dc)
+	return c:IsSetCard(0x26) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsLevelBelow(dc)
 end
 function c100427001.opa(e,tp,eg,ep,ev,re,r,rp)
-	local res=Duel.TossDice(tp,1)
-	if Duel.Recover(tp,res*100,REASON_EFFECT)~=res*100 or Duel.GetLocationCount(tp,LOCATION_MZONE)==0 then return end
-	local g=Duel.GetMatchingGroup(aux.NecroValleyFilter(c100427001.spfilter),tp,LOCATION_GRAVE,0,nil,res,e,tp)
-	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(100427001,2)) then
+	local dc=Duel.TossDice(tp,1)
+	local rec=dc*100
+	local g=Duel.GetMatchingGroup(aux.NecroValleyFilter(c100427001.spfilter),tp,LOCATION_GRAVE,0,nil,e,tp,dc)
+	if Duel.Recover(tp,rec,REASON_EFFECT)>0 and g:GetCount()>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.SelectYesNo(tp,aux.Stringid(100427001,1)) then
+		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sc=g:Select(tp,1,1,nil):GetFirst()
-		if sc then
-			Duel.BreakEffect()
-			Duel.SpecialSummon(sc,0,tp,tp,false,false,POS_FACEUP)
-		end
+		local tc=g:Select(tp,1,1,nil):GetFirst()
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
+end
+function c100427001.cond(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsDefensePos()
 end
 function c100427001.tgd(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>0 end
@@ -62,22 +61,20 @@ function c100427001.opd(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)==0 then return end
 	local dc=Duel.TossDice(tp,1)
 	Duel.ConfirmDecktop(tp,dc)
-	local dg=Duel.GetDecktopGroup(tp,dc):Filter(c100427001.tgfilter,nil)
-	local ct=0
-	if #dg>0 and Duel.SelectYesNo(p,aux.Stringid(100427001,3)) then
+	local dg=Duel.GetDecktopGroup(tp,dc)
+	local ct=dg:GetCount()
+	local g=dg:Filter(c100427001.tgfilter,nil)
+	if g:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(100427001,3)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local tg=dg:Select(tp,1,1,nil)
-		dg:RemoveCard(tg:GetFirst())
+		local sg=g:Select(tp,1,1,nil)
 		Duel.DisableShuffleCheck()
-		Duel.SendtoGrave(tg,REASON_EFFECT)
-		ct=1
+		Duel.SendtoGrave(sg,REASON_EFFECT)
+		ct=ct-1
 	end
-	local ac=dc-ct
-	if ac==0 then return end
 	local op=Duel.SelectOption(tp,aux.Stringid(100427001,4),aux.Stringid(100427001,5))
-	Duel.SortDecktop(tp,tp,ac)
+	Duel.SortDecktop(tp,tp,ct)
 	if op==0 then return end
-	for i=1,ac do
+	for i=1,ct do
 		local tg=Duel.GetDecktopGroup(tp,1)
 		Duel.MoveSequence(tg:GetFirst(),SEQ_DECKBOTTOM)
 	end
