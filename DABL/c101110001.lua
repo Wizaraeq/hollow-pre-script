@@ -1,8 +1,10 @@
---ＢＦ－無頼のヴァータ
+--BF－無頼のヴァータ
+--Script by Dr.Chaos
 function c101110001.initial_effect(c)
 	aux.AddCodeList(c,9012916)
-	-- Special Summon this card
+	--special summon
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(101110001,0))
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
@@ -10,9 +12,9 @@ function c101110001.initial_effect(c)
 	e1:SetCountLimit(1,101110001+EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(c101110001.spcon)
 	c:RegisterEffect(e1)
-	-- Send this card and "Blackwing" non-tuners to the GY
+	--speical summon
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101110001,0))
+	e2:SetDescription(aux.Stringid(101110001,1))
 	e2:SetCategory(CATEGORY_TOGRAVE+CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
@@ -21,48 +23,50 @@ function c101110001.initial_effect(c)
 	e2:SetOperation(c101110001.tgop)
 	c:RegisterEffect(e2)
 end
-function c101110001.spconfilter(c)
+function c101110001.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0x33) and not c:IsCode(101110001)
 end
 function c101110001.spcon(e,c)
 	if c==nil then return true end
-	local tp=e:GetHandlerPlayer()
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(c101110001.spconfilter,tp,LOCATION_MZONE,0,1,nil)
-end
-function c101110001.spfilter(c,e,tp,ec)
-	return c:IsCode(9012916) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and Duel.GetLocationCountFromEx(tp,tp,ec,c)>0
+	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(c101110001.filter,c:GetControler(),LOCATION_MZONE,0,1,nil)
 end
 function c101110001.tgfilter(c)
-	return c:IsSetCard(0x33) and c:IsLevelAbove(1) and c:IsAbleToGrave() and not c:IsType(TYPE_TUNER) 
+	return c:IsSetCard(0x33) and c:IsAbleToGrave() and c:IsType(TYPE_MONSTER) and not c:IsType(TYPE_TUNER)
+end
+function c101110001.sfilter(c,e,tp,mc)
+	return c:IsCode(9012916)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0
 end
 function c101110001.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		local c=e:GetHandler()
-		local rlv=8-c:GetLevel()
-		if not c:IsAbleToGrave() or c:IsLevelAbove(8) or rlv<1 then return false end
-		local g=Duel.GetMatchingGroup(c101110001.tgfilter,tp,LOCATION_DECK,0,nil)
-		return g:CheckWithSumEqual(Card.GetLevel,rlv,1,63) and Duel.IsExistingMatchingCard(c101110001.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c)
-	end
+	local c=e:GetHandler()
+	local clv=c:GetLevel()
+	local lv=8-clv
+	local g=Duel.GetMatchingGroup(c101110001.tgfilter,tp,LOCATION_DECK,0,nil)
+	if chk==0 then return clv>0 and lv>0 and g:CheckWithSumEqual(Card.GetLevel,lv,1,99)
+		and Duel.IsExistingMatchingCard(c101110001.sfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c) end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function c101110001.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsAbleToGrave() and c:IsLevelBelow(7) then
+	local clv=c:GetLevel()
+	local lv=8-clv
+	if c:IsRelateToEffect(e) and not c:IsFacedown() and lv>0 then
 		local g=Duel.GetMatchingGroup(c101110001.tgfilter,tp,LOCATION_DECK,0,nil)
-		local rlv=8-c:GetLevel()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local mg=g:SelectWithSumEqual(tp,Card.GetLevel,rlv,1,63)
-		if #mg>0 and Duel.SendtoGrave(c+mg,REASON_EFFECT)>0 then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local sg=Duel.SelectMatchingCard(tp,c101110001.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,c)
-			if #sg>0 then
-				Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
+		local tg=g:SelectWithSumEqual(tp,Card.GetLevel,lv,1,99)
+		if #tg>0 then
+			tg:AddCard(c)
+			if Duel.SendtoGrave(tg,nil,REASON_EFFECT)>1 and tg:IsExists(Card.IsLocation,1,nil,LOCATION_GRAVE) then
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+				local sg=Duel.SelectMatchingCard(tp,c101110001.sfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,nil)
+				if sg:GetCount()>0 then
+					Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
+				end
 			end
 		end
 	end
-	local e1=Effect.CreateEffect(e:GetHandler())
+	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)

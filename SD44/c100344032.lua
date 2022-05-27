@@ -52,7 +52,9 @@ function c100344032.exccon(e,tp,eg,ep,ev,re,r,rp)
 	return eg and eg:IsExists(c100344032.excconfilter,1,nil)
 end
 function c100344032.exctg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,1) end
+	if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,1)
+		and (Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,LOCATION_DECK,0,1,nil)
+		or (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummon(tp) and not Duel.IsPlayerAffectedByEffect(tp,63060238))) end
 end
 function c100344032.excop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.IsPlayerCanDiscardDeck(tp,1) then return end

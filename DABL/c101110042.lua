@@ -1,80 +1,77 @@
---ブラックフェザー・アサルト・ドラゴン
+--ブラックフェザー·アサルト·ドラゴン
+--Script by Corvus1998 & mercury233
 function c101110042.initial_effect(c)
-	c:EnableCounterPermit(0x10)
 	aux.AddCodeList(c,9012916)
+	c:EnableCounterPermit(0x10)
 	--synchro summon
 	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_SYNCHRO),aux.NonTuner(nil),1)
 	c:EnableReviveLimit()
-	--cannot special summon
-	local e0=Effect.CreateEffect(c)
-	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e0:SetValue(aux.synlimit)
-	c:RegisterEffect(e0)
-	--Special Summon procedure
+	--spsummon condition
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101110042,0))
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_EXTRA)
-	e1:SetCondition(c101110042.spcon)
-	e1:SetTarget(c101110042.sptg)
-	e1:SetOperation(c101110042.spop)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
+	e1:SetValue(aux.synlimit)
 	c:RegisterEffect(e1)
-	--damage
+	--spsummon
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_CHAINING)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e2:SetOperation(c101110042.regop)
+	e2:SetDescription(aux.Stringid(101110042,0))
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e2:SetCode(EFFECT_SPSUMMON_PROC)
+	e2:SetRange(LOCATION_EXTRA)
+	e2:SetCondition(c101110042.spcon)
+	e2:SetTarget(c101110042.sptg)
+	e2:SetOperation(c101110042.spop)
 	c:RegisterEffect(e2)
+	--add counter and damage
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(EVENT_CHAIN_SOLVED)
+	e3:SetCode(EVENT_CHAINING)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCondition(c101110042.damcon)
-	e3:SetOperation(c101110042.damop)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e3:SetOperation(c101110042.regop)
 	c:RegisterEffect(e3)
-	--Destroy field
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(101110042,1))
-	e4:SetCategory(CATEGORY_DESTROY)
-	e4:SetType(EFFECT_TYPE_QUICK_O)
-	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e4:SetCode(EVENT_CHAIN_SOLVED)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
-	e4:SetCondition(c101110042.descon)
-	e4:SetCost(c101110042.descost)
-	e4:SetTarget(c101110042.destg)
-	e4:SetOperation(c101110042.desop)
+	e4:SetCondition(c101110042.damcon)
+	e4:SetOperation(c101110042.damop)
 	c:RegisterEffect(e4)
+	--destory
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(101110042,1))
+	e5:SetCategory(CATEGORY_DESTROY)
+	e5:SetType(EFFECT_TYPE_QUICK_O)
+	e5:SetCode(EVENT_FREE_CHAIN)
+	e5:SetRange(LOCATION_MZONE)
+	e5:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
+	e5:SetCondition(c101110042.descon)
+	e5:SetCost(c101110042.descost)
+	e5:SetTarget(c101110042.destg)
+	e5:SetOperation(c101110042.desop)
+	c:RegisterEffect(e5)
 end
-c101110042.material_type=TYPE_SYNCHRO
-function c101110042.spfilter(c)
-	return c:IsFaceup() and c:IsAbleToRemoveAsCost()
+function c101110042.mfilter1(c)
+	return c:IsType(TYPE_TUNER) and c:IsType(TYPE_SYNCHRO) and c:IsType(TYPE_MONSTER)
 end
-function c101110042.spfilter1(c)
-	return (c:IsType(TYPE_SYNCHRO) and c:IsType(TYPE_TUNER)) and (c:IsFaceup() or not c:IsOnField()) and c:IsAbleToRemoveAsCost()
+function c101110042.mfilter2(c)
+	return c:IsCode(9012916)
 end
-function c101110042.spfilter2(c)
-	return c:IsCode(9012916) and (c:IsFaceup() or not c:IsOnField()) and c:IsAbleToRemoveAsCost()
-end
-function c101110042.rescon(g,tp)
-	return aux.mzctcheck(g,tp) and aux.gffcheck(g,c101110042.spfilter1,nil,c101110042.spfilter2,nil)
+function c101110042.fselect(g,c,tp)
+	return Duel.GetLocationCountFromEx(tp,tp,g,c)>0 and aux.gffcheck(g,c101110042.mfilter1,nil,c101110042.mfilter2,nil)
 end
 function c101110042.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(c101110042.spfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
-	return g:CheckSubGroup(c101110042.rescon,2,2,tp)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToRemoveAsCost,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,nil)
+	return g:CheckSubGroup(c101110042.fselect,2,2,c,tp)
 end
 function c101110042.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
-	local g=Duel.GetMatchingGroup(c101110042.spfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToRemoveAsCost,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local sg=g:SelectSubGroup(tp,c101110042.rescon,true,2,2,tp)
+	local sg=g:SelectSubGroup(tp,c101110042.fselect,true,2,2,c,tp)
 	if sg then
 		sg:KeepAlive()
 		e:SetLabelObject(sg)
@@ -96,30 +93,26 @@ function c101110042.damcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep~=tp and c:GetFlagEffect(101110042)~=0
 end
 function c101110042.damop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsCanAddCounter(0x10,1) then
-		Duel.Hint(HINT_CARD,0,101110042)
-		c:AddCounter(0x10,1)
-		Duel.Damage(1-tp,700,REASON_EFFECT)
-	end
+	e:GetHandler():AddCounter(0x10,1)
+	Duel.Damage(1-tp,700,REASON_EFFECT)
 end
 function c101110042.descon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()~=tp
+	return Duel.GetTurnPlayer()==1-tp and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
 end
 function c101110042.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:GetCounter(0x10)>=4 and c:IsReleasable() end
+	if chk==0 then return c:IsReleasable() and c:GetCounter(0x10)>=4 end
 	Duel.Release(c,REASON_COST)
 end
 function c101110042.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,c) end
-	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,c)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
 function c101110042.desop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
-	if #g>0 then
+	if g:GetCount()>0 then
 		Duel.Destroy(g,REASON_EFFECT)
 	end
 end

@@ -1,17 +1,19 @@
---ブラック・ノーブル
+--ブラック·ノーブル
+--Script by Corvus1998
 function c101110072.initial_effect(c)
 	aux.AddCodeList(c,9012916)
-	--Activate
+	--negate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101110072,0))
 	e1:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_CHAINING)
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e1:SetCountLimit(1,101110072)
-	e1:SetCondition(c101110072.condition)
-	e1:SetCost(c101110072.cost)
-	e1:SetTarget(c101110072.target)
-	e1:SetOperation(c101110072.activate)
+	e1:SetCondition(c101110072.discon)
+	e1:SetCost(c101110072.discost)
+	e1:SetTarget(c101110072.distg)
+	e1:SetOperation(c101110072.disop)
 	c:RegisterEffect(e1)
 	--set
 	local e2=Effect.CreateEffect(c)
@@ -25,30 +27,30 @@ function c101110072.initial_effect(c)
 	e2:SetOperation(c101110072.setop)
 	c:RegisterEffect(e2)
 end
-function c101110072.condition(e,tp,eg,ep,ev,re,r,rp)
+function c101110072.discon(e,tp,eg,ep,ev,re,r,rp)
 	return re:IsHasType(EFFECT_TYPE_ACTIVATE) and Duel.IsChainNegatable(ev)
 end
-function c101110072.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+function c101110072.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,0,0x10,1,REASON_COST) end
 	Duel.RemoveCounter(tp,1,0,0x10,1,REASON_COST)
 end
-function c101110072.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function c101110072.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
 	if re:GetHandler():IsRelateToEffect(re) then
 		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
 	end
 end
-function c101110072.activate(e,tp,eg,ep,ev,re,r,rp)
+function c101110072.disop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
 		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
-function c101110072.setcfilter(c)
-	return c:IsFaceup() and c:IsCode(9012916)
+function c101110072.setfilter(c)
+	return c:IsCode(9012916) and c:IsFaceup()
 end
 function c101110072.setcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c101110072.setcfilter,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(c101110072.setfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 function c101110072.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsSSetable() end
@@ -56,13 +58,10 @@ function c101110072.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c101110072.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsSSetable() then
-		Duel.SSet(tp,c)
-		--Banish it if it leaves the field
+	if c:IsRelateToEffect(e) and Duel.SSet(tp,c)~=0 then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
 		e1:SetValue(LOCATION_REMOVED)
 		c:RegisterEffect(e1)
