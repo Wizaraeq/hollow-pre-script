@@ -1,5 +1,4 @@
 --アマゾネスの秘術
---Script by mercury233
 --not fully implemented
 local s,id,o=GetID()
 function s.initial_effect(c)
@@ -110,16 +109,49 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.fusop(e,tp,eg,ep,ev,re,r,rp)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetDescription(aux.Stringid(id,2))
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
-	e1:SetTargetRange(LOCATION_EXTRA,0)
-	e1:SetCountLimit(1)
-	e1:SetTarget(s.mttg)
-	e1:SetValue(s.mtval)
-	e1:SetReset(RESET_PHASE+PHASE_END)
-	Duel.RegisterEffect(e1,tp)
+	--ex material
+	local e2=Effect.CreateEffect(e:GetHandler())
+	e2:SetDescription(aux.Stringid(id,2))
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_CHAIN_MATERIAL)
+	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e2:SetTargetRange(1,0)
+	e2:SetReset(RESET_PHASE+PHASE_END)
+	e2:SetTarget(s.chain_target)
+	e2:SetOperation(s.chain_operation)
+	e2:SetValue(aux.FilterBoolFunction(Card.IsSetCard,0x4))
+	Duel.RegisterEffect(e2,tp)
+end
+function s.exfilter1(c,e)
+	return c:IsType(TYPE_MONSTER) and c:IsAbleToGrave() and not c:IsImmuneToEffect(e) and c:IsCanBeFusionMaterial()
+end
+function s.exfilter2(c,e)
+	return c:IsSetCard(0x4) and c:IsAbleToGrave() and c:IsCanBeFusionMaterial() and c:IsLocation(LOCATION_EXTRA)
+end
+function s.fcheck(tp,sg,fc)
+	return sg:FilterCount(Card.IsLocation,nil,LOCATION_EXTRA)<=1
+end
+function s.gcheck(sg)
+	return sg:FilterCount(Card.IsLocation,nil,LOCATION_EXTRA)<=1
+end
+function s.chain_target(e,te,tp)
+	aux.FCheckAdditional=s.fcheck
+	aux.GCheckAdditional=s.gcheck
+	local g1=Duel.GetMatchingGroup(s.exfilter1,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil,te)
+	local g2=Duel.GetMatchingGroup(s.exfilter2,tp,LOCATION_EXTRA,0,nil,te)
+	if g1 and g2 then
+	g1:Merge(g2) end
+	return g1
+end
+function s.chain_operation(e,te,tp,tc,mat,sumtype)
+	if not sumtype then sumtype=SUMMON_TYPE_FUSION end
+	tc:SetMaterial(mat)
+	Duel.SendtoGrave(mat,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+	Duel.BreakEffect()
+	Duel.SpecialSummon(tc,sumtype,tp,tp,false,false,POS_FACEUP)
+	e:Reset()
+	aux.FCheckAdditional=nil
+	aux.GCheckAdditional=nil
 end
 function s.mttg(e,c)
 	return c:IsSetCard(0x4) and c:IsAbleToGrave()
