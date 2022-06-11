@@ -24,7 +24,6 @@ function c100290016.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_SUMMON_SUCCESS)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetCondition(c100290016.condition)
 	e3:SetTarget(c100290016.target)
 	e3:SetOperation(c100290016.operation)
 	c:RegisterEffect(e3)
@@ -52,15 +51,12 @@ function c100290016.repop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
 	c:RegisterEffect(e1)
 end
-function c100290016.condition(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsLocation(LOCATION_MZONE)
-end
 function c100290016.filter(c)
 	return c:IsSetCard(0x5034) and c:IsType(TYPE_MONSTER) and not c:IsForbidden()
 		and (not c:IsLocation(LOCATION_REMOVED) or c:IsFaceup())
 end
 function c100290016.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+	if chk==0 then return e:GetHandler():IsLocation(LOCATION_MZONE) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
 		and Duel.IsExistingMatchingCard(c100290016.filter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND+LOCATION_REMOVED,0,1,nil) end
 end
 function c100290016.operation(e,tp,eg,ep,ev,re,r,rp)

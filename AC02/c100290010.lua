@@ -25,6 +25,7 @@ function c100290010.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetCountLimit(1,100290010)
+	e3:SetCondition(c100290010.spcon)
 	e3:SetTarget(c100290010.sptg)
 	e3:SetOperation(c100290010.spop)
 	c:RegisterEffect(e3)
@@ -46,6 +47,9 @@ function c100290010.repop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
 	c:RegisterEffect(e1)
 end
+function c100290010.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():GetType()==TYPE_SPELL+TYPE_CONTINUOUS
+end
 function c100290010.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
@@ -62,7 +66,7 @@ function c100290010.spop(e,tp,eg,ep,ev,re,r,rp)
 		if Duel.IsPlayerAffectedByEffect(tp,59822133) then ct=1 end
 		local g=Duel.GetMatchingGroup(c100290010.filter,tp,LOCATION_SZONE,0,nil,e,tp)
 		local gc=g:GetCount()
-		if gc>0 and Duel.SelectYesNo(tp,aux.Stringid(100290010,1)) then
+		if gc>0 and Duel.SelectYesNo(tp,aux.Stringid(100290010,0)) then
 			Duel.BreakEffect()
 			if gc<=ct then
 				Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)

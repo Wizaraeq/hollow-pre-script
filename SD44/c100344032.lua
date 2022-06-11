@@ -1,75 +1,80 @@
--- 宝玉の祝福
-function c100344032.initial_effect(c)
-	-- Special Summon 2 "Crystal Beast" monsters
+--宝玉の祝福
+--Crystal Grace
+--Script by Lyris12
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--special summon
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(100344032,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_RECOVER)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
-	e1:SetTarget(c100344032.sptg)
-	e1:SetOperation(c100344032.spop)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	-- Excavate
+	--flip
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100344032,1))
-	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_SPECIAL_SUMMON)
-	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_DECKDES)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_MOVE)
-	e2:SetCountLimit(1,100344032)
-	e2:SetCondition(c100344032.exccon)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCountLimit(1,id)
+	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
+	e2:SetCondition(s.flipcon)
 	e2:SetCost(aux.bfgcost)
-	e2:SetTarget(c100344032.exctg)
-	e2:SetOperation(c100344032.excop)
+	e2:SetTarget(s.fliptg)
+	e2:SetOperation(s.flipop)
 	c:RegisterEffect(e2)
 end
-function c100344032.spfilter(c,e,tp)
-	return c:IsFaceup() and c:IsSetCard(0x1034) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.filter(c,e,tp)
+	return c:IsFaceup() and c:IsSetCard(0x1034) and c:GetOriginalType()&TYPE_MONSTER>0 and c:GetSequence()<5
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function c100344032.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(c100344032.spfilter,tp,LOCATION_SZONE,0,1,nil,e,tp) end
+		and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_SZONE,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_SZONE)
 	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,0)
 end
-function c100344032.spop(e,tp,eg,ep,ev,re,r,rp)
-	local ft=math.min(2,Duel.GetLocationCount(tp,LOCATION_MZONE))
-	if ft<1 then return end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft<=0 then return end
 	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,c100344032.spfilter,tp,LOCATION_SZONE,0,1,ft,nil,e,tp)
-	if #g>0 and Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)>0 then
-		local rc=g:GetSum(Card.GetBaseAttack)
-		Duel.Recover(tp,rc,REASON_EFFECT)
-	end
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_SZONE,0,1,math.min(ft,2),nil,e,tp)
+	if #g==0 then return end
+	Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+	local atk=Duel.GetOperatedGroup():GetSum(Card.GetBaseAttack)
+	Duel.Recover(tp,atk,REASON_EFFECT)
 end
-function c100344032.excconfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x1034) and c:IsLocation(LOCATION_SZONE) and not c:IsPreviousLocation(LOCATION_SZONE)
+function s.cfilter(c,tp)
+	return c:IsFaceup() and c:IsSetCard(0x1034) and c:IsControler(tp) and c:IsLocation(LOCATION_SZONE) and c:GetSequence()<5
 end
-function c100344032.exccon(e,tp,eg,ep,ev,re,r,rp)
-	return eg and eg:IsExists(c100344032.excconfilter,1,nil)
+function s.flipcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.cfilter,1,nil,tp)
 end
-function c100344032.exctg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,1)
-		and (Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,LOCATION_DECK,0,1,nil)
-		or (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummon(tp) and not Duel.IsPlayerAffectedByEffect(tp,63060238))) end
+function s.fliptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>0
+		and (Duel.GetDecktopGroup(tp,1):IsExists(Card.IsAbleToHand,1,nil)
+			or Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummon(tp)
+				and not Duel.IsPlayerAffectedByEffect(tp,63060238)) end
 end
-function c100344032.excop(e,tp,eg,ep,ev,re,r,rp)
+function s.flipop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.IsPlayerCanDiscardDeck(tp,1) then return end
 	Duel.ConfirmDecktop(tp,1)
 	local tc=Duel.GetDecktopGroup(tp,1):GetFirst()
-	Duel.DisableShuffleCheck()
-	if tc:IsSetCard(0x1034) then
-		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-		if tc:IsAbleToHand() and (not tc:IsCanBeSpecialSummoned(e,0,tp,false,false) or ft<=0 or Duel.SelectOption(tp,1190,1152)==0) then
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	local b1=tc:IsAbleToHand()
+	local b2=ft>0 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	if tc:IsSetCard(0x1034) and tc:IsType(TYPE_MONSTER) and (b1 or b2) then
+		if b1 and (not b2 or Duel.SelectOption(tp,1190,1152)==0) then
+			Duel.DisableShuffleCheck()
 			Duel.SendtoHand(tc,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,tc)
 		else
+			Duel.DisableShuffleCheck()
 			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 		end
 	else
+		Duel.DisableShuffleCheck()
 		Duel.SendtoGrave(tc,REASON_EFFECT+REASON_REVEAL)
 	end
 end
