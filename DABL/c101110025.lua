@@ -29,7 +29,6 @@ function c101110025.initial_effect(c)
 	c:RegisterEffect(e2)
 	--negate
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101110025,2))
 	e3:SetCategory(CATEGORY_DISABLE+CATEGORY_DESTROY)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e3:SetCode(EVENT_CHAIN_SOLVING)
@@ -42,7 +41,7 @@ function c101110025.ctfilter(c)
 	return c:IsControlerCanBeChanged() and c:IsFaceup()
 end
 function c101110025.cttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:GetLocation()==LOCATION_MZONE and chkc:GetControler()~=tp and chkc:IsControlerCanBeChanged() end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c101110025.ctfilter(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(c101110025.ctfilter,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONTROL)
 	local g=Duel.SelectTarget(tp,c101110025.ctfilter,tp,0,LOCATION_MZONE,1,1,nil)
@@ -86,17 +85,15 @@ end
 function c101110025.discon(e,tp,eg,ep,ev,re,r,rp)
 	return rp==1-tp and Duel.IsChainDisablable(ev) and re:IsActiveType(TYPE_MONSTER)
 		and Duel.GetMatchingGroupCount(c101110025.disfilter,tp,LOCATION_MZONE,0,nil)>=5
-		and e:GetHandler():GetFlagEffect(101110025)==0
+		and e:GetHandler():GetFlagEffect(101110025)<=0
 end
 function c101110025.disop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local cid=Duel.GetChainInfo(ev,CHAININFO_CHAIN_ID)
-	if Duel.GetFlagEffectLabel(tp,101110025)==cid or not Duel.SelectEffectYesNo(tp,e:GetHandler(),aux.Stringid(101110025,3)) then return end
-	c:RegisterFlagEffect(101110025,RESETS_STANDARD,0,1)
-	Duel.RegisterFlagEffect(tp,101110025,RESET_CHAIN,0,1,cid)
-	Duel.Hint(HINT_CARD,0,101110025)
-	local rc=re:GetHandler()
-	if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) then
-		Duel.Destroy(rc,REASON_EFFECT)
+	if Duel.SelectEffectYesNo(tp,e:GetHandler(),aux.Stringid(101110025,2)) then
+		Duel.Hint(HINT_CARD,0,101110025)
+		local rc=re:GetHandler()
+		if Duel.NegateEffect(ev) and rc:IsRelateToEffect(re) then
+			Duel.Destroy(rc,REASON_EFFECT)
+		end
+		e:GetHandler():RegisterFlagEffect(101110025,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101110025,3))
 	end
 end

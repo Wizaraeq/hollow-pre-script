@@ -35,8 +35,7 @@ function c101110045.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c101110045.spfilter(c,e,tp)
-	return c:IsSetCard(0x288)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x288) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c101110045.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -58,7 +57,6 @@ function c101110045.lzcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c101110045.cfilter,1,nil,tp)
 end
 function c101110045.lztg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE,PLAYER_NONE,0)
 		+Duel.GetLocationCount(1-tp,LOCATION_MZONE,PLAYER_NONE,0)
 		+Duel.GetLocationCount(tp,LOCATION_SZONE,PLAYER_NONE,0)
@@ -68,20 +66,19 @@ function c101110045.lztg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_ZONE,tp,dis)
 end
 function c101110045.lzop(e,tp,eg,ep,ev,re,r,rp)
+	local zone=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
+	if tp==1 then
+		zone=((zone&0xffff)<<16)|((zone>>16)&0xffff)
+	end
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
-	--Disable the chosen zone
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCode(EFFECT_DISABLE_FIELD)
-	e1:SetOperation(c101110045.disop)
-	e1:SetLabel(Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM))
+	e1:SetValue(zone)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 	c:RegisterEffect(e1)
-end
-function c101110045.disop(e)
-	return e:GetLabel() 
 end
 function c101110045.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
