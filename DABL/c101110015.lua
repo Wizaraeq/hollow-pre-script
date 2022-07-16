@@ -46,7 +46,7 @@ function c101110015.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c101110015.flipop(e,tp,eg,ep,ev,re,r,rp)
-	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
+	e:GetHandler():RegisterFlagEffect(101110015,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 end
 function c101110015.indcond(e)
 	local c=e:GetHandler()

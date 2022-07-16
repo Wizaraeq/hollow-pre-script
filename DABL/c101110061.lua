@@ -36,21 +36,23 @@ end
 function c101110061.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local mzones=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	local stzones=Duel.GetLocationCount(tp,LOCATION_SZONE)
-	local g1=Duel.GetMatchingGroup(c101110061.ninja,tp,LOCATION_DECK+LOCATION_GRAVE,0,nil,e,tp)
-	local g2=Duel.GetMatchingGroup(c101110061.ninjitsu,tp,LOCATION_DECK+LOCATION_GRAVE,0,nil,stzones>0)
-	g1:Merge(g2)
-	if chk==0 then return g1:CheckSubGroup(c101110061.rescon,2,2,e,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c101110061.ninjitsu,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil,stzones>0)
+		or (mzones>0 and Duel.IsExistingMatchingCard(c101110061.ninja,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil,e,tp)) end
 end
 function c101110061.rescon(sg,e,tp,mg)
 	return sg:GetClassCount(Card.GetLocation)==#sg and (sg:FilterCount(c101110061.ninjitsu,nil,true)==1 or sg:FilterCount(c101110061.ninja,nil,e,tp)==1)
 end
 function c101110061.operation(e,tp,eg,ep,ev,re,r,rp)
-	local g1=Duel.GetMatchingGroup(aux.NecroValleyFilter(c101110061.ninja),tp,LOCATION_DECK+LOCATION_GRAVE,0,nil,e,tp)
+	local mzones=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	local g1=Group.CreateGroup()
+	if mzones>0 then 
+		g1=Duel.GetMatchingGroup(aux.NecroValleyFilter(c101110061.ninja),tp,LOCATION_DECK+LOCATION_GRAVE,0,nil,e,tp)
+	end
 	local g2=Duel.GetMatchingGroup(aux.NecroValleyFilter(c101110061.ninjitsu),tp,LOCATION_DECK+LOCATION_GRAVE,0,nil,true)
 	g1:Merge(g2)
 	if #g1==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local sg=g1:SelectSubGroup(tp,c101110061.rescon,false,2,2,e,tp)
+	local sg=g1:SelectSubGroup(tp,c101110061.rescon,false,1,2,e,tp)
 	local tc=sg:GetFirst()
 	while tc do
 		if tc:IsType(TYPE_SPELL+TYPE_TRAP) then
