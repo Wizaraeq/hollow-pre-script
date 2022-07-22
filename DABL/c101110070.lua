@@ -1,4 +1,6 @@
 --真刀竹光
+--True Bamboo Sword 
+--Ejeffers1239
 function c101110070.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -37,7 +39,7 @@ function c101110070.initial_effect(c)
 	e4:SetTarget(c101110070.eqtg)
 	e4:SetOperation(c101110070.eqop)
 	c:RegisterEffect(e4)
-end
+end	
 function c101110070.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
@@ -52,40 +54,40 @@ function c101110070.operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101110070.descon(e,tp,eg,ep,ev,re,r,rp)
-	return ep==1-tp and Duel.GetAttackTarget()==nil and Duel.GetAttacker()==e:GetHandler():GetEquipTarget()
+	return Duel.GetAttackTarget()==nil and eg:GetFirst()==e:GetHandler():GetEquipTarget()
 end
 function c101110070.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(nil,tp,0,LOCATION_MZONE,1,nil) end
-	local sg=Duel.GetMatchingGroup(nil,tp,0,LOCATION_MZONE,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
+	if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,0,LOCATION_MZONE,1,nil) end
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_MZONE,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
 function c101110070.desop(e,tp,eg,ep,ev,re,r,rp)
-	local sg=Duel.GetMatchingGroup(nil,tp,0,LOCATION_MZONE,nil)
-	Duel.Destroy(sg,REASON_EFFECT)
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_MZONE,nil)
+	Duel.Destroy(g,REASON_EFFECT)
 end
 function c101110070.eqcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return c:GetEquipTarget() and c:IsAbleToGraveAsCost() end
 	Duel.SendtoGrave(c,REASON_COST)
 end
-function c101110070.tgfilter(c,tp)
-	return c:IsFaceup() and Duel.IsExistingMatchingCard(c101110070.eqfilter,tp,LOCATION_DECK,0,1,nil,c,tp)
+function c101110070.filter(c)
+	return c:IsSetCard(0x60) and not c:IsCode(101110070) and c:IsType(TYPE_EQUIP)
+		and c:CheckUniqueOnField(tp) and not c:IsForbidden()
+		and Duel.IsExistingMatchingCard(c101110070.eqfilter,0,LOCATION_MZONE,LOCATION_MZONE,1,nil,c)
 end
-function c101110070.eqfilter(c,tc,tp)
-	return c:IsType(TYPE_EQUIP) and c:IsSetCard(0x60) and not c:IsCode(101110070) and c:CheckEquipTarget(tc) and c:CheckUniqueOnField(tp) and not c:IsForbidden()
+function c101110070.eqfilter(c,tc)
+	return c:IsFaceup() and tc:CheckEquipTarget(c)
 end
 function c101110070.eqtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101110070.tgfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_EQUIP,nil,1,tp,LOCATION_DECK)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>-1
+		and Duel.IsExistingMatchingCard(c101110070.filter,tp,LOCATION_DECK,0,1,nil) end
 end
 function c101110070.eqop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-	local tc=Duel.SelectMatchingCard(tp,c101110070.tgfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,tp):GetFirst()
+	local g1=Duel.SelectMatchingCard(tp,c101110070.filter,tp,LOCATION_DECK,0,1,1,nil)
+	local tc=g1:GetFirst()
 	if not tc then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-	local g=Duel.SelectMatchingCard(tp,c101110070.eqfilter,tp,LOCATION_DECK,0,1,1,nil,tc,tp)
-	if #g>0 then
-		Duel.Equip(tp,g:GetFirst(),tc)
-	end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g2=Duel.SelectMatchingCard(tp,c101110070.eqfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,tc)
+	Duel.Equip(tp,tc,g2:GetFirst())
 end

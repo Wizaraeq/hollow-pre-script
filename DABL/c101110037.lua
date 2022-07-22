@@ -1,89 +1,95 @@
---沈黙狼
-function c101110037.initial_effect(c)
-	--Equip the top card
+--沈黙狼-カルーポ
+--Script by 奥克斯
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--Equip Fadown
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101110037,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_EQUIP)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e1:SetType(EFFECT_TYPE_TRIGGER_F+EFFECT_TYPE_SINGLE)
 	e1:SetCode(EVENT_SUMMON_SUCCESS)
-	e1:SetTarget(c101110037.eqtg)
-	e1:SetOperation(c101110037.eqop)
+	e1:SetTarget(s.eqtg)
+	e1:SetOperation(s.eqop)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e2)
-	--Opponent must guess the card at the End Phase
+	--Guess
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101110037,1))
-	e3:SetCategory(CATEGORY_TOGRAVE+CATEGORY_HANDES+CATEGORY_TOHAND)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_HANDES)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e3:SetCode(EVENT_PHASE+PHASE_END)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1,101110037)
-	e3:SetCondition(c101110037.condition)
-	e3:SetOperation(c101110037.operation)
+	e3:SetCountLimit(1,id)
+	e3:SetTarget(s.guesstg)
+	e3:SetOperation(s.guessop)
 	c:RegisterEffect(e3)
 end
-function c101110037.eqtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,nil,1,tp,LOCATION_DECK)
 end
-function c101110037.eqop(e,tp,eg,ep,ev,re,r,rp)
+function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not c:IsRelateToEffect(e) or c:IsFacedown() then return end
-	local ec=Duel.GetDecktopGroup(tp,1):GetFirst()
-	if ec then
+	local tc=Duel.GetDecktopGroup(tp,1):GetFirst()
+	if c:IsFaceup() and c:IsRelateToEffect(e) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+		and tc and tc:IsFacedown() then
 		Duel.DisableShuffleCheck()
-		if not Duel.Equip(tp,ec,c,false) then return end
-		ec:RegisterFlagEffect(101110037,RESET_EVENT+RESETS_STANDARD,0,1)
-		--ATK increase
+		if tc:IsForbidden() then
+			Duel.SendtoGrave(tc,REASON_RULE)
+			return
+		end
+		if not Duel.Equip(tp,tc,c,false) then return end
+		--equip limit
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_COPY_INHERIT+EFFECT_FLAG_OWNER_RELATE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetCode(EFFECT_EQUIP_LIMIT)
-		e1:SetValue(c101110037.eqlimit)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		ec:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(ec)
-		e2:SetType(EFFECT_TYPE_EQUIP)
+		e1:SetValue(s.eqlimit)
+		tc:RegisterEffect(e1)
+		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+		--atk up
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_UPDATE_ATTACK)
-		e2:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e2:SetValue(500)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-		ec:RegisterEffect(e2)
+		c:RegisterEffect(e2)
 	end
 end
-function c101110037.eqlimit(e,c)
-	return c:GetControler()==e:GetHandlerPlayer()
+function s.eqlimit(e,c)
+	return e:GetOwner()==c
 end
-function c101110037.eqfilter(c)
-	return c:GetFlagEffect(101110037)>0
+function s.guesstg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0,CATEGORY_HANDES,0,0,1-tp,1)
 end
-function c101110037.condition(e,tp,eg,ep,ev,re,r,rp)
+function s.eqfilter(c)
+	return c:IsFacedown() and c:GetFlagEffect(id)~=0
+end
+function s.guessop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local g=c:GetEquipGroup():Filter(c101110037.eqfilter,nil)
-	return #g>0
-end
-function c101110037.operation(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local eg=c:GetEquipGroup():Filter(c101110037.eqfilter,nil)
-	if not eg or #eg==0 then return end
-	local op=Duel.AnnounceType(1-tp)
-	Duel.ConfirmCards(1-tp,eg:GetFirst())
-	local res=c101110037.testtype(op,eg:GetFirst())
-	if res then
-		Duel.SendtoGrave(c,REASON_EFFECT)
-	else
-		local g=Duel.GetFieldGroup(tp,0,LOCATION_HAND,nil)
-		if #g==0 then return end
-		local sg=g:RandomSelect(1-tp,1)
-		if Duel.SendtoGrave(sg,REASON_DISCARD+REASON_EFFECT)>0 then
-			Duel.SendtoHand(c,nil,REASON_EFFECT)
+	local tc=c:GetEquipGroup():Filter(s.eqfilter,nil):GetFirst()
+	if tc then
+		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_CARDTYPE)
+		local op=Duel.AnnounceType(1-tp)
+		if (op==0 and tc:GetOriginalType()&TYPE_MONSTER~=0)
+			or (op==1 and tc:GetOriginalType()&TYPE_SPELL~=0)
+			or (op==2 and tc:GetOriginalType()&TYPE_TRAP~=0)
+			and c:IsAbleToGrave() then
+			Duel.SendtoGrave(c,REASON_EFFECT)
+		elseif (op==0 and tc:GetOriginalType()&TYPE_MONSTER==0)
+			or (op==1 and tc:GetOriginalType()&TYPE_SPELL==0)
+			or (op==2 and tc:GetOriginalType()&TYPE_TRAP==0) then
+			local g=Duel.GetFieldGroup(1-tp,LOCATION_HAND,0)
+			if g:GetCount()==0 then return end
+			local sg=g:RandomSelect(1-tp,1)
+			if Duel.SendtoGrave(sg,REASON_DISCARD+REASON_EFFECT)>0 and c:IsAbleToHand() then
+				Duel.SendtoHand(c,nil,REASON_EFFECT)
+			end
 		end
 	end
-end
-function c101110037.testtype(op,c)
-	return (op==0 and c:GetOriginalType()&TYPE_MONSTER~=0)
-		or (op==1 and c:GetOriginalType()&TYPE_SPELL~=0)
-		or (op==2 and c:GetOriginalType()&TYPE_TRAP~=0)
 end

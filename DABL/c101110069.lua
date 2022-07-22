@@ -52,14 +52,13 @@ function s.downtg(e,c)
 	return c:IsFacedown()
 end
 function s.flipop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=eg:GetFirst()
-	while tc do
-		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
-		tc=eg:GetNext()
+	local fid=e:GetHandler():GetFieldID()
+	for tc in aux.Next(eg) do
+		tc:RegisterFlagEffect(fid,RESET_EVENT+RESETS_STANDARD,0,1)
 	end
 end
 function s.fliptg(e,c)
-	return  c:GetFlagEffect(id)~=0
+	return c:GetFlagEffect(e:GetHandler():GetFieldID())>0
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

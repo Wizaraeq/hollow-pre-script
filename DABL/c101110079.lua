@@ -33,8 +33,8 @@ function s.cfilter(c,tp)
 		and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil,c)
 end
 function s.thfilter(c,rc)
-	return not c:IsCode(rc:GetCode()) and c:IsLevel(rc:GetLevel()) 
-		and bit.band(c:GetType(),0x81)==0x81 
+	return not c:IsCode(rc:GetCode()) and c:IsLevel(rc:GetLevel())
+		and bit.band(c:GetType(),0x81)==0x81
 		and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -75,7 +75,7 @@ function s.rstg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then
 		if e:GetLabel()==0 then return false end
 		e:SetLabel(0)
-		return Duel.IsExistingMatchingCard(s.rtfilter,tp,LOCATION_HAND,0,1,nil) 
+		return Duel.IsExistingMatchingCard(s.rtfilter,tp,LOCATION_HAND,0,1,nil)
 			and c:IsAbleToRemoveAsCost()
 	end
 	e:SetLabel(0)
