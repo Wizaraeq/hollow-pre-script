@@ -56,8 +56,8 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	if not g or g:GetCount()~=1 then return false end
 	local tc=g:GetFirst()
 	e:SetLabelObject(tc)
-	return tc:IsOnField() and tc:IsControler(tp)
-		and (tc:IsFaceup() and tc:IsSetCard(0x2b) or tc:IsPosition(POS_FACEDOWN_DEFENSE))
+	return tc:IsControler(tp) and tc:IsLocation(LOCATION_ONFIELD) and ((tc:IsSetCard(0x2b) and tc:IsFaceup()) or (tc:IsType(TYPE_MONSTER) and tc:IsPosition(POS_FACEDOWN_DEFENSE)))
+		and tc:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
