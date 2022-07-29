@@ -1,5 +1,6 @@
 --地中界の厄災
 --Script by 奥克斯
+--not fully implemented
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--activate
@@ -17,7 +18,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.downtg)
 	e1:SetValue(aux.tgoval)
 	c:RegisterEffect(e1)
-	--atk/def up 
+	--atk/def up
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
@@ -66,7 +67,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 		and c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_SZONE)
 end
 function s.spfilter(c,e,tp)
-	return  c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE)
+	return c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.spfilter(chkc,e,tp) end

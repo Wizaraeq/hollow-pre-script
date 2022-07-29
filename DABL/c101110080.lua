@@ -21,7 +21,7 @@ function c101110080.operation(e,tp,eg,ep,ev,re,r,rp)
 	if g:GetCount()==0 then return end
 	local tc=g:GetMinGroup(Card.GetSequence):GetFirst()
 	Duel.DisableShuffleCheck()
-	if tc:IsAbleToHand() and Duel.SendtoHand(tc,tp,REASON_EFFECT)>0 then
+	if Duel.SendtoHand(tc,tp,REASON_EFFECT)>0 then
 		if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<=1 then return end
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(101110080,1))

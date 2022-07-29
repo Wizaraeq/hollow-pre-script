@@ -48,6 +48,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil,e,tp)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
+		Duel.ConfirmCards(1-tp,g)
 	end
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
@@ -56,8 +57,9 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	if not g or g:GetCount()~=1 then return false end
 	local tc=g:GetFirst()
 	e:SetLabelObject(tc)
-	return tc:IsControler(tp) and tc:IsLocation(LOCATION_ONFIELD) and ((tc:IsSetCard(0x2b) and tc:IsFaceup()) or (tc:IsType(TYPE_MONSTER) and tc:IsPosition(POS_FACEDOWN_DEFENSE)))
-		and tc:IsAbleToHand()
+	return tc:IsOnField() and tc:IsControler(tp)
+		and (tc:IsFaceup() and tc:IsSetCard(0x2b)
+			or tc:IsLocation(LOCATION_MZONE) and tc:IsPosition(POS_FACEDOWN_DEFENSE))
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -71,6 +73,7 @@ end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) or Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)==0 then return end
+	Duel.ConfirmCards(1-tp,Group.FromCards(c))
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) then Duel.SendtoHand(tc,nil,REASON_EFFECT) end
 end
