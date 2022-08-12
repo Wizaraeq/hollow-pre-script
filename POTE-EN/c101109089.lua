@@ -1,75 +1,75 @@
 --Askaan, the Bicorned Ghoti
-function c101109089.initial_effect(c)
-	--Synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+--Script by Lyris12
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	-- Banish 1 Fish monster you control and 1 card your opponent controls
+	--material
+	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+	--remove
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101109089,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_REMOVE)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCountLimit(1,101109089)
-	e1:SetCondition(c101109089.rmcon)
-	e1:SetTarget(c101109089.rmtg)
-	e1:SetOperation(c101109089.rmop)
+	e1:SetCountLimit(1,id)
+	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e1:SetCondition(s.rmcon)
+	e1:SetTarget(s.rmtg)
+	e1:SetOperation(s.rmop)
 	c:RegisterEffect(e1)
-	-- Special Summon
+	--spsummon
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101109089,1))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_REMOVE)
-	e2:SetCountLimit(1,101109089+100)
-	e2:SetCost(c101109089.spcost)
-	e2:SetTarget(c101109089.sptg)
-	e2:SetOperation(c101109089.spop)
+	e2:SetCountLimit(1,id+o)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCost(s.spcost)
+	e2:SetTarget(s.sptg)
+	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 end
-function c101109089.rmcon(e,tp,eg,ep,ev,re,r,rp)
+function s.rmcon(e)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
-function c101109089.rmfilter(c,e,tp)
-	return c:IsAbleToRemove() and c:IsCanBeEffectTarget(e)
-		and (c:IsControler(1-tp) or (c:IsFaceup() and c:IsRace(RACE_FISH)))
+function s.filter(c)
+	return c:IsFaceup() and c:IsRace(RACE_FISH) and c:IsAbleToRemove()
 end
-function c101109089.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
-	if chk==0 then return Duel.IsExistingTarget(c101109089.rmfilter,tp,LOCATION_MZONE,0,1,nil,e,tp)
-		and Duel.IsExistingTarget(nil,tp,0,LOCATION_ONFIELD,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsExistingTarget(Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g1=Duel.SelectTarget(tp,c101109089.rmfilter,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g2=Duel.SelectTarget(tp,nil,tp,0,LOCATION_ONFIELD,1,1,nil)
-	g1:Merge(g2)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g1,2,0,0)
+	local g2=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,1,1,nil)
+	g:Merge(g2)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,2,0,0)
 end
-function c101109089.rmop(e,tp,eg,ep,ev,re,r,rp)
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	local tg=g:Filter(Card.IsRelateToEffect,nil,e)
-	if tg:GetCount()>0 then
-		Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+	if g then
+		local rg=g:Filter(Card.IsRelateToEffect,nil,e)
+		Duel.Remove(rg,POS_FACEUP,REASON_EFFECT)
 	end
 end
-function c101109089.spcostfilter(c,tp)
-	return c:IsRace(RACE_FISH) and c:IsAbleToRemoveAsCost()
+function s.cfilter(c)
+	return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_FISH) and c:IsAbleToRemoveAsCost()
 end
-function c101109089.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101109089.spcostfilter,tp,LOCATION_GRAVE,0,1,nil,tp) end
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c101109089.spcostfilter,tp,LOCATION_GRAVE,0,1,1,nil,tp)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
-function c101109089.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
-function c101109089.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-	end
+	if c:IsRelateToEffect(e) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end
 end

@@ -45,12 +45,12 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_HAND,0,1,1,nil)
 	if g:GetCount()>0 then
 		Duel.BreakEffect()
-		Duel.DiscardHand(tp,Card.IsRace,1,1,REASON_EFFECT+REASON_DISCARD,nil,RACE_FIEND)
+		Duel.SendtoGrave(g,REASON_EFFECT+REASON_DISCARD)
 	end
 end
 function s.repfilter(c,tp)
-	return c:IsFaceup() and (c:IsType(TYPE_MONSTER) and c:IsSetCard(0x6)) and c:IsLocation(LOCATION_MZONE)
-		and c:IsControler(tp) and not c:IsReason(REASON_REPLACE) and (c:IsReason(REASON_BATTLE) or c:IsReason(REASON_EFFECT)) and c:GetReasonPlayer()==1-tp
+	return c:IsFaceup() and c:IsSetCard(0x6) and c:IsLocation(LOCATION_MZONE) and c:IsControler(tp)
+		and not c:IsReason(REASON_REPLACE) and (c:IsReason(REASON_BATTLE) or c:IsReason(REASON_EFFECT) and c:GetReasonPlayer()==1-tp)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToRemove() and eg:IsExists(s.repfilter,1,nil,tp) end
