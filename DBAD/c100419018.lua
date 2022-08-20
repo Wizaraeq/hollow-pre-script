@@ -1,4 +1,5 @@
 --エクスピュアリィ・ノアール
+--Script by 奥克斯
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--xyz summon
@@ -10,10 +11,10 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_IMMUNE_EFFECT)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCondition(s.efcon)
+	e1:SetCondition(s.imecon)
 	e1:SetValue(s.efilter)
 	c:RegisterEffect(e1)
-	--pos
+	--card to deck
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_TODECK)
@@ -35,7 +36,7 @@ end
 function s.ovfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_XYZ) and c:IsRank(2) and c:GetOverlayCount()>=5
 end
-function s.efcon(e)
+function s.imecon(e)
 	return e:GetHandler():GetOverlayCount()>=5
 end
 function s.efilter(e,re)
@@ -44,7 +45,7 @@ end
 function s.check(c)
 	return c:IsSetCard(0x28c) and c:IsLevel(1)
 end
-function s.tdcon1(e,tp,eg,ep,ev,re,r,rp)
+function s.tdcon1(e)
 	return not e:GetHandler():GetOverlayGroup():IsExists(s.check,1,nil)
 end
 function s.tdcon2(e,tp,eg,ep,ev,re,r,rp)
@@ -52,18 +53,20 @@ function s.tdcon2(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.tdcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,2,REASON_COST) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVEXYZ)
 	e:GetHandler():RemoveOverlayCard(tp,2,2,REASON_COST)
 end
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_ONFIELD+LOCATION_GRAVE) and chkc:IsControler(1-tp) and chkc:IsAbleToDeck() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToDeck,tp,0,LOCATION_ONFIELD+LOCATION_GRAVE,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectTarget(tp,Card.IsAbleToDeck,tp,0,LOCATION_ONFIELD+LOCATION_GRAVE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
 end
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
+	if tc:IsRelateToEffect(e) then
 		Duel.SendtoDeck(tc,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
 	end
 end

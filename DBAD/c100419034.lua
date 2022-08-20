@@ -17,6 +17,8 @@ function c100419034.extraop(e,tp,eg,ep,ev,re,r,rp,tc,mat)
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 		local sg=g:Select(tp,1,ct,nil)
-		Duel.Damage(1-tp,Duel.Destroy(sg,REASON_EFFECT)*1000,REASON_EFFECT)
+		Duel.HintSelection(sg)
+		local res=Duel.Destroy(sg,REASON_EFFECT)
+		Duel.Damage(1-tp,res*1000,REASON_EFFECT)
 	end
 end
