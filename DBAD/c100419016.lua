@@ -55,11 +55,9 @@ function s.gmattg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.gmatop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not c:IsRelateToEffect(e) or c:IsImmuneToEffect(e) then return end
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(aux.NecroValleyFilter(Card.IsRelateToEffect),nil,e)
-	g=g:Filter(aux.NOT(Card.IsImmuneToEffect),nil,e)
-	if #g>0 then
-		Duel.Overlay(e:GetHandler(),g)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e):Filter(aux.NOT(Card.IsImmuneToEffect),nil,e)
+	if c:IsRelateToChain(0) and #g>0 then
+		Duel.Overlay(c,g)
 	end
 end
 function s.matcon(e,tp,eg,ep,ev,re,r,rp)
@@ -74,7 +72,7 @@ end
 function s.matop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=re:GetHandler()
-	if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
+	if c:IsRelateToChain(0) and tc:IsRelateToChain(0) and not tc:IsImmuneToEffect(e) then
 		tc:CancelToGrave()
 		Duel.Overlay(c,tc)
 		if Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,tp)
