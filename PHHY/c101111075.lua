@@ -60,7 +60,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Remove(sg,POS_FACEDOWN,REASON_RULE)
 	end
 end
-
 function s.thfilter(c,tp)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x189)
 		and c:IsAbleToHand() and c:GetOwner()==tp
@@ -79,14 +78,15 @@ end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	local mg=tc:GetOverlayGroup():Filter(s.thfilter,nil,tp)
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and #mg>0 then
+	if tc:IsRelateToEffect(e) and #mg>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local bc=mg:Select(tp,1,1,nil):GetFirst()
 		if Duel.SendtoHand(bc,nil,REASON_EFFECT)>0
 			and bc:IsLocation(LOCATION_HAND) then
 			Duel.ConfirmCards(1-tp,bc)
 			Duel.ShuffleHand(tp)
-			if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and bc:IsCanBeSpecialSummoned(e,0,tp,false,false)
+			if Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+				and bc:IsCanBeSpecialSummoned(e,0,tp,false,false)
 				and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 				Duel.SpecialSummon(bc,0,tp,tp,false,false,POS_FACEUP)
 			end
