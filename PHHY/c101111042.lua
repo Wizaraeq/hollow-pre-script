@@ -34,7 +34,7 @@ function c101111042.damcfilter(c,tp)
 		return prev_race&RACE_INSECT>0 or prev_race&RACE_PLANT>0
 	else
 		if rc:IsRelateToBattle() then
-			return rc:IsControler(tp) and rc:IsRace(RACE_INSECT|RACE_PLANT)
+			return rc:IsControler(tp) and rc:IsRace(RACE_INSECT+RACE_PLANT)
 		else
 			local prev_race=rc:GetPreviousRaceOnField()
 			return rc:IsPreviousControler(tp) and (prev_race&RACE_INSECT>0 or prev_race&RACE_PLANT>0)
