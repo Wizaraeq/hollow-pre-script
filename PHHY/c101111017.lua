@@ -43,7 +43,7 @@ end
 function c101111017.posop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(c101111017.filter,nil,e)
 	if #g>0 and Duel.ChangePosition(g,POS_FACEDOWN_DEFENSE)>0 then
-		local og=Duel.GetOperatedGroup()
+		local og=Duel.GetOperatedGroup():Filter(Card.IsControler,nil,1-tp)
 		local tc=og:GetFirst()
 		while tc do
 			local e1=Effect.CreateEffect(e:GetHandler())
@@ -61,7 +61,7 @@ end
 function c101111017.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_ONFIELD) end
 	if chk==0 then return Duel.IsExistingTarget(nil,tp,0,LOCATION_ONFIELD,1,nil) end
-	local g=Duel.SelectTarget(tp,nil,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,nil,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,LOCATION_ONFIELD,g,#g,0,0)
 end
 function c101111017.desop(e,tp,eg,ep,ev,re,r,rp)
