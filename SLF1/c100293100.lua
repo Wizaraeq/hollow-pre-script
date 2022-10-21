@@ -1,5 +1,6 @@
---coded by Lyris
+--リィラップ
 --Lil-la-Rap
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -9,7 +10,6 @@ function s.initial_effect(c)
 	c:RegisterEffect(e0)
 	--change LP
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(1123)
 	e1:SetCategory(CATEGORY_RECOVER)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)

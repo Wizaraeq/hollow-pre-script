@@ -1,122 +1,112 @@
 --Ghoti Fury
-function c101110091.initial_effect(c)
-	-- Activate
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--Activate
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_ACTIVATE)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	c:RegisterEffect(e0)
+	--remove
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_REMOVE)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetRange(LOCATION_SZONE)
+	e1:SetCountLimit(1,id)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetTarget(s.rmtg)
+	e1:SetOperation(s.rmop)
 	c:RegisterEffect(e1)
-	-- Banish monsters
+	--atkup
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101110091,0))
-	e2:SetCategory(CATEGORY_REMOVE)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_ATKCHANGE)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetRange(LOCATION_SZONE)
-	e2:SetCountLimit(1,101110091)
-	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
-	e2:SetTarget(c101110091.rmtg)
-	e2:SetOperation(c101110091.rmop)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetRange(LOCATION_GRAVE+LOCATION_SZONE)
+	e2:SetCountLimit(1,id+o)
+	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e2:SetCondition(s.atkcon)
+	e2:SetCost(aux.bfgcost)
+	e2:SetTarget(s.atktg)
+	e2:SetOperation(s.atkop)
 	c:RegisterEffect(e2)
-	-- Increase ATK of Fish monsters
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101110091,1))
-	e3:SetCategory(CATEGORY_ATKCHANGE)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e3:SetRange(LOCATION_GRAVE+LOCATION_SZONE)
-	e3:SetCountLimit(1,101110091+100)
-	e3:SetCondition(c101110091.atkcon)
-	e3:SetCost(aux.bfgcost)
-	e3:SetTarget(c101110091.atktg)
-	e3:SetOperation(c101110091.atkop)
-	c:RegisterEffect(e3)
 end
-function c101110091.rmfilter(c,e,tp)
-	return c:IsCanBeEffectTarget(e) and (c:IsControler(1-tp) or (c:IsFaceup() and c:IsRace(RACE_FISH)))
+function s.cfilter(c)
+	return c:IsFaceup() and c:IsRace(RACE_FISH) and c:IsAbleToRemove()
 end
-function c101110091.rmrescon(sg,e,tp,mg)
-	return sg:FilterCount(Card.IsControler,nil,tp)==1
-end
-function c101110091.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
-	local g=Duel.GetMatchingGroup(c101110091.rmfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,e,tp)
-	if chk==0 then return g:CheckSubGroup(c101110091.rmrescon,2,2) end
+	if chk==0 then return Duel.IsExistingTarget(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsExistingTarget(Card.IsAbleToRemove,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local sg=g:SelectSubGroup(tp,c101110091.rmrescon,false,2,2)
-	Duel.SetTargetCard(sg)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,sg,#sg,0,0)
+	local g1=Duel.SelectTarget(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g2=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,0,LOCATION_MZONE,1,1,nil)
+	g1:Merge(g2)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g1,2,0,0)
 end
-function c101110091.rmop(e,tp,eg,ep,ev,re,r,rp)
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
-	if #g>0 and Duel.Remove(g,POS_FACEUP,REASON_EFFECT+REASON_TEMPORARY)~=0 then
+	if #g==2 and Duel.Remove(g,0,REASON_EFFECT+REASON_TEMPORARY)~=0 then
 		local og=Duel.GetOperatedGroup()
-		local tct=1
-		if Duel.GetTurnPlayer()==tp and Duel.GetCurrentPhase()==PHASE_STANDBY then tct=2 end
-		local tc=og:GetFirst()
-		while tc do
-			tc:RegisterFlagEffect(101110091,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,0,tct)
-			tc=og:GetNext()
+		local oc=og:GetFirst()
+		while oc do
+			oc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,0,1)
+			oc=og:GetNext()
 		end
 		og:KeepAlive()
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 		e1:SetCode(EVENT_PHASE+PHASE_STANDBY)
+		e1:SetReset(RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN)
 		e1:SetCountLimit(1)
 		e1:SetLabelObject(og)
-		e1:SetCondition(c101110091.retcon)
-		e1:SetOperation(c101110091.retop)
-		if Duel.GetTurnPlayer()==tp and Duel.GetCurrentPhase()==PHASE_STANDBY then
-			e1:SetReset(RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,2)
-			e1:SetValue(Duel.GetTurnCount())
-		else
-			e1:SetReset(RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN)
-			e1:SetValue(0)
-		end
+		e1:SetCondition(s.retcon)
+		e1:SetOperation(s.retop)
 		Duel.RegisterEffect(e1,tp)
 	end
 end
-function c101110091.retfilter(c)
-	return c:GetFlagEffect(101110091)~=0
+function s.retfilter(c)
+	return c:GetFlagEffect(id)>0
 end
-function c101110091.retcon(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetTurnPlayer()~=tp or Duel.GetTurnCount()==e:GetValue() then return false end
-	return e:GetLabelObject():IsExists(c101110091.retfilter,1,nil)
+function s.retcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnPlayer()==tp
 end
-function c101110091.retop(e,tp,eg,ep,ev,re,r,rp)
-	local g=e:GetLabelObject():Filter(c101110091.retfilter,nil)
-	local tc=g:GetFirst()
-	while tc do
-		Duel.ReturnToField(tc)
-		tc=g:GetNext()
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+	local g=e:GetLabelObject()
+	local sg=g:Filter(s.retfilter,nil)
+	if sg:GetCount()>1 and sg:GetClassCount(Card.GetPreviousControler)==1 then
+		local ft=Duel.GetLocationCount(sg:GetFirst():GetPreviousControler(),LOCATION_MZONE)
+		if ft==1 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+			local tc=sg:Select(tp,1,1,nil):GetFirst()
+			Duel.ReturnToField(tc)
+			sg:RemoveCard(tc)
+		end
 	end
+	for tc in aux.Next(sg) do Duel.ReturnToField(tc) end
 end
-function c101110091.atkfilter(c,tp)
+function s.filter(c,tp)
 	return c:IsFaceup() and c:IsRace(RACE_FISH) and c:IsControler(tp)
 end
-function c101110091.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(c101110091.atkfilter,1,nil,tp) and Duel.GetFieldGroupCount(0,LOCATION_REMOVED,LOCATION_REMOVED)>0
+function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.filter,1,nil,tp) and Duel.GetFieldGroupCount(tp,LOCATION_REMOVED,LOCATION_REMOVED)>0
 end
-function c101110091.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101110091.atkfilter,tp,LOCATION_MZONE,0,1,nil,tp) end
+function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_MZONE,0,1,nil,tp) end
 end
-function c101110091.atkop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(c101110091.atkfilter,tp,LOCATION_MZONE,0,nil,tp)
-	if #g==0 then return end
-	local ct=Duel.GetFieldGroupCount(0,LOCATION_REMOVED,LOCATION_REMOVED)
-	if ct==0 then return end
-	local atk=ct*100
-	local c=e:GetHandler()
-	local tc=g:GetFirst()
-	while tc do
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+	local ct=Duel.GetFieldGroupCount(tp,LOCATION_REMOVED,LOCATION_REMOVED)
+	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,tp)
+	for tc in aux.Next(g) do
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetValue(atk)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		e1:SetValue(ct*100)
 		tc:RegisterEffect(e1)
-		tc=g:GetNext()
 	end
 end

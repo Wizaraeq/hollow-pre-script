@@ -1,4 +1,6 @@
---�����̔����V��
+--凶導の白き天底
+--White Zoa of Dogmatika
+--Scripted by XGlitchy30
 local s,id,o=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
@@ -33,7 +35,8 @@ function s.splimit(e,se,sp,st)
 	return st&SUMMON_TYPE_RITUAL~=SUMMON_TYPE_RITUAL or (se and se:GetHandler():IsSetCard(0x145))
 end
 function s.efilter(e,re)
-	return re:GetOwnerPlayer()~=e:GetOwnerPlayer() and re:IsActivated() and re:IsActiveType(TYPE_MONSTER) and re:IsActiveType(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK)
+	return re:GetOwnerPlayer()~=e:GetOwnerPlayer() and re:IsActivated()
+		and re:IsActiveType(TYPE_MONSTER) and re:IsActiveType(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK)
 end
 function s.tefilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK)

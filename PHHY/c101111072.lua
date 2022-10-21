@@ -1,43 +1,43 @@
 --ギガンティック・サンダークロス
-function c101111072.initial_effect(c)
-	--Banish monster on the field/GY
+--Gigantic Thunder Cross
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101111072,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,101111072,EFFECT_COUNT_CODE_OATH)
-	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
-	e1:SetTarget(c101111072.target)
-	e1:SetOperation(c101111072.activate)
+	e1:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
-function c101111072.filter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsAbleToRemove()
+function s.filter(c)
+	return (c:IsType(TYPE_MONSTER) or c:IsLocation(LOCATION_MZONE)) and c:IsAbleToRemove()
 end
-function c101111072.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) and c101111072.filter(chkc) end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(0x14) and s.filter(chkc) end
 	local ct=math.abs(Duel.GetFieldGroupCount(tp,LOCATION_REMOVED,0)-Duel.GetFieldGroupCount(tp,0,LOCATION_REMOVED))
-	if chk==0 then return ct>0 and Duel.IsExistingTarget(c101111072.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,ct,nil) end
+	if chk==0 then return ct>0 and Duel.IsExistingTarget(s.filter,tp,0x14,0x14,ct,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,c101111072.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,ct,ct,nil)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
+	local g=Duel.SelectTarget(tp,s.filter,tp,0x14,0x14,ct,ct,nil)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,ct,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,0,1-tp,LOCATION_DECK)
 end
-function c101111072.spfilter(c,e,tp)
+function s.sfilter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function c101111072.activate(e,tp,eg,ep,ev,re,r,rp)
-	local rg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
-	if #rg==0 then return end
-	if Duel.Remove(rg,POS_FACEUP,REASON_EFFECT)>0 and Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(c101111072.spfilter,1-tp,LOCATION_DECK,0,1,nil,e,tp)
-		and Duel.SelectYesNo(1-tp,aux.Stringid(101111072,1)) then
-		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(1-tp,c101111072.spfilter,1-tp,LOCATION_DECK,0,1,1,nil,e,tp)
-		if #sg>0 then
-			Duel.BreakEffect()
-			Duel.SpecialSummon(sg,0,1-tp,1-tp,false,false,POS_FACEUP)
-		end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
+	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)<1 or Duel.GetLocationCount(1-tp,LOCATION_MZONE)<1 then return end
+	local sg=Duel.GetMatchingGroup(s.sfilter,tp,0,LOCATION_DECK,nil,e,1-tp)
+	if #sg>0 and Duel.SelectYesNo(1-tp,aux.Stringid(id,1)) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local tg=sg:Select(1-tp,1,1,nil)
+		Duel.BreakEffect()
+		Duel.SpecialSummon(tg,0,1-tp,1-tp,false,false,POS_FACEUP)
 	end
 end

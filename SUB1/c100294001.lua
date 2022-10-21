@@ -1,4 +1,6 @@
 --竜魔導騎士ブラック・マジシャン
+--Dark Magician the Magical Knight of Dragons
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
@@ -13,12 +15,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--damage
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(1122)
 	e2:SetCategory(CATEGORY_DAMAGE)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_BATTLE_DESTROYED)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1)
 	e2:SetCondition(s.damcon)
 	e2:SetTarget(s.damtg)
 	e2:SetOperation(s.damop)
@@ -27,8 +27,8 @@ function s.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_DESTROYED)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
@@ -39,19 +39,19 @@ end
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
 	local rc=tc:GetReasonCard()
-	return eg:GetCount()==1 and rc:IsControler(tp) and tc:IsType(TYPE_MONSTER) and tc:IsReason(REASON_BATTLE)
+	return #eg==1 and rc:IsControler(tp) and tc:IsType(TYPE_MONSTER) and tc:IsReason(REASON_BATTLE)
 end
 function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local dc=eg:Filter(Card.IsPreviousControler,nil,1-tp):GetFirst()
-	if chk==0 then return dc and dc:GetBaseAttack()>0 end
-	local dam=dc:GetBaseAttack()
-	Duel.SetTargetPlayer(1-tp)
-	Duel.SetTargetParam(dam)
-	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,dam)
+	if chk==0 then return true end
+	local bc=eg:GetFirst()
+	Duel.SetTargetCard(bc)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,bc:GetBaseAttack())
 end
 function s.damop(e,tp,eg,ep,ev,re,r,rp)
-	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	Duel.Damage(p,d,REASON_EFFECT)
+	local bc=Duel.GetFirstTarget()
+	if bc:IsRelateToEffect(e) then
+		Duel.Damage(1-tp,bc:GetBaseAttack(),REASON_EFFECT)
+	end
 end
 function s.spfilter1(c,e,tp)
 	return c:IsCode(46986414) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
@@ -74,7 +74,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g2=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter2),tp,LOCATION_HAND+LOCATION_DECK+LOCATION_EXTRA+LOCATION_GRAVE,0,1,1,g1:GetFirst(),e,tp)
 	g1:Merge(g2)
-	if g1:GetCount()==2 then
+	if #g1==2 then
 		Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
