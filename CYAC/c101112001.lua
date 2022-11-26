@@ -47,7 +47,7 @@ function c101112001.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return not c:IsRace(RACE_CYBERSE)
 end
 function c101112001.spfilter(c,e,tp)
-	return c:IsSetCard(0x28f) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
+	return c:IsSetCard(0x28f) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(101112001)
 end
 function c101112001.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
