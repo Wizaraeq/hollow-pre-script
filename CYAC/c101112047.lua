@@ -1,9 +1,10 @@
 --ファイアウォール・ドラゴン・シンギュラリティ
+--Script by 奥克斯
 function c101112047.initial_effect(c)
 	--link summon
 	aux.AddLinkProcedure(c,aux.FilterBoolFunction(Card.IsLinkType,TYPE_EFFECT),3)
 	c:EnableReviveLimit()
-	--Return cards from field/GY to the hand
+	--return tohand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101112047,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_ATKCHANGE)
@@ -11,13 +12,12 @@ function c101112047.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetHintTiming(TIMING_DAMAGE_STEP,TIMING_DAMAGE_STEP+TIMINGS_CHECK_MONSTER)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
 	e1:SetCountLimit(1,101112047)
-	e1:SetCondition(c101112047.thcon)
 	e1:SetTarget(c101112047.thtg)
 	e1:SetOperation(c101112047.thop)
 	c:RegisterEffect(e1)
-	--Special Summon 1 Cyberse monster from your GY
+	--Special Summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
@@ -34,7 +34,7 @@ function c101112047.initial_effect(c)
 	e4:SetDescription(aux.Stringid(101112047,1))
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e4:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_DELAY)
+	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
 	e4:SetCode(EVENT_CUSTOM+101112047)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1,101112047+100)
@@ -42,33 +42,29 @@ function c101112047.initial_effect(c)
 	e4:SetOperation(c101112047.spop)
 	c:RegisterEffect(e4)
 end
-function c101112047.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentPhase()~=PHASE_DAMAGE or not Duel.IsDamageCalculated()
-end
-function c101112047.ctfilter(c,type)
-	return c:IsType(type)
+function c101112047.filter(c)
+	return c:IsType(TYPE_MONSTER) and c:IsType(TYPE_RITUAL+TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ) and c:IsFaceupEx()
 end
 function c101112047.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(c101112047.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
+	if chkc then return chkc:IsLocation(LOCATION_ONFIELD+LOCATION_GRAVE) and chkc:IsControler(1-tp) and chkc:IsAbleToHand() end
+	if chk==0 then return #g>0 and Duel.IsExistingTarget(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD+LOCATION_GRAVE,1,nil) end
 	local ct=0
-	for i,type in ipairs({TYPE_FUSION,TYPE_RITUAL,TYPE_SYNCHRO,TYPE_XYZ}) do
-		if Duel.IsExistingMatchingCard(c101112047.ctfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,type) then
+	for i,type in ipairs({TYPE_RITUAL,TYPE_FUSION,TYPE_SYNCHRO,TYPE_XYZ}) do
+		if g:IsExists(Card.IsType,1,nil,type) then
 			ct=ct+1
 		end
 	end
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_ONFIELD+LOCATION_GRAVE) and chkc:IsAbleToHand() end
-	if chk==0 then return ct>0 and Duel.IsExistingTarget(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD+LOCATION_GRAVE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD+LOCATION_GRAVE,1,ct,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
 end
 function c101112047.thop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
-	if #g==0 or Duel.SendtoHand(g,nil,REASON_EFFECT)==0 then return end
-	local ct=Duel.GetOperatedGroup():FilterCount(Card.IsLocation,nil,LOCATION_HAND)
-	if ct>0 then
-		local c=e:GetHandler()
-		--Increase ATK
+	if #g==0 then return end
+	local ct=Duel.SendtoHand(g,nil,REASON_EFFECT)
+	if ct>0 and c:IsFaceup() and c:IsRelateToEffect(e) then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
@@ -79,7 +75,7 @@ function c101112047.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c101112047.cfilter(c,tp,zone)
 	local seq=c:GetPreviousSequence()
-	if not c:IsPreviousControler(tp) then seq=seq+16 end
+	if c:IsPreviousControler(1-tp) then seq=seq+16 end
 	return c:IsPreviousLocation(LOCATION_MZONE) and bit.extract(zone,seq)~=0
 end
 function c101112047.regcon(e,tp,eg,ep,ev,re,r,rp)
@@ -98,12 +94,11 @@ function c101112047.spfilter(c,e,tp)
 	return c:IsRace(RACE_CYBERSE) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c101112047.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and c101112047.spfilter(chkc,e,tp) end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(c101112047.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c101112047.spfilter(chkc,e,tp) end
+	if chk==0 then return Duel.IsExistingTarget(c101112047.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectTarget(tp,c101112047.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,tp,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 end
 function c101112047.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()

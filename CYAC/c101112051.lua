@@ -1,10 +1,10 @@
---coded by Lyris
 --Cynet Rollback
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--spsummon
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(1118)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--tohand
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(1104)
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
@@ -49,17 +49,15 @@ function s.hfilter(c)
 	return c:IsFaceup() and c:IsRace(RACE_CYBERSE) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_REMOVED) and s.hfilter(chkc) end
+	if chkc then return false end
 	if chk==0 then return Duel.IsExistingTarget(s.hfilter,tp,LOCATION_REMOVED,0,2,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectTarget(tp,s.hfilter,tp,LOCATION_REMOVED,0,2,2,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,2,0,0)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	local sg=g:Filter(Card.IsRelateToEffect,nil,e)
-	if sg:GetCount()>0 then
-		Duel.SendtoHand(sg,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,sg)
+	local g=Duel.GetTargetsRelateToChain()
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
 	end
 end

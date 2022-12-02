@@ -1,8 +1,10 @@
 --サイバース・ディセーブルム
+--Script by 奥克斯
 function c101112034.initial_effect(c)
+	--fusion material
 	c:EnableReviveLimit()
 	aux.AddFusionProcFun2(c,c101112034.matfilter,aux.FilterBoolFunction(Card.IsRace,RACE_CYBERSE),true)
-	--Special Summon 1 Cyberse monster from the hand
+	--Special Summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101112034,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -12,7 +14,7 @@ function c101112034.initial_effect(c)
 	e1:SetTarget(c101112034.sptg)
 	e1:SetOperation(c101112034.spop)
 	c:RegisterEffect(e1)
-	--Negate the activation of an opponent's Spell/Trap or effect
+	--negate
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(101112034,1))
 	e2:SetCategory(CATEGORY_NEGATE)
@@ -27,7 +29,7 @@ function c101112034.initial_effect(c)
 	e2:SetOperation(c101112034.negop)
 	c:RegisterEffect(e2)
 end
-function c101112034.matfilter(c,fc,sumtype,tp)
+function c101112034.matfilter(c)
 	return c:IsFusionType(TYPE_RITUAL+TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK) and c:IsRace(RACE_CYBERSE)
 end
 function c101112034.spfilter(c,e,tp)
@@ -39,30 +41,33 @@ function c101112034.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND)
 end
 function c101112034.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)==0 then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<1 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tc=Duel.SelectMatchingCard(tp,c101112034.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp):GetFirst()
+	local g=Duel.SelectMatchingCard(tp,c101112034.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
 	local c=e:GetHandler()
-	if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0
-		and c:IsRelateToEffect(e) and c:IsFaceup() and c:IsLevelAbove(1)
-		and not c:IsLevel(tc:GetLevel()) and Duel.SelectYesNo(tp,aux.Stringid(101112034,2)) then
-		Duel.BreakEffect()
-		--Change this card's Level
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CHANGE_LEVEL)
-		e1:SetValue(tc:GetLevel())
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
-		c:RegisterEffect(e1)
+	if #g>0 then
+		local tc=g:GetFirst()
+		if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0
+			and c:IsFaceup() and c:IsRelateToChain()
+			and c:GetLevel()>0 and c:GetLevel()~=tc:GetLevel()
+			and Duel.SelectYesNo(tp,aux.Stringid(101112034,2)) then
+			Duel.BreakEffect()
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_CHANGE_LEVEL)
+			e1:SetValue(tc:GetLevel())
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
+			c:RegisterEffect(e1)
+		end
 	end
 end
 function c101112034.cfilter(c)
-	return c:IsRace(RACE_CYBERSE) and c:IsLinkAbove(4)
+	return c:IsRace(RACE_CYBERSE) and c:IsType(TYPE_LINK) and c:IsLinkAbove(4)
 end
 function c101112034.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
-		and ep~=tp and re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and Duel.IsChainNegatable(ev)
-		and Duel.IsExistingMatchingCard(c101112034.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	local c=e:GetHandler()
+	if not Duel.IsExistingMatchingCard(c101112034.cfilter,tp,LOCATION_MZONE,0,1,nil) then return false end
+	return not c:IsStatus(STATUS_BATTLE_DESTROYED) and ep~=tp and re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and Duel.IsChainNegatable(ev)
 end
 function c101112034.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

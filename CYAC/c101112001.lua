@@ -1,8 +1,8 @@
 --ファイアウォール・ディフェンサー
+--Script by 奥克斯
 function c101112001.initial_effect(c)
-	--Special Summon 1 "Firewall" monster from the Deck
+	--Special Summon
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101112001,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
@@ -13,7 +13,7 @@ function c101112001.initial_effect(c)
 	e1:SetTarget(c101112001.sptg)
 	e1:SetOperation(c101112001.spop)
 	c:RegisterEffect(e1)
-	--Destruction replacement
+	--destroy replace
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EFFECT_DESTROY_REPLACE)
@@ -23,6 +23,7 @@ function c101112001.initial_effect(c)
 	e2:SetValue(c101112001.repval)
 	e2:SetOperation(c101112001.repop)
 	c:RegisterEffect(e2)
+	--
 	Duel.AddCustomActivityCounter(101112001,ACTIVITY_SPSUMMON,c101112001.counterfilter)
 end
 function c101112001.counterfilter(c)
@@ -30,7 +31,8 @@ function c101112001.counterfilter(c)
 end
 function c101112001.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsLocation(LOCATION_GRAVE) and r==REASON_LINK and c:GetReasonCard():IsRace(RACE_CYBERSE)
+	local rc=c:GetReasonCard()
+	return c:IsLocation(LOCATION_GRAVE) and r==REASON_LINK and rc:IsRace(RACE_CYBERSE)
 end
 function c101112001.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetCustomActivityCount(101112001,tp,ACTIVITY_SPSUMMON)==0 end
@@ -38,16 +40,16 @@ function c101112001.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetReset(RESET_PHASE+PHASE_END)
 	e1:SetTargetRange(1,0)
 	e1:SetTarget(c101112001.splimit)
-	e1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e1,tp)
 end
-function c101112001.splimit(e,c,sump,sumtype,sumpos,targetp,se)
+function c101112001.splimit(e,c)
 	return not c:IsRace(RACE_CYBERSE)
 end
 function c101112001.spfilter(c,e,tp)
-	return c:IsSetCard(0x28f) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(101112001)
+	return not c:IsCode(101112001) and c:IsSetCard(0x28f) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c101112001.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -55,7 +57,7 @@ function c101112001.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
 function c101112001.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)==0 then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<1 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,c101112001.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
 	if #g>0 then
@@ -63,19 +65,15 @@ function c101112001.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101112001.repfilter(c,tp)
-	return c:IsFaceup() and c:IsSetCard(0x28f) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE)
-		and c:IsReason(REASON_EFFECT) and not c:IsReason(REASON_REPLACE)
+	return not c:IsReason(REASON_REPLACE) and c:IsFaceup() and c:IsSetCard(0x28f) and c:IsLocation(LOCATION_MZONE) and c:IsControler(tp) and c:IsReason(REASON_EFFECT)
 end
 function c101112001.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsAbleToRemove() and eg:IsExists(c101112001.repfilter,1,nil,tp) end
-	if Duel.SelectEffectYesNo(tp,c,96) then
-		return true
-	end
+	if chk==0 then return e:GetHandler():IsAbleToRemove() and eg:IsExists(c101112001.repfilter,1,nil,tp) end
+	return Duel.SelectEffectYesNo(tp,e:GetHandler(),96)
 end
 function c101112001.repval(e,c)
 	return c101112001.repfilter(c,e:GetHandlerPlayer())
 end
 function c101112001.repop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT)
+	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
 end
