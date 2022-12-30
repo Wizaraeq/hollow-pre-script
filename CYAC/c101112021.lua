@@ -36,6 +36,7 @@ function c101112021.initial_effect(c)
 	e5:SetCode(EVENT_FREE_CHAIN)
 	e5:SetRange(LOCATION_REMOVED)
 	c:RegisterEffect(e5)
+	c101112021.summon_effect=e2
 end
 function c101112021.cfilter(c,tp)
 	return c:IsControler(tp) and c:IsSetCard(0x9c,0x53) and not c:IsCode(101112021)

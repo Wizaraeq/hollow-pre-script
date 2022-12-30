@@ -36,6 +36,7 @@ function c101112020.initial_effect(c)
 	e5:SetCode(EVENT_FREE_CHAIN)
 	e5:SetRange(LOCATION_REMOVED)
 	c:RegisterEffect(e5)
+	c101112020.summon_effect=e1
 end
 function c101112020.cfilter(c)
 	return c:IsType(TYPE_XYZ) and c:IsFaceup() and c:IsAttribute(ATTRIBUTE_LIGHT+ATTRIBUTE_DARK)
