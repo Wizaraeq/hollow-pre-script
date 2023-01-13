@@ -11,26 +11,27 @@ function c101112079.initial_effect(c)
 	e1:SetTarget(c101112079.target)
 	e1:SetOperation(c101112079.operation)
 	c:RegisterEffect(e1)
-	--Destroy
+	--Destroy this card when any of the targeted monsters leave the field
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e2:SetCode(EVENT_LEAVE_FIELD_P)
-	e2:SetOperation(c101112079.checkop)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EVENT_LEAVE_FIELD)
+	e2:SetRange(LOCATION_SZONE)
+	e2:SetCondition(c101112079.descon2)
+	e2:SetOperation(c101112079.desop2)
 	c:RegisterEffect(e2)
+	--Destroy the targeted monsters when this card leaves the field
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
-	e3:SetCode(EVENT_LEAVE_FIELD)
-	e3:SetOperation(c101112079.desop)
-	e3:SetLabelObject(e2)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e3:SetCode(EVENT_LEAVE_FIELD_P)
+	e3:SetOperation(c101112079.checkop)
 	c:RegisterEffect(e3)
-	--Destroy2
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
-	e4:SetRange(LOCATION_SZONE)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e4:SetCode(EVENT_LEAVE_FIELD)
-	e4:SetCondition(c101112079.descon2)
-	e4:SetOperation(c101112079.desop2)
+	e4:SetCondition(c101112079.descon)
+	e4:SetOperation(c101112079.desop)
+	e4:SetLabelObject(e3)
 	c:RegisterEffect(e4)
 end
 function c101112079.cost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -71,22 +72,22 @@ function c101112079.operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 	Duel.SpecialSummonComplete()
 end
+function c101112079.descon2(e,tp,eg,ep,ev,re,r,rp)
+	local tg=e:GetHandler():GetCardTarget()
+	return tg and #tg>0 and #(eg&tg)>0
+end
 function c101112079.checkop(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetHandler():IsDisabled() then
 		e:SetLabel(1)
 	else e:SetLabel(0) end
 end
+function c101112079.descon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetLabelObject():GetLabel()==0
+end
 function c101112079.desop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetLabelObject():GetLabel()~=0 then return end
-	local g=e:GetHandler():GetCardTarget():Filter(Card.IsLocation,nil,LOCATION_MZONE)
-	Duel.Destroy(g,REASON_EFFECT)
-end
-function c101112079.dfilter(c,g)
-	return g:IsContains(c)
-end
-function c101112079.descon2(e,tp,eg,ep,ev,re,r,rp)
-	local g=e:GetHandler():GetCardTarget()
-	return eg:FilterCount(c101112079.dfilter,nil,g)<#g
+	local tg=e:GetHandler():GetCardTarget():Filter(Card.IsLocation,nil,LOCATION_MZONE)
+	if not tg or #tg==0 then return end
+	Duel.Destroy(tg,REASON_EFFECT)
 end
 function c101112079.desop2(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Destroy(e:GetHandler(),REASON_EFFECT)
