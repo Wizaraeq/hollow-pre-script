@@ -32,7 +32,7 @@ function c101112049.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c101112049.lcheck(g,lc)
-	return g:IsExists(Card.IsLinkType,1,nil,TYPE_LINK)
+	return g:IsExists(Card.IsLinkType,1,nil,TYPE_PENDULUM)
 end
 function c101112049.filter(c)
 	return c:IsFaceup() and c:IsType(TYPE_PENDULUM)
