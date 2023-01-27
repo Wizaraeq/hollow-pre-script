@@ -1,27 +1,27 @@
 --ペンデュラムーン
+--Script by 奥克斯
 function c101112030.initial_effect(c)
 	--pendulum summon
 	aux.EnablePendulumAttribute(c)
-	--Add 1 "Pendulum" Pendulum monster from the Extra Deck to the hand
+	--extra to hand
+	local e0=Effect.CreateEffect(c)
+	e0:SetCategory(CATEGORY_TOHAND+CATEGORY_DESTROY)
+	e0:SetType(EFFECT_TYPE_IGNITION)
+	e0:SetRange(LOCATION_PZONE)
+	e0:SetCountLimit(1,101112030)
+	e0:SetTarget(c101112030.thtg1)
+	e0:SetOperation(c101112030.thop1)
+	c:RegisterEffect(e0)
+	--to hand 2
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(101112030,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_DESTROY)
+	e1:SetCategory(CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_PZONE)
-	e1:SetCountLimit(1,101112030)
-	e1:SetTarget(c101112030.thtg)
-	e1:SetOperation(c101112030.thop)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCountLimit(1,101112030+100)
+	e1:SetTarget(c101112030.thtg2)
+	e1:SetOperation(c101112030.thop2)
 	c:RegisterEffect(e1)
-	--Add up to 2 Pendulum monsters from the Extra Deck to the hand
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101112030,1))
-	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,101112030+100)
-	e2:SetTarget(c101112030.thtg2)
-	e2:SetOperation(c101112030.thop2)
-	c:RegisterEffect(e2)
 	if not c101112030.global_check then
 		c101112030.global_check=true
 		local ge1=Effect.CreateEffect(c)
@@ -36,50 +36,57 @@ function c101112030.checkop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterFlagEffect(rp,101112030,RESET_PHASE+PHASE_END,0,1)
 	end
 end
-function c101112030.thfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0xf2) and c:IsType(TYPE_PENDULUM) and c:IsAbleToHand()
+function c101112030.thfilter1(c)
+	if c:IsFacedown() or not c:IsType(TYPE_PENDULUM) then return false end
+	return c:IsSetCard(0xf2) and c:IsAbleToHand()
 end
-function c101112030.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101112030.thfilter,tp,LOCATION_EXTRA,0,1,nil) end
+function c101112030.thtg1(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(c101112030.thfilter1,tp,LOCATION_EXTRA,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_EXTRA)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,e:GetHandler(),1,0,0)
 end
-function c101112030.thop(e,tp,eg,ep,ev,re,r,rp)
+function c101112030.thop1(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local tc=Duel.SelectMatchingCard(tp,c101112030.thfilter,tp,LOCATION_EXTRA,0,1,1,nil):GetFirst()
-	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 and tc:IsLocation(LOCATION_HAND) then
+	local g=Duel.SelectMatchingCard(tp,c101112030.thfilter1,tp,LOCATION_EXTRA,0,1,1,nil)
+	if #g==0 then return end
+	local tc=g:GetFirst()
+	if Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 and tc:IsLocation(LOCATION_HAND) then
 		Duel.ConfirmCards(1-tp,tc)
+		if not c:IsRelateToEffect(e) then return end
 		Duel.BreakEffect()
-		Duel.Destroy(e:GetHandler(),REASON_EFFECT)
+		Duel.Destroy(c,REASON_EFFECT)
 	end
 end
 function c101112030.thfilter2(c,lsc,rsc)
-	return c:IsFaceup() and c:IsLevelAbove(1) and c:IsType(TYPE_PENDULUM) and c:GetLevel()>lsc and c:GetLevel()<rsc and c:IsAbleToHand()
+	if c:IsFacedown() or not c:IsType(TYPE_PENDULUM) then return false end
+	local lv=c:GetLevel()
+	return lv>lsc and lv<rsc and c:IsAbleToHand()
 end
 function c101112030.thtg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local lsc=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-	local rsc=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
-	if chk==0 and not (lsc and rsc) then return false end
-	lsc=lsc:GetLeftScale()
-	rsc=rsc:GetRightScale()
-	if lsc>rsc then lsc,rsc=rsc,lsc end
-	if chk==0 then return Duel.IsExistingMatchingCard(c101112030.thfilter2,tp,LOCATION_EXTRA,0,1,nil,lsc,rsc) end
+	if chk==0 then
+		local lc=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
+		local sc=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+		if not lc or not sc then return false end
+		local lsc=lc:GetLeftScale()
+		local rsc=sc:GetRightScale()
+		if lsc>rsc then lsc,rsc=rsc,lsc end
+		return Duel.IsExistingMatchingCard(c101112030.thfilter2,tp,LOCATION_EXTRA,0,1,nil,lsc,rsc)
+	end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_EXTRA)
 end
 function c101112030.thop2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	--Add cards to the hand
-	local lsc=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-	local rsc=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
-	if not (lsc and rsc) then return end
-	lsc=lsc:GetLeftScale()
-	rsc=rsc:GetRightScale()
+	local lc=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
+	local sc=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+	if not lc or not sc then return end
+	local lsc=lc:GetLeftScale()
+	local rsc=sc:GetRightScale()
 	if lsc>rsc then lsc,rsc=rsc,lsc end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local sg=Duel.SelectMatchingCard(tp,c101112030.thfilter2,tp,LOCATION_EXTRA,0,1,2,nil,lsc,rsc)
-	if #sg>0 then
-		Duel.SendtoHand(sg,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,sg)
+	if lc and sc and Duel.IsExistingMatchingCard(c101112030.thfilter2,tp,LOCATION_EXTRA,0,1,nil,lsc,rsc) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+		local g=Duel.SelectMatchingCard(tp,c101112030.thfilter2,tp,LOCATION_EXTRA,0,1,2,nil,lsc,rsc)
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
 	end
 	Duel.ResetFlagEffect(tp,101112030)
 	local e1=Effect.CreateEffect(e:GetHandler())

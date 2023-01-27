@@ -1,87 +1,91 @@
 --双天の獅使－阿吽
+--Script by 奥克斯
 function c101112038.initial_effect(c)
-	--fusion material
+	--fusion summon
 	c:EnableReviveLimit()
-	aux.AddFusionProcFunRep(c,aux.FilterBoolFunction(Card.IsFusionSetCard,0x14f),2,true)
-	--Apply effects if Fusion Summoned with specific materials
-	local e1a=Effect.CreateEffect(c)
-	e1a:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e1a:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1a:SetCondition(c101112038.condition)
-	e1a:SetOperation(c101112038.operation)
-	c:RegisterEffect(e1a)
-	--Material Check
-	local e1b=Effect.CreateEffect(c)
-	e1b:SetType(EFFECT_TYPE_SINGLE)
-	e1b:SetCode(EFFECT_MATERIAL_CHECK)
-	e1b:SetValue(c101112038.valcheck)
-	e1b:SetLabelObject(e1a)
-	c:RegisterEffect(e1b)
-	--Special Summon 2 monsters if it is destroyed
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101112038,0))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
-	e2:SetCode(EVENT_DESTROYED)
-	e2:SetCondition(c101112038.spcon)
-	e2:SetTarget(c101112038.sptg)
-	e2:SetOperation(c101112038.spop)
-	c:RegisterEffect(e2)
+	aux.AddFusionProcFunRep(c,aux.FilterBoolFunction(Card.IsSetCard,0x14f),2,true)
+	--effect gain
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e0:SetCondition(c101112038.regcon)
+	e0:SetOperation(c101112038.regop)
+	c:RegisterEffect(e0)
+	--special summon
+	local e3=Effect.CreateEffect(c)
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
+	e3:SetCode(EVENT_DESTROYED)
+	e3:SetCondition(c101112038.spcon)
+	e3:SetTarget(c101112038.sptg)
+	e3:SetOperation(c101112038.spop)
+	c:RegisterEffect(e3)
 end
-function c101112038.condition(e)
+function c101112038.regcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
-function c101112038.valcheck(e,c)
-	local g=c:GetMaterial()
-	local flag=0
-	if g:IsExists(Card.IsCode,1,nil,33026283) then flag=flag+1 end
-	if g:IsExists(Card.IsCode,1,nil,284224) then flag=flag+2 end
-	e:GetLabelObject():SetLabel(flag)
-end
-function c101112038.operation(e,tp,eg,ep,ev,re,r,rp)
-	local flag=e:GetLabel()
+function c101112038.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if (flag&1)>0 then
-		local e1=Effect.CreateEffect(c)
-		e1:SetCategory(CATEGORY_ATKCHANGE)
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetRange(LOCATION_MZONE)
-		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
-		e1:SetTargetRange(LOCATION_MZONE,0)
-		e1:SetTarget(c101112038.atktg)
-		e1:SetCondition(c101112038.atkcon)
-		e1:SetValue(3000)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		c:RegisterEffect(e1)
-		c:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101112038,2))
+	local g=c:GetMaterial()
+	if #g==0 then return end
+	if g:IsExists(Card.IsType,1,nil,TYPE_EFFECT) then
+		c:RegisterFlagEffect(85360035,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD,0,1)
 	end
-	if (flag&2)>0 then
-		local e2=Effect.CreateEffect(c)
-		e2:SetDescription(aux.Stringid(101112038,1))
-		e2:SetCategory(CATEGORY_REMOVE)
-		e2:SetType(EFFECT_TYPE_QUICK_O)
-		e2:SetCode(EVENT_FREE_CHAIN)
-		e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-		e2:SetRange(LOCATION_MZONE)
-		e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
-		e2:SetCountLimit(1)
-		e2:SetCondition(c101112038.rmcon)
-		e2:SetTarget(c101112038.rmtg)
-		e2:SetOperation(c101112038.rmop)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-		c:RegisterEffect(e2)
-		c:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101112038,3))
+	local chk1=0
+	local chk2=0
+	if g:IsExists(Card.IsOriginalCodeRule,1,nil,33026283) then
+		chk1=1
+		c:RegisterFlagEffect(101112038,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101112038,0))
 	end
+	if g:IsExists(Card.IsOriginalCodeRule,1,nil,284224) then
+		chk2=1
+		c:RegisterFlagEffect(101112038,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101112038,1))
+	end
+	--atk down
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetTargetRange(LOCATION_MZONE,0)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e1:SetCondition(c101112038.atkcon)
+	e1:SetTarget(c101112038.atktg)
+	e1:SetValue(3000)
+	e1:SetLabel(chk1)
+	c:RegisterEffect(e1)
+	--remove
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(101112038,2))
+	e2:SetCategory(CATEGORY_REMOVE)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
+	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e2:SetCountLimit(1)
+	e2:SetCondition(c101112038.rmcon)
+	e2:SetTarget(c101112038.rmtg)
+	e2:SetOperation(c101112038.rmop)
+	e2:SetLabel(chk2)
+	c:RegisterEffect(e2)
 end
-function c101112038.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentPhase()==PHASE_DAMAGE_CAL
+function c101112038.atkcon(e)
+	if e:GetLabel()~=1 then return false end
+	local tp=e:GetHandlerPlayer()
+	local a=Duel.GetBattleMonster(tp)
+	return Duel.GetCurrentPhase()==PHASE_DAMAGE_CAL and a and a:IsSetCard(0x14f)
 end
 function c101112038.atktg(e,c)
-	return c:IsSetCard(0x14f) and c:IsRelateToBattle()
+	local tp=e:GetHandlerPlayer()
+	local a=Duel.GetBattleMonster(tp)
+	return c==a
 end
-function c101112038.rmcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()~=tp
+function c101112038.rmcon(e)
+	if e:GetLabel()~=1 then return false end
+	return Duel.GetTurnPlayer()~=e:GetHandlerPlayer()
 end
 function c101112038.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsAbleToRemove() end
@@ -100,40 +104,42 @@ function c101112038.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_FUSION)
 end
-function c101112038.spfilter1(c,e,tp)
-	return c:IsCode(85360035) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and Duel.IsExistingMatchingCard(c101112038.spfilter2,tp,LOCATION_DECK,0,1,c,e,tp)
-end
-function c101112038.spfilter2(c,e,tp)
-	return c:IsCode(11759079) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function c101112038.spfilter(c,e,tp)
+	return c:IsCode(85360035,11759079) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c101112038.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>1
-		and not Duel.IsPlayerAffectedByEffect(tp,59822133)
-		and Duel.IsExistingMatchingCard(c101112038.spfilter1,tp,LOCATION_DECK,0,1,nil,e,tp) end
+	if chk==0 then
+		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+		if ft<2 or Duel.IsPlayerAffectedByEffect(tp,59822133) then return false end
+		local g=Duel.GetMatchingGroup(c101112038.spfilter,tp,LOCATION_DECK,0,nil,e,tp)
+		return g:CheckSubGroup(aux.dncheck,2,2)
+	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,2,tp,LOCATION_DECK)
 end
 function c101112038.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<2
-		or Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft<2 or Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
+	local g=Duel.GetMatchingGroup(c101112038.spfilter,tp,LOCATION_DECK,0,nil,e,tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g1=Duel.SelectMatchingCard(tp,c101112038.spfilter1,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g2=Duel.SelectMatchingCard(tp,c101112038.spfilter2,tp,LOCATION_DECK,0,1,1,g1:GetFirst(),e,tp)
-	g1:Merge(g2)
-	if g1:GetCount()==2 then
-		Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)
-		for tc in aux.Next(g1) do
+	local sg=g:SelectSubGroup(tp,aux.dncheck,false,2,2)
+	if not sg then return end
+	local tc=sg:GetFirst()
+	for tc in aux.Next(sg) do
+		if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
 			local e1=Effect.CreateEffect(e:GetHandler())
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
 			e1:SetValue(1)
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 			tc:RegisterEffect(e1)
-			local e2=e1:Clone()
+			local e2=Effect.CreateEffect(e:GetHandler())
+			e2:SetType(EFFECT_TYPE_SINGLE)
 			e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+			e2:SetValue(1)
+			e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 			tc:RegisterEffect(e2)
+			tc:RegisterFlagEffect(101112038,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101112038,3))
 		end
-		Duel.SpecialSummonComplete()
 	end
+	Duel.SpecialSummonComplete()
 end

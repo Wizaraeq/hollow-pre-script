@@ -1,5 +1,5 @@
 --導きの聖女クエム
-
+--Guiding Quem, the Virtuous
 --Script by Chrono-Genex
 function c101112011.initial_effect(c)
 	aux.AddCodeList(c,68468459)
@@ -53,7 +53,7 @@ function c101112011.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_EXTRA)
 end
 function c101112011.spfilter(c,e,tp)
-	return (c:IsCode(68468459) or aux.IsCodeListed(c,68468459)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return (c:IsCode(68468459) or aux.IsCodeListed(c,68468459)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(101112011)
 end
 function c101112011.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c101112011.spfilter(chkc,e,tp) end

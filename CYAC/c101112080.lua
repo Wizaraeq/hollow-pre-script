@@ -22,7 +22,6 @@ function c101112080.cfop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmDecktop(1-p,5)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local tc=g:FilterSelect(tp,Card.IsAbleToHand,1,1,nil,tp):GetFirst()
-	if not tc then return end
 	local num=math.floor(3000/100)
 	local t={}
 	for i=1,num do
@@ -30,11 +29,11 @@ function c101112080.cfop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	local val=Duel.AnnounceNumber(tp,table.unpack(t))
 	if Duel.SelectYesNo(1-p,aux.Stringid(101112080,0)) then
-		if Duel.Recover(1-p,val,REASON_EFFECT)>0 then 
+		if Duel.Recover(1-p,val,REASON_EFFECT)>0 then
 			Duel.SetLP(tp,Duel.GetLP(tp)-val)
 			Duel.DisableShuffleCheck(true)
 			Duel.SendtoHand(tc,p,REASON_EFFECT)
-			Duel.ConfirmCards(1-p,tc) 
-		end  
+			Duel.ConfirmCards(1-p,tc)
+		end
 	end
 end

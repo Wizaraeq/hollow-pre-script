@@ -1,4 +1,4 @@
---ピュアリィ・スリーピィメモリー
+--ピュアリィ・デリシャスメモリー
 --Script by blue1874
 local s,id,o=GetID()
 function s.initial_effect(c)

@@ -1,10 +1,12 @@
---カオス・アンヘル－混沌の双翼－
+--カオス・アンヘル-混沌の双翼-
+--Script by Ruby
 function c101112044.initial_effect(c)
 	--synchro summon
 	c:EnableReviveLimit()
-	aux.AddSynchroMixProcedure(c,c101112044.matfilter1,nil,nil,aux.NonTuner(Card.IsAttribute,ATTRIBUTE_LIGHT+ATTRIBUTE_DARK),1,99)
+	aux.AddSynchroMixProcedure(c,c101112044.matfilter1,nil,nil,c101112044.matfilter2,1,99)
 	--remove
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(101112044,2))
 	e1:SetCategory(CATEGORY_REMOVE)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
@@ -29,6 +31,9 @@ function c101112044.initial_effect(c)
 end
 function c101112044.matfilter1(c)
 	return c:IsSynchroType(TYPE_TUNER) or c:IsAttribute(ATTRIBUTE_LIGHT+ATTRIBUTE_DARK)
+end
+function c101112044.matfilter2(c,syncard)
+	return c:IsNotTuner(syncard) and c:IsAttribute(ATTRIBUTE_LIGHT+ATTRIBUTE_DARK)
 end
 function c101112044.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() end
@@ -68,6 +73,7 @@ function c101112044.regop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetTargetRange(LOCATION_MZONE,0)
 		e1:SetTarget(aux.TargetBoolFunction(Card.IsType,TYPE_SYNCHRO))
 		e1:SetValue(c101112044.efilter)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		c:RegisterEffect(e1)
 		c:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101112044,0))
 	end
@@ -78,6 +84,7 @@ function c101112044.regop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetTargetRange(LOCATION_MZONE,0)
 		e1:SetValue(1)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		c:RegisterEffect(e1)
 		c:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101112044,1))
 	end

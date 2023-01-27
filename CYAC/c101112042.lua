@@ -1,4 +1,6 @@
 --赫聖の妖騎士
+--Despian Luluwalilith
+--Script by Chrono-Genex
 function c101112042.initial_effect(c)
 	--synchro summon
 	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(Card.IsLevel,4),aux.NonTuner(nil),1)
