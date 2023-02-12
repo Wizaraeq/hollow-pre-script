@@ -55,18 +55,21 @@ function cm.tgf2_2(c,e,tp)
 	return c:IsSetCard(0x293) and c:IsLevel(3,4) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and c:GetType()&0x81==0x81
 end
 function cm.tg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsReleasableByEffect() and Duel.IsExistingMatchingCard(cm.tgf2_1,tp,LOCATION_MZONE,LOCATION_MZONE,1,e:GetHandler())
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetMZoneCount(tp,c)>0 and c:IsReleasableByEffect() and Duel.IsExistingMatchingCard(cm.tgf2_1,tp,LOCATION_MZONE,LOCATION_MZONE,1,c)
 		and Duel.IsExistingMatchingCard(cm.tgf2_2,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_DECK)
 end
 function cm.op2(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.SelectMatchingCard(tp,cm.tgf2_1,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,e:GetHandler())
+	local c=e:GetHandler()
+	local g=Duel.SelectMatchingCard(tp,cm.tgf2_1,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,c)
 	if g:GetCount()==0 then return end
-	g:AddCard(e:GetHandler())
-	if #g~=2 and Duel.Release(g,REASON_EFFECT)~=2 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tc=Duel.SelectMatchingCard(tp,cm.tgf2_2,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp):GetFirst()
-	if tc and Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)>0 then
+	g:AddCard(c)
+	if Duel.Release(g,REASON_EFFECT)==2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local tc=Duel.SelectMatchingCard(tp,cm.tgf2_2,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp):GetFirst()
+		if tc and Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)>0 then
 		tc:RegisterFlagEffect(100420029,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(100420029,2))
+		end
 	end
 end
