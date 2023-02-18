@@ -38,18 +38,18 @@ function cm.tg1(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	Duel.SetTargetPlayer(tp)
 end
+function cm.thfilter(c)
+	return c:IsSetCard(0x293) and c:IsAbleToHand()
+end
 function cm.op1(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
 	Duel.ConfirmDecktop(p,5)
 	local g=Duel.GetDecktopGroup(p,5)
-	if not g or #g<5 then return end
-	g=g:Filter(Card.IsAbleToHand,nil):Filter(Card.IsSetCard,nil,0x293)
-	if #g>0 then
+	if g:GetCount()>0 and g:IsExists(cm.thfilter,1,nil) and Duel.SelectYesNo(p,aux.Stringid(100420029,1)) then
 		Duel.Hint(HINT_SELECTMSG,p,HINTMSG_ATOHAND)
-		g=g:Select(p,1,1,nil)
-		Duel.DisableShuffleCheck()
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-p,g)
+		local sg=g:FilterSelect(p,cm.thfilter,1,1,nil)
+		Duel.SendtoHand(sg,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-p,sg)
 		Duel.ShuffleHand(p)
 	end
 	Duel.ShuffleDeck(p)

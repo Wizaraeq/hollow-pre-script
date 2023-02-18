@@ -21,8 +21,8 @@ function cm.initial_effect(c)
 	e2:SetCode(EVENT_BE_BATTLE_TARGET)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,m+o)
-	e2:SetTarget(cm.tg2)
-	e2:SetOperation(cm.op2)
+	e2:SetTarget(cm.sptg)
+	e2:SetOperation(cm.spop)
 	c:RegisterEffect(e2)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_CHAINING)
@@ -49,32 +49,36 @@ function cm.con2(e,tp,eg,ep,ev,re,r,rp)
 	if not g or g:GetCount()~=1 then return false end
 	return g:IsExists(cm.tgtfilter,1,nil)
 end
-function cm.tgf2_1(c,tp,g)
-	if not (c:IsSetCard(0x293) and c:IsFaceup() and c:IsReleasableByEffect() and c:IsPosition(POS_ATTACK)) then return false end
-	return Duel.GetMZoneCount(tp,c)>0 and g and g:IsExists(cm.tgf2_3,1,c) or Duel.IsExistingMatchingCard(cm.tgf2_3,tp,LOCATION_MZONE,LOCATION_MZONE,1,c)
+function cm.cfilter(c,tp)
+	return c:IsReleasableByEffect() and (cm.selfnouvfilter(c,tp) or c:IsAttackPos())
 end
-function cm.tgf2_2(c,e,tp)
+function cm.selfnouvfilter(c,tp)
+	return c:IsControler(tp) and c:IsSetCard(0x293)
+end
+function cm.spfilter(c,e,tp)
 	return c:IsSetCard(0x293) and c:IsLevel(4,5) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and c:GetType()&0x81==0x81
 end
-function cm.tgf2_3(c)
-	return c:IsReleasableByEffect() and c:IsPosition(POS_ATTACK)
+function cm.rescon(sg,e,tp)
+	return Duel.GetMZoneCount(tp,sg)>0 and sg:IsExists(cm.atkposchk,1,nil,sg,tp)
 end
-function cm.tg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(cm.tgf2_1,tp,LOCATION_MZONE,0,1,nil,tp)
-		and Duel.IsExistingMatchingCard(cm.tgf2_2,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp) end
+function cm.atkposchk(c,sg,tp)
+	return c:IsAttackPos() and sg:IsExists(cm.selfnouvfilter,1,c,tp)
+end
+function cm.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local g=Duel.GetMatchingGroup(cm.cfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tp)
+	if chk==0 then return #g>=2 and Duel.IsExistingMatchingCard(cm.spfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp)
+		and g:CheckSubGroup(cm.rescon,2,2,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_RELEASE,g,2,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_DECK)
 end
-function cm.opf2(g,tp)
-	return g:IsExists(cm.tgf2_1,1,nil,tp,g)
-end
-function cm.op2(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(cm.tgf2_3,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tp)
+function cm.spop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(cm.cfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tp)
 	if #g<2 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local rg=g:SelectSubGroup(tp,cm.opf2,false,2,2)
+	local rg=g:SelectSubGroup(tp,cm.rescon,false,2,2,e,tp)
 	if Duel.Release(rg,REASON_EFFECT)==2 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local tc=Duel.SelectMatchingCard(tp,cm.tgf2_2,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp):GetFirst()
+		local tc=Duel.SelectMatchingCard(tp,cm.spfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp):GetFirst()
 		if tc and Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)>0 then
 		tc:RegisterFlagEffect(100420029,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(100420029,2))
 		end

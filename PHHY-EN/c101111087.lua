@@ -80,6 +80,7 @@ function c101111087.tknop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c101111087.cfilter(c,tp,seq)
+	if c:IsLocation(LOCATION_FZONE) then return end
 	local sseq=c:GetSequence()
 	if c:IsControler(tp) then
 		return sseq==5 and seq==3 or sseq==6 and seq==1
