@@ -43,14 +43,17 @@ function c101201201.nsop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e1:SetTargetRange(1,0)
-	e1:SetTarget(c39015.splimit)
+	e1:SetTarget(c101201201.splimit)
 	e1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e1,tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SUMMON)
-	local sc=Duel.SelectMatchingCard(tp,s.nsfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil):GetFirst()
+	local sc=Duel.SelectMatchingCard(tp,c101201201.nsfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil):GetFirst()
 	if sc then
 		Duel.Summon(tp,sc,true,nil)
 	end
+end
+function c101201201.splimit(e,c)
+	return not c:IsType(TYPE_SYNCHRO) and c:IsLocation(LOCATION_EXTRA)
 end
 function c101201201.synchfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_SYNCHRO) and c:IsLevelAbove(2)

@@ -10,7 +10,7 @@ function s.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e1:SetValue(aux.synlimit)
+	e1:SetValue(s.splimit)
 	c:RegisterEffect(e1)
 	--disable
 	local e2=Effect.CreateEffect(c)
@@ -44,6 +44,9 @@ function s.initial_effect(c)
 end
 s.material_type=TYPE_SYNCHRO
 s.material_count={2}
+function s.splimit(e,se,sp,st)
+	return not e:GetHandler():IsLocation(LOCATION_EXTRA) or bit.band(st,SUMMON_TYPE_SYNCHRO)==SUMMON_TYPE_FUSION
+end
 function s.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ct=e:GetLabel()
 	local c=e:GetHandler()

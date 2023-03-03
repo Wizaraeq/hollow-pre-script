@@ -42,7 +42,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			local sg=g:Select(tp,3,3,nil)
 			Duel.ConfirmCards(1-tp,sg)
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local cg=sg:Select(1-tp,1,1,nil)
+			local cg=sg:RandomSelect(1-tp,1)
 			local sc=cg:GetFirst()
 			if Duel.SpecialSummon(sc,0,tp,tp,false,false,POS_FACEUP)~=0 then
 				Duel.BreakEffect()
