@@ -43,7 +43,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_EXTRA)
 	e3:SetCondition(s.syncon)
 	e3:SetTarget(s.syntg)
-	e3:SetLabelObject(e0)
 	e3:SetValue(SUMMON_TYPE_SYNCHRO)
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
@@ -53,8 +52,47 @@ function s.initial_effect(c)
 	e4:SetLabelObject(e3)
 	c:RegisterEffect(e4)
 end
+function s.stfilter(c,tc)
+	return c:IsCanBeSynchroMaterial() and c:IsNotTuner(tc)
+end
 function s.hsynfilter0(c)
-	return c:IsType(TYPE_SYNCHRO) and (c:IsLevel(7,8) and c:IsRace(RACE_DRAGON) or c:IsSetCard(0xc2))
+	local syc=0
+	local tp=c:GetControler()
+	local lv=c:GetLevel()
+	local sc=Duel.GetMatchingGroup(s.stfilter,tp,LOCATION_MZONE,0,nil,c)
+	local tu=Duel.GetMatchingGroup(s.tunefilter,tp,LOCATION_HAND,0,nil,tp)
+	local tlv=tu:GetFirst():GetLevel()
+	local maxct=99
+	local minct=1
+	if c:IsCode(4779823,25132288) then
+		dc=sc:Filter(Card.IsAttribute,nil,ATTRIBUTE_LIGHT)
+	elseif c:IsCode(88643579) then
+		dc=sc:Filter(Card.IsAttribute,nil,ATTRIBUTE_DARK)
+	elseif c:IsCode(41659072) then
+		dc=sc:Filter(Card.IsAttribute,nil,ATTRIBUTE_EARTH)
+	elseif c:IsCode(65749035) then
+		dc=sc:Filter(Card.IsAttribute,nil,ATTRIBUTE_WATER)
+	elseif c:IsCode(67797569) then
+		dc=sc:Filter(Card.IsAttribute,nil,ATTRIBUTE_FIRE)
+	elseif c:IsCode(90036274) then
+		dc=sc:Filter(Card.IsAttribute,nil,ATTRIBUTE_WIND)
+	elseif c:IsCode(40529384) then
+		dc=sc:Filter(Card.IsRace,nil,RACE_DRAGON)
+	elseif c:IsCode(18239909) then
+		dc=sc:Filter(Card.IsType,nil,TYPE_PENDULUM)
+	elseif c:IsCode(50954680) then
+		dc=sc:Filter(Card.IsType,nil,TYPE_SYNCHRO)
+	elseif c:IsCode(70771599) then
+		dc=sc:Filter(Card.IsType,nil,TYPE_PENDULUM):Filter(Card.IsAttribute,nil,ATTRIBUTE_DARK)
+	elseif c:IsCode(96029574) then
+		dc=sc:Filter(Card.IsType,nil,TYPE_DUAL)
+	elseif c:IsCode(25165047) then
+		dc=sc:Filter(Card.IsCode,nil,2403771)
+		maxct=1
+	else
+		dc=sc
+	end
+	return c:IsType(TYPE_SYNCHRO) and (c:IsLevel(7,8) and c:IsRace(RACE_DRAGON) or c:IsSetCard(0xc2)) and dc:CheckWithSumEqual(Card.GetSynchroLevel,lv-tlv,minct,maxct,c) and not c:IsCode(25682811,39823987,58074177,80159717,95453143,36556781)
 end
 function s.hsregcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -70,14 +108,16 @@ function s.tunefilter(c,tp)
 	return c:IsType(TYPE_TUNER) and c:IsHasEffect(id,tp)
 end
 function s.syncon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFlagEffect(tp,id)==0
+	local c=e:GetHandler()
+	local sc=Duel.GetMatchingGroup(Card.IsCanBeSynchroMaterial,tp,LOCATION_MZONE,0,nil) 
+	return Duel.GetFlagEffect(tp,id)==0 and sc:GetCount()>0
 end
 function s.syntg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
 	local c=e:GetHandler()
 	local sc=Duel.GetMatchingGroup(s.tunefilter,tp,LOCATION_HAND,0,nil,tp)
 	if chk==0 then return Duel.IsPlayerCanSpecialSummonCount(tp,1)
-		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.hsynfilter,tp,LOCATION_EXTRA,0,1,nil,sc) end
+		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
 		local sg=Duel.SelectMatchingCard(tp,s.tunefilter,tp,LOCATION_HAND,0,1,1,nil,tp):GetFirst()
 		if sg and Duel.MoveToField(sg,tp,tp,LOCATION_MZONE,POS_FACEUP,true) then
 		Duel.AdjustAll()
