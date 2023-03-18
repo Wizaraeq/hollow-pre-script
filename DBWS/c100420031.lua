@@ -25,7 +25,7 @@ function cm.initial_effect(c)
 	e2:SetOperation(cm.spop)
 	c:RegisterEffect(e2)
 	local e3=e2:Clone()
-	e3:SetCode(EVENT_CHAINING)
+	e3:SetCode(EVENT_BECOME_TARGET)
 	e3:SetCondition(cm.con2)
 	c:RegisterEffect(e3)
 end
@@ -44,10 +44,7 @@ function cm.tgtfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsLocation(LOCATION_MZONE)
 end
 function cm.con2(e,tp,eg,ep,ev,re,r,rp)
-	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return false end
-	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
-	if not g or g:GetCount()~=1 then return false end
-	return g:IsExists(cm.tgtfilter,1,nil)
+	return eg:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE)
 end
 function cm.cfilter(c,tp)
 	return c:IsReleasableByEffect() and (cm.selfnouvfilter(c,tp) or c:IsAttackPos())
