@@ -22,7 +22,6 @@ function c101201041.initial_effect(c)
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1,101201041)
 	e3:SetCost(c101201041.spcost)
 	e3:SetTarget(c101201041.sptg)
 	e3:SetOperation(c101201041.spop)
@@ -55,19 +54,45 @@ function c101201041.sprop(e,tp,eg,ep,ev,re,r,rp,c)
 	local tg=g:SelectSubGroup(tp,c101201041.fselect,false,2,2,tp,c)
 	Duel.SendtoGrave(tg,REASON_COST)
 end
-function c101201041.ursfilter(c,e,tp,mc)
-	return c:IsSetCard(0x163) and c:IsLevel(8) and Duel.IsExistingMatchingCard(c101201041.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,Group.FromCards(c,mc))
+function c101201041.ursfilter(c)
+	return c:IsSetCard(0x163) and c:IsLevel(8)
 end
 function c101201041.spfilter(c,e,tp,mg)
 	return c:IsLevel(7) and c:IsSetCard(0x163) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
 end
+function c101201041.excostfilter(c,tp)
+	return c:IsAbleToRemove() and (c:IsHasEffect(16471775,tp) or c:IsHasEffect(89264428,tp))
+end
+function c101201041.rescon(g,e,tp,sc)
+	return g:GetCount()==2 and (g:IsContains(sc) or g:FilterCount(c101201041.ursfilter,nil)<2 or g:IsExists(c101201041.excostfilter,1,nil,tp)) and Duel.IsExistingMatchingCard(c101201041.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,g)
+end
 function c101201041.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:IsReleasable() and Duel.CheckReleaseGroupEx(tp,c101201041.ursfilter,1,c,e,tp,c) end
+	local g1=Duel.GetReleaseGroup(tp,true):Filter(c101201041.ursfilter,nil)
+	local g2=Duel.GetMatchingGroup(c101201041.excostfilter,tp,LOCATION_GRAVE,0,nil,tp)
+	g1:Merge(g2)
+	g1:AddCard(c)
+	if chk==0 then return g1:CheckSubGroup(c101201041.rescon,2,2,e,tp,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local g=Duel.SelectReleaseGroupEx(tp,c101201041.ursfilter,1,1,c,e,tp,c)
-	g:AddCard(c)
-	Duel.Release(g,REASON_COST)
+	local tg=g1:SelectSubGroup(tp,c101201041.rescon,false,2,2,e,tp,c)
+	local rg=tg:Filter(c101201041.excostfilter,nil,tp)
+	if #rg>0 then
+		local tc=rg:GetFirst()
+		while tc do
+			local te=tc:IsHasEffect(16471775,tp) or tc:IsHasEffect(89264428,tp)
+			if te then
+				te:UseCountLimit(tp)
+				Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
+				tg:RemoveCard(tc)
+			else
+				aux.UseExtraReleaseCount(rg,tp)
+			end
+			tc=rg:GetNext()
+		end
+	end
+	if #tg>0 then
+		Duel.Release(tg,REASON_COST)
+	end
 end
 function c101201041.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
