@@ -63,35 +63,25 @@ end
 function c101201041.excostfilter(c,tp)
 	return c:IsAbleToRemove() and (c:IsHasEffect(16471775,tp) or c:IsHasEffect(89264428,tp))
 end
-function c101201041.rescon(g,e,tp,sc)
-	return g:GetCount()==2 and (g:IsContains(sc) or g:FilterCount(c101201041.ursfilter,nil)<2 or g:IsExists(c101201041.excostfilter,1,nil,tp)) and Duel.IsExistingMatchingCard(c101201041.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,g)
+function c101201041.costfilter(c,e,tp)
+	return Duel.IsExistingMatchingCard(c101201041.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c)
 end
 function c101201041.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local g1=Duel.GetReleaseGroup(tp,true):Filter(c101201041.ursfilter,nil)
 	local g2=Duel.GetMatchingGroup(c101201041.excostfilter,tp,LOCATION_GRAVE,0,nil,tp)
 	g1:Merge(g2)
-	g1:AddCard(c)
-	if chk==0 then return g1:CheckSubGroup(c101201041.rescon,2,2,e,tp,c) end
+	if chk==0 then return g1:IsExists(c101201041.costfilter,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local tg=g1:SelectSubGroup(tp,c101201041.rescon,false,2,2,e,tp,c)
-	local rg=tg:Filter(c101201041.excostfilter,nil,tp)
-	if #rg>0 then
-		local tc=rg:GetFirst()
-		while tc do
-			local te=tc:IsHasEffect(16471775,tp) or tc:IsHasEffect(89264428,tp)
-			if te then
-				te:UseCountLimit(tp)
-				Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
-				tg:RemoveCard(tc)
-			else
-				aux.UseExtraReleaseCount(rg,tp)
-			end
-			tc=rg:GetNext()
-		end
-	end
-	if #tg>0 then
-		Duel.Release(tg,REASON_COST)
+	local rg=g1:FilterSelect(tp,c101201041.costfilter,1,1,nil,e,tp)
+	local tc=rg:GetFirst()
+	local te=tc:IsHasEffect(16471775,tp) or tc:IsHasEffect(89264428,tp)
+	if te then
+		te:UseCountLimit(tp)
+		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
+	else
+		aux.UseExtraReleaseCount(rg,tp)
+		Duel.Release(Group.FromCards(c,tc),REASON_COST)
 	end
 end
 function c101201041.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -100,7 +90,7 @@ function c101201041.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c101201041.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tc=Duel.SelectMatchingCard(tp,c101201041.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp):GetFirst()
+	local tc=Duel.SelectMatchingCard(tp,c101201041.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,nil):GetFirst()
 	if tc and Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)>0 then
 		--Grant an effect to the summoned monster
 		local c=e:GetHandler()
