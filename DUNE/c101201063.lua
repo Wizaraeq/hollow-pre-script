@@ -26,7 +26,7 @@ function c101201063.spfilter(c,e,tp,sg)
 	end
 end
 function c101201063.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=Duel.GetReleaseGroup(tp)
+	local g=Duel.GetReleaseGroup(tp,true)
 	if chk==0 then return g:CheckSubGroup(c101201063.spcheck,2,2,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local sg=g:SelectSubGroup(tp,c101201063.spcheck,false,2,2,e,tp)
