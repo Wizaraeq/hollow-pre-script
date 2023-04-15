@@ -1,109 +1,91 @@
 --邪炎帝王テスタロス
-function c101201023.initial_effect(c)
-	--Tribute Summon by Tributing 1 monster the opponent controls and 1 Tribute Summoned monster you control
+--Thestalos the Shadow Firestorm Monarch
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--tribute from each field for advance summon
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101201023,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetCode(EFFECT_SUMMON_PROC)
-	e1:SetCondition(c101201023.sumcon)
-	e1:SetOperation(c101201023.sumop)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCondition(s.otcon)
+	e1:SetOperation(s.otop)
 	e1:SetValue(SUMMON_TYPE_ADVANCE)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
 	e2:SetCode(EFFECT_SET_PROC)
 	c:RegisterEffect(e2)
-	--Banish 1 random card from the opponent's hand
+	--remove
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101201023,1))
-	e3:SetCategory(CATEGORY_REMOVE+CATEGORY_DAMAGE)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetCode(EVENT_SUMMON_SUCCESS)
-	e3:SetCondition(c101201023.rmcon)
-	e3:SetTarget(c101201023.rmtg)
-	e3:SetOperation(c101201023.rmop)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(EFFECT_MATERIAL_CHECK)
+	e3:SetValue(s.mchk)
 	c:RegisterEffect(e3)
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_MATERIAL_CHECK)
-	e4:SetValue(c101201023.valcheck)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetCategory(CATEGORY_REMOVE+CATEGORY_DAMAGE)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_SUMMON_SUCCESS)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
 	e4:SetLabelObject(e3)
+	e4:SetCondition(s.rmcon)
+	e4:SetTarget(s.rmtg)
+	e4:SetOperation(s.rmop)
 	c:RegisterEffect(e4)
 end
-function c101201023.cfilter(c,relzone,tp)
-	local rzone=c:IsControler(tp) and (1<<c:GetSequence()) or (1<<(16+c:GetSequence()))
-	if c:GetSequence()>=5 then
-		rzone=rzone|(c:IsControler(tp) and (1<<(16+11-c:GetSequence())) or (1<<(11-c:GetSequence())))
-	end
-	return c:IsReleasable() and (c:IsSummonType(SUMMON_TYPE_ADVANCE) or c:IsControler(1-tp))
+function s.tfilter(c,tp)
+	return c:IsSummonType(SUMMON_TYPE_ADVANCE) and c:IsControler(tp)
 end
-function c101201023.rescon(sg,e,tp,soul_ex_g,zone)
-	return (#soul_ex_g==0 or sg&soul_ex_g==soul_ex_g) and Duel.GetMZoneCount(tp,sg,tp,LOCATION_REASON_TOFIELD,zone)>0 and sg:FilterCount(Card.IsControler,nil,tp)==1
+function s.tcheck(g,tp)
+	return g:IsExists(s.tfilter,1,nil,tp) and g:IsExists(Card.IsControler,1,nil,1-tp)
+		and Duel.GetMZoneCount(tp,g)>0
 end
-function c101201023.adjust_zone_value(exeff,c,zone)
-	if not exeff then return zone end
-	local val=0
-	local ret=exeff:GetValue()
-	if type(ret)=="function" then
-		ret={ret(exeff,c)}
-		if #ret>1 then
-			val=(ret[2]>>16)&0x7f
-		end
-	end
-	return val
-end
-function c101201023.sumcon(e,c,minc,zone,relzone,exeff)
+function s.otcon(e,c,minc)
 	if c==nil then return true end
-	if minc>2 or c:IsLevelBelow(6) then return false end
-	zone=c101201023.adjust_zone_value(exeff,c,zone)
 	local tp=c:GetControler()
-	local mg=Duel.GetMatchingGroup(c101201023.cfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,relzone,tp)
-	local soul_ex_g=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_MZONE,LOCATION_MZONE,nil,EFFECT_EXTRA_RELEASE)
-	return #mg>=2 and mg:CheckSubGroup(c101201023.rescon,2,2,e,tp,soul_ex_g,zone)
+	local g=Duel.GetMatchingGroup(Card.IsReleasable,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+	return c:IsLevelAbove(7) and minc<=2 and g:CheckSubGroup(s.tcheck,2,2,tp)
 end
-function c101201023.sumop(e,tp,eg,ep,ev,re,r,rp,c,minc,zone,relzone,exeff)
-	zone=c101201023.adjust_zone_value(exeff,c,zone)
-	local mg=Duel.GetMatchingGroup(c101201023.cfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,relzone,tp)
-	local soul_ex_g=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_MZONE,LOCATION_MZONE,nil,EFFECT_EXTRA_RELEASE)
+function s.otop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=Duel.GetMatchingGroup(Card.IsReleasable,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local g=mg:SelectSubGroup(tp,c101201023.rescon,false,2,2,e,tp,soul_ex_g,zone)
-	c:SetMaterial(g)
-	Duel.Release(g,REASON_SUMMON+REASON_MATERIAL)
-	g:DeleteGroup()
+	local sg=g:SelectSubGroup(tp,s.tcheck,false,2,2,tp)
+	c:SetMaterial(sg)
+	Duel.Release(sg,REASON_MATERIAL+REASON_SUMMON)
 end
-function c101201023.rmcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_ADVANCE)
-end
-function c101201023.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_HAND,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,1-tp,LOCATION_HAND)
-	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,1000)
-end
-function c101201023.rmop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,0,LOCATION_HAND,nil)
-	if #g==0 then return end
-	local rg=g:RandomSelect(tp,1)
-	if #rg>0 and Duel.Remove(rg,POS_FACEUP,REASON_EFFECT)>0 and Duel.Damage(1-tp,1000,REASON_EFFECT)>0
-		and e:GetLabel()==1
-		and Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
-		and Duel.SelectYesNo(tp,aux.Stringid(101201023,2)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local rc=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil):GetFirst()
-		if rc and Duel.Remove(rc,POS_FACEUP,REASON_EFFECT)>0 and rc:IsAttribute(ATTRIBUTE_FIRE+ATTRIBUTE_DARK) and rc:IsLevelAbove(1) then
-			Duel.BreakEffect()
-			Duel.Damage(1-tp,rc:GetLevel()*200,REASON_EFFECT)
-		end
-	end
-end
-function c101201023.valfilter(c)
+function s.mfilter(c)
 	return c:IsLevelAbove(8) and c:IsSummonType(SUMMON_TYPE_ADVANCE)
 end
-function c101201023.valcheck(e,c)
-	local g=c:GetMaterial()
-	if g:IsExists(c101201023.valfilter,1,nil) then
-		e:GetLabelObject():SetLabel(1)
-	else
-		e:GetLabelObject():SetLabel(0)
+function s.mchk(e,c)
+	if c:GetMaterial():IsExists(s.mfilter,1,nil) then
+		e:SetLabel(1)
+	else e:SetLabel(0) end
+end
+function s.rmcon(e)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_ADVANCE)
+end
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_HAND,1,nil) end
+	local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,0,LOCATION_HAND,nil)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,1000)
+end
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,0,LOCATION_HAND,nil):RandomSelect(tp,1)
+	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)>0 and Duel.Damage(1-tp,1000,REASON_EFFECT)>0 then
+		local rg=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
+		if e:GetLabelObject():GetLabel()>0 and #rg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+			local rc=rg:Select(tp,1,1,nil):GetFirst()
+			Duel.BreakEffect()
+			if Duel.Remove(rc,POS_FACEUP,REASON_EFFECT)>0
+				and rc:IsAttribute(ATTRIBUTE_DARK+ATTRIBUTE_FIRE)
+				and rc:GetOriginalType()&TYPE_MONSTER>0
+				and rc:GetOriginalLevel()>0 then
+				Duel.Damage(1-tp,rc:GetOriginalLevel()*200,REASON_EFFECT)
+			end
+		end
 	end
 end

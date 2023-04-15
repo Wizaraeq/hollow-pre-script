@@ -1,5 +1,7 @@
 --ベアルクティ－ポーラ＝スター
-function c101201041.initial_effect(c)
+--Script by XGlitchy30
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
@@ -13,107 +15,116 @@ function c101201041.initial_effect(c)
 	e2:SetCode(EFFECT_SPSUMMON_PROC)
 	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e2:SetRange(LOCATION_EXTRA)
-	e2:SetCondition(c101201041.sprcon)
-	e2:SetOperation(c101201041.sprop)
+	e2:SetCondition(s.sprcon)
+	e2:SetOperation(s.sprop)
 	c:RegisterEffect(e2)
-	--Special Summon 1 "Ursactic" monster from the Extra Deck
+	--special summon
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101201041,0))
+	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCost(c101201041.spcost)
-	e3:SetTarget(c101201041.sptg)
-	e3:SetOperation(c101201041.spop)
+	e3:SetCost(s.spcost)
+	e3:SetTarget(s.sptg)
+	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
 end
-function c101201041.tgrfilter(c)
+function s.tgrfilter(c)
 	return c:IsFaceup() and c:IsLevelAbove(1) and c:IsAbleToGraveAsCost()
 end
-function c101201041.mnfilter(c,g)
-	return g:IsExists(c101201041.mnfilter2,1,c,c)
+function s.mnfilter(c,g)
+	return g:IsExists(s.mnfilter2,1,c,c)
 end
-function c101201041.mnfilter2(c,mc)
-	return c:GetLevel()-mc:GetLevel()==1
+function s.mnfilter2(c,mc)
+	return math.abs(c:GetLevel()-mc:GetLevel())==1
 end
-function c101201041.fselect(g,tp,sc)
-	return g:GetCount()==2
-		and g:IsExists(Card.IsType,1,nil,TYPE_TUNER) and g:IsExists(aux.NOT(Card.IsType),1,nil,TYPE_TUNER)
-		and g:IsExists(c101201041.mnfilter,1,nil,g)
-		and Duel.GetLocationCountFromEx(tp,tp,g,sc)>0
+function s.fselect(g,tp,sc)
+	return g:GetCount()==2 and g:IsExists(Card.IsType,1,nil,TYPE_TUNER) and g:IsExists(aux.NOT(Card.IsType),1,nil,TYPE_TUNER)
+		and g:IsExists(s.mnfilter,1,nil,g) and Duel.GetLocationCountFromEx(tp,tp,g,sc)>0
 end
-function c101201041.sprcon(e,c)
+function s.sprcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	local g=Duel.GetMatchingGroup(c101201041.tgrfilter,tp,LOCATION_MZONE,0,nil)
-	return g:CheckSubGroup(c101201041.fselect,2,2,tp,c)
+	local g=Duel.GetMatchingGroup(s.tgrfilter,tp,LOCATION_MZONE,0,nil)
+	return g:CheckSubGroup(s.fselect,2,2,tp,c)
 end
-function c101201041.sprop(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=Duel.GetMatchingGroup(c101201041.tgrfilter,tp,LOCATION_MZONE,0,nil)
+function s.sprop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=Duel.GetMatchingGroup(s.tgrfilter,tp,LOCATION_MZONE,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local tg=g:SelectSubGroup(tp,c101201041.fselect,false,2,2,tp,c)
+	local tg=g:SelectSubGroup(tp,s.fselect,false,2,2,tp,c)
 	Duel.SendtoGrave(tg,REASON_COST)
 end
-function c101201041.ursfilter(c)
-	return c:IsSetCard(0x163) and c:IsLevel(8)
+function s.checkrelrep(c,tp)
+	return c:IsHasEffect(16471775,tp) or c:IsHasEffect(89264428,tp)
 end
-function c101201041.spfilter(c,e,tp,mg)
-	return c:IsLevel(7) and c:IsSetCard(0x163) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and Duel.GetLocationCountFromEx(tp,tp,mg,c)>0
+function s.rfilter(c,tp)
+	return c:IsLevel(8) and c:IsSetCard(0x163) and (c:IsControler(tp) or c:IsFaceup())
 end
-function c101201041.excostfilter(c,tp)
-	return c:IsAbleToRemove() and (c:IsHasEffect(16471775,tp) or c:IsHasEffect(89264428,tp))
+function s.excostfilter(c,tp)
+	return c:IsAbleToRemove() and s.checkrelrep(c,tp)
 end
-function c101201041.costfilter(c,e,tp)
-	return Duel.IsExistingMatchingCard(c101201041.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c)
+function s.costfilter(c,handler,e,tp)
+	if not handler:IsReleasable() and not s.excostfilter(c,tp) then return false end
+	local excg=s.checkrelrep(c,tp) and c or Group.FromCards(c,handler)
+	return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,c,e,tp,excg)
 end
-function c101201041.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.spfilter(c,e,tp,g)
+	return c:IsLevel(7) and c:IsSetCard(0x163) and c:IsType(TYPE_SYNCHRO)
+		and Duel.GetLocationCountFromEx(tp,tp,g,c)>0 and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
+end
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	local g1=Duel.GetReleaseGroup(tp,true):Filter(c101201041.ursfilter,nil)
-	local g2=Duel.GetMatchingGroup(c101201041.excostfilter,tp,LOCATION_GRAVE,0,nil,tp)
+	local g1=Duel.GetReleaseGroup(tp,true):Filter(s.rfilter,c,tp)
+	local g2=Duel.GetMatchingGroup(s.excostfilter,tp,LOCATION_GRAVE,0,nil,tp)
 	g1:Merge(g2)
-	if chk==0 then return g1:IsExists(c101201041.costfilter,1,nil,e,tp) end
+	if chk==0 then return g1:IsExists(s.costfilter,1,c,c,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local rg=g1:FilterSelect(tp,c101201041.costfilter,1,1,nil,e,tp)
+	local rg=g1:FilterSelect(tp,s.costfilter,1,1,c,c,e,tp)
 	local tc=rg:GetFirst()
 	local te=tc:IsHasEffect(16471775,tp) or tc:IsHasEffect(89264428,tp)
 	if te then
 		te:UseCountLimit(tp)
 		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT+REASON_REPLACE)
 	else
+		rg:AddCard(c)
 		aux.UseExtraReleaseCount(rg,tp)
-		Duel.Release(Group.FromCards(c,tc),REASON_COST)
+		Duel.Release(rg,REASON_COST)
 	end
 end
-function c101201041.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:IsCostChecked()
+		or Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-function c101201041.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tc=Duel.SelectMatchingCard(tp,c101201041.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,nil):GetFirst()
-	if tc and Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)>0 then
-		--Grant an effect to the summoned monster
-		local c=e:GetHandler()
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_CANNOT_ACTIVATE)
-		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-		e1:SetRange(LOCATION_MZONE)
-		e1:SetTargetRange(0,1)
-		e1:SetValue(c101201041.aclimit)
-		tc:RegisterEffect(e1,true)
-		if not tc:IsType(TYPE_EFFECT) then
-			local e2=Effect.CreateEffect(c)
-			e2:SetType(EFFECT_TYPE_SINGLE)
-			e2:SetCode(EFFECT_ADD_TYPE)
-			e2:SetValue(TYPE_EFFECT)
-			e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-			tc:RegisterEffect(e2,true)
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,nil)
+	if #g>0 then
+		local tc=g:GetFirst()
+		if Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)>0 then
+			local c=e:GetHandler()
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_FIELD)
+			e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+			e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+			e1:SetRange(LOCATION_MZONE)
+			e1:SetTargetRange(0,1)
+			e1:SetValue(s.aclimit)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e1,true)
+			if not tc:IsType(TYPE_EFFECT) then
+				local e2=Effect.CreateEffect(c)
+				e2:SetType(EFFECT_TYPE_SINGLE)
+				e2:SetCode(EFFECT_ADD_TYPE)
+				e2:SetValue(TYPE_EFFECT)
+				e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+				tc:RegisterEffect(e2,true)
+			end
+			tc:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(id,1))
 		end
-		tc:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(101201041,1))
 	end
 end
-function c101201041.aclimit(e,re,tp)
+function s.aclimit(e,re)
 	local rc=re:GetHandler()
 	return re:IsActiveType(TYPE_MONSTER) and rc:IsLevelAbove(1) and rc:IsSummonLocation(LOCATION_EXTRA)
 end

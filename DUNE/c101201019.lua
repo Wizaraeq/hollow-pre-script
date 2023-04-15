@@ -1,22 +1,21 @@
 --破械神シャバラ
+--Script by 奥克斯
 function c101201019.initial_effect(c)
-	--Destroy 1 card and Special Summon itself from the hand
+	--special summon
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101201019,0))
-	e1:SetCategory(CATEGORY_DESTROY+CATEGORY_SPECIAL_SUMMON)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DESTROY)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetHintTiming(0,TIMING_MAIN_END+TIMINGS_CHECK_MONSTER)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
 	e1:SetCountLimit(1,101201019)
-	e1:SetCondition(c101201019.spcon)
-	e1:SetTarget(c101201019.sptg)
-	e1:SetOperation(c101201019.spop)
+	e1:SetCondition(c101201019.spdcon)
+	e1:SetTarget(c101201019.spdtg)
+	e1:SetOperation(c101201019.spdop)
 	c:RegisterEffect(e1)
-	--Set 1 "Unchained" Spell/Trap directly from the Deck
+	--set
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101201019,1))
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_TO_GRAVE)
@@ -25,41 +24,41 @@ function c101201019.initial_effect(c)
 	e2:SetOperation(c101201019.setop)
 	c:RegisterEffect(e2)
 end
-function c101201019.spcon(e,tp,eg,ep,ev,re,r,rp)
+function c101201019.spdcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2
 end
 function c101201019.desfilter(c,tp)
-	return (c:IsFacedown() or (c:IsFaceup() and c:IsRace(RACE_FIEND))) and Duel.GetMZoneCount(tp,c)>0
+	return (c:IsLocation(LOCATION_MZONE) and c:IsFaceup() and c:IsRace(RACE_FIEND) or c:IsFacedown())
+		and Duel.GetMZoneCount(tp,c)>0
 end
-function c101201019.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function c101201019.spdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
-	if chkc then return chkc:IsControler(tp) and chkc:IsOnField() and c101201019.desfilter(chkc,tp) end
-	if chk==0 then return Duel.IsExistingTarget(c101201019.desfilter,tp,LOCATION_ONFIELD,0,1,nil,tp)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and c101201019.desfilter(chkc,tp) end
+	if chk==0 then return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and Duel.IsExistingTarget(c101201019.desfilter,tp,LOCATION_ONFIELD,0,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,c101201019.desfilter,tp,LOCATION_ONFIELD,0,1,1,nil,tp)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,tp,0)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
-function c101201019.spop(e,tp,eg,ep,ev,re,r,rp)
+function c101201019.spdop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)>0
+	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)~=0
 		and c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
-		-- Cannot Special Summon non-Fiend monsters
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetAbsoluteRange(tp,1,0)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		e1:SetTarget(c101201019.splimit)
-		c:RegisterEffect(e1)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		c:RegisterEffect(e1,true)
 	end
 end
-function c101201019.splimit(e,c,sump,sumtype,sumpos,targetp,se)
-	return c:GetRace()~=RACE_FIEND
+function c101201019.splimit(e,c)
+	return not c:IsRace(RACE_FIEND)
 end
 function c101201019.setfilter(c)
 	return c:IsSetCard(0x130) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()

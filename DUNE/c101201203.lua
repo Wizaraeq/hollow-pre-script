@@ -100,7 +100,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.spfilter(c,e,tp,ec)
 	return c.cosmic_quasar_dragon_summon and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_SYNCHRO,tp,false,false)
-		and Duel.GetLocationCountFromEx(tp,tp,ec,c)>0 and c:IsRace(RACE_DRAGON)
+		and Duel.GetLocationCountFromEx(tp,tp,ec,c)>0
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_SMATERIAL)

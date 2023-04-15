@@ -1,112 +1,112 @@
 --神碑の鬣スレイプニル
-function c101201035.initial_effect(c)
-	--fusion material
+--Sleipnir the Runick Mane
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	aux.AddFusionProcFunRep(c,aux.FilterBoolFunction(Card.IsFusionSetCard,0x17f),2,true)
-	--banish
+	--material
+	aux.AddFusionProcFunRep(c,aux.FilterBoolFunction(Card.IsSetCard,0x17f),2,true)
+	--remove
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101201035,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_REMOVE)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1,{id,0})
-	e1:SetCondition(c101201035.rmcon)
-	e1:SetTarget(c101201035.rmtg)
-	e1:SetOperation(c101201035.rmop)
+	e1:SetCountLimit(1,id)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_BATTLE_START+TIMING_BATTLE_END)
+	e1:SetCondition(s.rmcon)
+	e1:SetTarget(s.rmtg)
+	e1:SetOperation(s.rmop)
 	c:RegisterEffect(e1)
 	--token
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101201035,1))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOKEN)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_TO_HAND)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,101201035+100)
-	e2:SetCondition(c101201035.tkcon)
-	e2:SetTarget(c101201035.tktg)
-	e2:SetOperation(c101201035.tkop)
+	e2:SetCountLimit(1,id+o)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCondition(s.tkcon)
+	e2:SetTarget(s.tktg)
+	e2:SetOperation(s.tkop)
 	c:RegisterEffect(e2)
 end
-function c101201035.rmcon(e,tp,eg,ep,ev,re,r,rp)
+function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
+	local tn=Duel.GetTurnPlayer()
 	local ph=Duel.GetCurrentPhase()
-	if Duel.GetTurnPlayer()==tp then
-		return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
-	else
-		return ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE
-	end
+	return (tn==tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2))
+		or (tn==1-tp and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE)
 end
-function c101201035.rfilter(c,tp)
+function s.filter(c)
 	return c:IsFaceup() and c:IsAbleToRemove()
 end
-function c101201035.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and s.rfilter(chkc) end
 	local c=e:GetHandler()
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and not chkc:IsControler(tp) and c101201035.rfilter(chkc) end
-	if chk==0 then return c:IsAbleToRemove() and Duel.IsExistingTarget(c101201035.rfilter,tp,0,LOCATION_MZONE,1,nil) end
+	if chk==0 then return c:IsAbleToRemove() and Duel.IsExistingTarget(s.filter,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,c101201035.rfilter,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_MZONE,1,1,nil)
 	g:AddCard(c)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,#g,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,2,0,0)
 end
-function c101201035.rmop(e,tp,eg,ep,ev,re,r,rp)
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if not (c:IsRelateToEffect(e) and tc:IsRelateToEffect(e)) then return end
-	local g=Group.FromCards(c,tc)
-	if Duel.Remove(g,0,REASON_EFFECT+REASON_TEMPORARY)~=0 then
-		local fid=c:GetFieldID()
-		local og=Duel.GetOperatedGroup()
-		local oc=og:GetFirst()
-		while oc do
-			oc:RegisterFlagEffect(101201035,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,rct,fid)
-			oc=og:GetNext()
+	if not tc:IsRelateToEffect(e) or not c:IsRelateToEffect(e) then return end
+	local g=Group.FromCards(tc,c)
+	if Duel.Remove(g,0,REASON_EFFECT+REASON_TEMPORARY)~=0 and g:IsExists(Card.IsLocation,1,nil,LOCATION_REMOVED) then
+		local og=Duel.GetOperatedGroup():Filter(Card.IsLocation,nil,LOCATION_REMOVED)
+		for tc in aux.Next(og) do
+			tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 		end
 		og:KeepAlive()
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-		e1:SetCountLimit(1)
-		e1:SetLabel(fid)
-		e1:SetLabelObject(og)
-		e1:SetCondition(c101201035.retcon)
-		e1:SetOperation(c101201035.retop)
 		e1:SetCode(EVENT_PHASE+PHASE_END)
 		e1:SetReset(RESET_PHASE+PHASE_END)
+		e1:SetLabelObject(og)
+		e1:SetCountLimit(1)
+		e1:SetCondition(s.retcon)
+		e1:SetOperation(s.retop)
 		Duel.RegisterEffect(e1,tp)
 	end
 end
-function c101201035.retfilter(c)
-	return c:GetFlagEffect(101201035)~=0
+function s.retfilter(c)
+	return c:GetFlagEffect(id)~=0
 end
-function c101201035.retcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetLabelObject():IsExists(c101201035.retfilter,1,nil)
+function s.retcon(e,tp,eg,ep,ev,re,r,rp)
+	if not e:GetLabelObject():IsExists(s.retfilter,1,nil) then
+		e:GetLabelObject():DeleteGroup()
+		return false
+	end
+	return true
 end
-function c101201035.retop(e,tp,eg,ep,ev,re,r,rp)
-	local g=e:GetLabelObject()
-	local sg=g:Filter(c101201035.retfilter,nil,e:GetLabel())
-	g:DeleteGroup()
-	local tc=sg:GetFirst()
-	while tc do
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+	local g=e:GetLabelObject():Filter(s.retfilter,nil)
+	for tc in aux.Next(g) do
 		Duel.ReturnToField(tc)
-		tc=sg:GetNext()
 	end
 end
-function c101201035.cfilter(c,tp)
+function s.cfilter(c,tp)
 	return c:IsControler(tp) and c:IsPreviousLocation(LOCATION_DECK)
 end
-function c101201035.tkcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(c101201035.cfilter,1,nil,1-tp)
+function s.tkcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.cfilter,1,nil,1-tp)
 end
-function c101201035.tktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanSpecialSummonMonster(tp,101201135,0x17f,TYPES_TOKEN,1500,1500,4,RACE_FAIRY,ATTRIBUTE_LIGHT,POS_FACEUP_ATTACK) end
-	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,tp,0)
+function s.tktg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsPlayerCanSpecialSummonMonster(tp,id+o,0x17f,TYPES_TOKEN_MONSTER,1500,1500,4,RACE_FAIRY,ATTRIBUTE_LIGHT,POS_FACEUP_ATTACK) end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,0)
 end
-function c101201035.tkop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)==0 then return end
-	if not Duel.IsPlayerCanSpecialSummonMonster(tp,101201135,0x17f,TYPES_TOKEN,1500,1500,4,RACE_FAIRY,ATTRIBUTE_LIGHT,POS_FACEUP_ATTACK) then return end
-	local token=Duel.CreateToken(tp,101201135)
-	Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP_ATTACK)
+function s.tkop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		or not Duel.IsPlayerCanSpecialSummonMonster(tp,id+o,0x17f,TYPES_TOKEN_MONSTER,1500,1500,4,RACE_FAIRY,ATTRIBUTE_LIGHT,POS_FACEUP_ATTACK) then return end
+	local tk=Duel.CreateToken(tp,id+o)
+	Duel.SpecialSummon(tk,0,tp,tp,false,false,POS_FACEUP_ATTACK)
 end

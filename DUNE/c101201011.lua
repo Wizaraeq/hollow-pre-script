@@ -1,4 +1,5 @@
 --マナドゥム・トリッド
+--Script by beyond
 local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.AddCodeList(c,56099748)
@@ -40,7 +41,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return bit.band(r,REASON_EFFECT+REASON_BATTLE)~=0
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x190) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_TUNER)
+	return c:IsSetCard(0x190) and c:IsType(TYPE_TUNER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
