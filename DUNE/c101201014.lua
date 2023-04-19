@@ -24,16 +24,12 @@ function s.initial_effect(c)
 	e2:SetTarget(s.eqtg)
 	e2:SetOperation(s.eqop)
 	c:RegisterEffect(e2)
-	--The equipped monster can be treated as a Tuner if used as Synchro Material
+	--treat as tuner for synchro summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_EQUIP)
-	e3:SetCode(EFFECT_ADD_TYPE)
-	e3:SetValue(TYPE_TUNER)
+	e3:SetCode(EFFECT_TUNER)
+	e3:SetValue(s.tunerval)
 	c:RegisterEffect(e3)
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_EQUIP)
-	e4:SetCode(EFFECT_NONTUNER)
-	c:RegisterEffect(e4)
 end
 function s.eqpfilter(c)
 	return c:GetEquipCount()>0
