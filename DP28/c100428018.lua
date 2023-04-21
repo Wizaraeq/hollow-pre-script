@@ -1,4 +1,5 @@
 --ヴォルカニック・エンペラー
+--Script by Ruby
 function c100428018.initial_effect(c)
 	c:EnableReviveLimit()
 	c:SetSPSummonOnce(100428018)
@@ -15,61 +16,58 @@ function c100428018.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetRange(LOCATION_HAND+LOCATION_GRAVE)
-	e1:SetCondition(c100428018.spcon)
-	e1:SetTarget(c100428018.sptg)
-	e1:SetOperation(c100428018.spop)
+	e1:SetCondition(c100428018.sprcon)
+	e1:SetTarget(c100428018.sprtg)
+	e1:SetOperation(c100428018.sprop)
 	e1:SetValue(SUMMON_VALUE_SELF)
 	c:RegisterEffect(e1)
 	--Burn and Search
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetCondition(c100428018.damcon)
-	e3:SetTarget(c100428018.damtg)
-	e3:SetOperation(c100428018.damop)
-	e3:SetCategory(CATEGORY_DAMAGE)
-	c:RegisterEffect(e3)
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(100428018,1))
+	e2:SetCategory(CATEGORY_DAMAGE)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCondition(c100428018.damcon)
+	e2:SetTarget(c100428018.damtg)
+	e2:SetOperation(c100428018.damop)
+	e2:SetCategory(CATEGORY_DAMAGE)
+	c:RegisterEffect(e2)
 	--damage
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e4:SetRange(LOCATION_MZONE)
-	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e4:SetCondition(c100428018.damcon2)
-	e4:SetOperation(c100428018.damop2)
-	c:RegisterEffect(e4)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e3:SetCondition(c100428018.damcon2)
+	e3:SetOperation(c100428018.damop2)
+	c:RegisterEffect(e3)
 end
-function c100428018.spcfilter(c,tp)
-	return c:IsFaceup() and (c:IsRace(RACE_PYRO) or c:IsSetCard(0xb9)) and c:IsAbleToRemoveAsCost()
+function c100428018.sprfilter(c)
+	return c:IsFaceupEx() and c:IsAbleToRemoveAsCost() and (c:IsRace(RACE_PYRO) or c:IsSetCard(0xb9))
 end
-function c100428018.rescon(sg,e,tp)
-	return Duel.GetMZoneCount(tp,sg)>0
-		and ((sg:IsExists(Card.IsSetCard,1,nil,0xb9) and #sg==1)
-		or sg:FilterCount(Card.IsRace,nil,RACE_PYRO)==3)
+function c100428018.gcheck(g,tp)
+	return Duel.GetMZoneCount(tp,g)>0
+		and (#g==3 and g:FilterCount(Card.IsRace,nil,RACE_PYRO)==3
+			or #g==1 and g:FilterCount(Card.IsSetCard,nil,0xb9)==1)
 end
-function c100428018.spcon(e,c)
-	local c=e:GetHandler()
+function c100428018.sprcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	local rg=Duel.GetMatchingGroup(c100428018.spcfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,c)
-	return #rg>0 and rg:CheckSubGroup(c100428018.rescon,1,3,e,tp)
+	local g=Duel.GetMatchingGroup(c100428018.sprfilter,tp,LOCATION_GRAVE+LOCATION_ONFIELD,0,e:GetHandler())
+	return g:CheckSubGroup(c100428018.gcheck,1,3,tp)
 end
-function c100428018.sptg(e,tp,eg,ep,ev,re,r,rp,c)
-	local c=e:GetHandler()
-	local g=nil
-	local rg=Duel.GetMatchingGroup(c100428018.spcfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,c)
+function c100428018.sprtg(e,tp,eg,ep,ev,re,r,rp,chk,c)
+	local g=Duel.GetMatchingGroup(c100428018.sprfilter,tp,LOCATION_GRAVE+LOCATION_ONFIELD,0,e:GetHandler())
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=rg:SelectSubGroup(tp,c100428018.rescon,false,1,3,e,tp)
-	if #g>0 then
-		g:KeepAlive()
-		e:SetLabelObject(g)
+	local sg=g:SelectSubGroup(tp,c100428018.gcheck,false,1,3,tp)
+	if sg then
+		sg:KeepAlive()
+		e:SetLabelObject(sg)
 		return true
-	end
-	return false
+	else return false end
 end
-function c100428018.spop(e,tp,eg,ep,ev,re,r,rp,c)
+function c100428018.sprop(e,tp,eg,ep,ev,re,r,rp,c)
 	local g=e:GetLabelObject()
-	if not g then return end
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 	g:DeleteGroup()
 end
@@ -77,10 +75,10 @@ function c100428018.damcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SPECIAL+SUMMON_VALUE_SELF
 end
 function c100428018.damfilter(c)
-	return c:IsRace(RACE_PYRO)
+	return c:IsRace(RACE_PYRO) and c:IsFaceup()
 end
 function c100428018.scfilter(c)
-	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x32)
+	return c:IsType(TYPE_TRAP) and c:IsSetCard(0x32) and c:IsSSetable()
 end
 function c100428018.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c100428018.damfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil) end
@@ -89,12 +87,11 @@ function c100428018.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c100428018.damop(e,tp,eg,ep,ev,re,r,rp)
 	local val=Duel.GetMatchingGroupCount(c100428018.damfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,nil)*500
-	if Duel.Damage(1-tp,val,REASON_EFFECT)~=0 and Duel.IsExistingMatchingCard(c100428018.scfilter,tp,LOCATION_DECK,0,1,nil)
-		and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+	if Duel.Damage(1-tp,val,REASON_EFFECT)~=0
+		and Duel.IsExistingMatchingCard(c100428018.scfilter,tp,LOCATION_DECK,0,1,nil)
 		and Duel.SelectYesNo(tp,aux.Stringid(100428018,2)) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 			local g=Duel.SelectMatchingCard(tp,c100428018.scfilter,tp,LOCATION_DECK,0,1,1,nil)
-			Duel.ConfirmCards(1-tp,g)
 			Duel.SSet(tp,g:GetFirst())
 	end
 end
