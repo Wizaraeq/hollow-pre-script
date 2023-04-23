@@ -1,9 +1,11 @@
 --オルターガイスト・アドミニア
+--Script by beyond
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--link summon
 	aux.AddLinkProcedure(c,aux.FilterBoolFunction(Card.IsLinkSetCard,0x103),2)
 	c:EnableReviveLimit()
+	--set trap
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
@@ -14,6 +16,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.settg)
 	e1:SetOperation(s.setop)
 	c:RegisterEffect(e1)
+	--control
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_CONTROL)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
@@ -65,13 +68,14 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_CONTROL,g,1,0,0)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and Duel.GetControl(tc,tp) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_ADD_SETCODE)
-		e1:SetValue(0x103)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_CONTROL)
-		tc:RegisterEffect(e1)
+	if tc:IsRelateToEffect(e) and tc:IsType(TYPE_EFFECT) and Duel.GetControl(tc,tp)~=0 then
+		local e4=Effect.CreateEffect(c)
+		e4:SetType(EFFECT_TYPE_SINGLE)
+		e4:SetCode(EFFECT_ADD_SETCODE)
+		e4:SetValue(0x103)
+		e4:SetReset(RESET_EVENT+RESETS_STANDARD)
+		tc:RegisterEffect(e4)
 	end
 end
