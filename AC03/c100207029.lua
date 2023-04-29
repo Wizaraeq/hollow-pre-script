@@ -85,9 +85,9 @@ function c100207029.atkop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterEffect(e3,tp)
 end
 function c100207029.negcon(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetCurrentPhase()&(PHASE_DAMAGE+PHASE_DAMAGE_CAL)==0 or Duel.IsDamageCalculated() then return false end
+	local ph=Duel.GetCurrentPhase()
 	local a=Duel.GetAttacker()
-	return a:IsControler(tp) and a:IsSetCard(0x101) and ep==1-tp and Duel.IsChainNegatable(ev)
+	return (ph==PHASE_DAMAGE or ph==PHASE_DAMAGE_CAL) and a:IsControler(tp) and a:IsSetCard(0x101) and ep==1-tp and Duel.IsChainNegatable(ev)
 end
 function c100207029.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
