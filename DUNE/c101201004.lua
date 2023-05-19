@@ -1,8 +1,9 @@
---coded by Lyris
+--大翼のバフォメット
 --Berfomet the Great Wings
-local s, id, o = GetID()
+--coded by Lyris
+local s,id,o=GetID()
 function s.initial_effect(c)
-	aux.AddCodeList(c,101201052,63136489)
+	aux.AddCodeList(c,101201052)
 	--tohand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -24,36 +25,32 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_BE_MATERIAL)
 	e3:SetCountLimit(1,id+o)
-	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
 end
+RACE_ILLUSION=0x2000000
 function s.filter(c)
-	return (c:IsLevel(4) and c:IsRace(RACE_BEAST) or c:IsCode(101201052,63136489)) and c:IsAbleToHand()
-end
-function s.resfilter(c)
-	return c:IsLevel(4) and c:IsRace(RACE_BEAST)
+	return (c:IsLevel(4) and c:IsRace(RACE_BEAST) or c:IsCode(101201052)) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-function s.rescon(sg)
-	return sg:FilterCount(Card.IsCode,nil,101201052)<=1
-		and sg:FilterCount(s.resfilter,nil)<=1
+function s.check(g)
+	return g:FilterCount(Card.IsLevel,nil,4)<2 and g:FilterCount(Card.IsCode,nil,101201052)<2
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK,0,nil)
-	if #g>0 then
+	local tg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local tg=g:SelectSubGroup(tp,s.rescon,false,1,2)
-		Duel.SendtoHand(tg,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,tg)
+	local g=tg:SelectSubGroup(tp,s.check,false,1,2)
+	if g then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
 	end
-	local e1=Effect.CreateEffect(c)
+	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
@@ -83,7 +80,5 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then 
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
-	end
+	if tc:IsRelateToEffect(e) then Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP) end
 end

@@ -1,15 +1,15 @@
---coded by Lyris
+--コーンフィールド コアトル
 --Cornfield Koator
-local s, id, o = GetID()
+--coded by Lyris
+local s,id,o=GetID()
 function s.initial_effect(c)
-	aux.AddCodeList(c,101201052,63136489)
+	aux.AddCodeList(c,101201052)
 	--indes
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
-	e1:SetCondition(s.indcon)
 	e1:SetTarget(s.indtg)
 	e1:SetValue(1)
 	c:RegisterEffect(e1)
@@ -38,10 +38,6 @@ function s.initial_effect(c)
 	e3:SetOperation(s.disop)
 	c:RegisterEffect(e3)
 end
-function s.indcon(e)
-	local c=e:GetHandler()
-	return (Duel.GetAttacker()==c or Duel.GetAttackTarget()==c) and c:GetBattleTarget()~=nil
-end
 function s.indtg(e,c)
 	local tc=e:GetHandler()
 	return c==tc or c==tc:GetBattleTarget()
@@ -52,8 +48,7 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(c,REASON_COST+REASON_DISCARD)
 end
 function s.filter(c)
-	return c:IsType(TYPE_MONSTER) and (aux.IsCodeListed(c,101201052) or aux.IsCodeListed(c,63136489))
-		and c:IsAbleToHand() and not c:IsCode(id)
+	return c:IsType(TYPE_MONSTER) and aux.IsCodeListed(c,101201052) and c:IsAbleToHand() and not c:IsCode(id)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end
@@ -72,8 +67,8 @@ function s.dfilter(c,tp)
 	return c:IsOnField() and c:IsControler(tp)
 end
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	if not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil) then return false end
 	if rp==tp or e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
+		or not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
 		or not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return false end
 	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
 	return g and g:IsExists(s.dfilter,1,nil,tp) and Duel.IsChainDisablable(ev)
@@ -82,12 +77,8 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 	local rc=re:GetHandler()
-	if rc:IsDestructable() and rc:IsRelateToEffect(re) then
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
-	end
+	if rc:IsDestructable() and rc:IsRelateToEffect(re) then Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0) end
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.NegateEffect(ev) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.Destroy(eg,REASON_EFFECT)
-	end
+	if Duel.NegateEffect(ev) and re:GetHandler():IsRelateToEffect(re) then Duel.Destroy(eg,REASON_EFFECT) end
 end

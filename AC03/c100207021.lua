@@ -89,8 +89,8 @@ function c100207021.desop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c100207021.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetReasonPlayer()==1-tp and c:IsPreviousControler(tp) and c:IsReason(REASON_EFFECT)
-		and c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsPreviousPosition(POS_FACEUP)
+	return c:IsPreviousLocation(LOCATION_MZONE)
+		and c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousControler(tp) and c:GetReasonPlayer()==1-tp
 end
 function c100207021.spfilter(c,e,tp)
 	return c:IsSetCard(0x21) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) 

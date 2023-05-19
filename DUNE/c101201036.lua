@@ -1,81 +1,73 @@
 --マグナム・ザ・リリーバー
-function c101201036.initial_effect(c)
-	--fusion material
-	aux.AddFusionProcFun2(c,c101201036.mfilter1,c101201036.mfilter2,true)
+--Magnum the Reliever
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	--Place 1 "Polymerization" or "Fusion" Spell on the bottom of the Deck
+	--material
+	aux.AddFusionProcFun2(c,aux.FilterBoolFunction(Card.IsSummonLocation,LOCATION_EXTRA),aux.FilterBoolFunction(Card.IsLocation,LOCATION_HAND),true)
+	--draw
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101201036,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TODECK+CATEGORY_DRAW)
 	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1,101201036)
-	e1:SetTarget(c101201036.tdtg)
-	e1:SetOperation(c101201036.tdop)
+	e1:SetCountLimit(1,id)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetTarget(s.drtg)
+	e1:SetOperation(s.drop)
 	c:RegisterEffect(e1)
-	--Destroy 1 card on the field
+	--destroy
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101201036,1))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_DESTROY)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,101201036+100)
-	e2:SetCondition(c101201036.descon)
-	e2:SetCost(c101201036.descost)
-	e2:SetTarget(c101201036.destg)
-	e2:SetOperation(c101201036.desop)
+	e2:SetCountLimit(1,id+o)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetCondition(s.condition)
+	e2:SetCost(s.cost)
+	e2:SetTarget(s.destg)
+	e2:SetOperation(s.desop)
 	c:RegisterEffect(e2)
 end
-function c101201036.mfilter1(c)
-	return c:IsSummonLocation(LOCATION_EXTRA) and c:IsLocation(LOCATION_MZONE)
-end
-function c101201036.mfilter2(c)
-	return c:IsLocation(LOCATION_HAND) and c:IsType(TYPE_MONSTER)
-end
-function c101201036.tdfilter(c)
+function s.filter(c)
 	return c:IsSetCard(0x46) and c:IsType(TYPE_SPELL) and c:IsAbleToDeck()
 end
-function c101201036.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c101201036.thfilter(chkc) end
-	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) and Duel.IsExistingTarget(c101201036.tdfilter,tp,LOCATION_GRAVE,0,1,nil) end
+function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectTarget(tp,c101201036.tdfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,1,tp,0)
+	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 end
-function c101201036.tdop(e,tp,eg,ep,ev,re,r,rp)
+function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,SEQ_DECKBOTTOM,REASON_EFFECT)>0
-		and tc:IsLocation(LOCATION_DECK) then
-		Duel.BreakEffect()
-		Duel.Draw(tp,1,REASON_EFFECT)
-	end
+		and tc:IsLocation(LOCATION_DECK) then Duel.Draw(tp,1,REASON_EFFECT) end
 end
-function c101201036.descon(e,tp,eg,ep,ev,re,r,rp)
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return re:GetHandler()~=e:GetHandler()
 end
-function c101201036.descostfilter(c)
+function s.cfilter(c)
 	return c:IsSetCard(0x46) and c:IsType(TYPE_SPELL) and c:IsAbleToRemoveAsCost()
 end
-function c101201036.descost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101201036.descostfilter,tp,LOCATION_GRAVE,0,1,nil) end
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c101201036.descostfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	Duel.Remove(g,nil,REASON_COST)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
-function c101201036.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() end
-	if chk==0 then return Duel.IsExistingMatchingCard(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
-function c101201036.desop(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.Destroy(tc,REASON_EFFECT)
-	end
+	if tc:IsRelateToEffect(e) then Duel.Destroy(tc,REASON_EFFECT) end
 end

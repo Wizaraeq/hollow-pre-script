@@ -1,8 +1,9 @@
---coded by Lyris
+--幻爪の王ガゼル
 --Gazelle the King of Mythical Claws
-local s, id, o = GetID()
+--coded by Lyris
+local s,id,o=GetID()
 function s.initial_effect(c)
-	aux.AddCodeList(c,101201052,63136489)
+	aux.AddCodeList(c,101201052)
 	--add fusion/fiend
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -30,8 +31,9 @@ function s.initial_effect(c)
 	e3:SetOperation(s.thop(s.ifilter))
 	c:RegisterEffect(e3)
 end
+RACE_ILLUSION=0x2000000
 function s.filter(c)
-	return (c:IsCode(101201052,63136489) or c:IsLevel(5) and c:IsRace(RACE_FIEND)) and c:IsAbleToHand()
+	return (c:IsCode(101201052) or c:IsLevel(5) and c:IsRace(RACE_FIEND)) and c:IsAbleToHand()
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

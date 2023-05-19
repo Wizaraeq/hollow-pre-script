@@ -1,5 +1,6 @@
 --転生炎獣ティガー
 --Salamangreat Teeger
+--Script by StupidStudiosN
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--special summon (self)
@@ -30,9 +31,22 @@ function s.initial_effect(c)
 	e3:SetOperation(s.lvop)
 	c:RegisterEffect(e3)
 end
+function Auxiliary.SelectFromOptions(tp,...)
+	local options={...}
+	local ops={}
+	local opvals={}
+	for i=1,#options do
+		if options[i][1] then
+			table.insert(ops,options[i][2])
+			table.insert(opvals,options[i][3] or i)
+		end
+	end
+	if #ops==0 then return nil end
+	local select=Duel.SelectOption(tp,table.unpack(ops))
+	return opvals[select+1]
+end
 function s.costfilter(c)
-	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsDiscardable() 
-	and c:IsAbleToGraveAsCost()
+	return c:IsSetCard(0x119) and c:IsDiscardable() and c:IsAbleToGraveAsCost()
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_HAND,0,1,e:GetHandler()) end

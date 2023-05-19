@@ -1,6 +1,7 @@
---coded by Lyris
+--リトル・オポジション
 --Little Opposition
-local s, id, o = GetID()
+--coded by Lyris
+local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -25,22 +26,24 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,nil,e,tp,z) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOZONE)
 	local s=Duel.SelectDisableField(tp,1,LOCATION_MZONE,0,~z)
-	Duel.SetTargetParam(s)
-	Duel.Hint(HINT_ZONE,tp,s|1<<(4-math.log(s,2)))
+	local ts=math.log(s,2)
+	e:SetLabel(s)
+	Duel.Hint(HINT_ZONE,tp,s|2^(4-ts)<<16)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local z1=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
-	local z2=1<<(4-math.log(z1,2))
-	if Duel.GetLocationCount(tp,LOCATION_MZONE,tp,LOCATION_REASON_TOFIELD,z1)<=0 then return end
+	local z=e:GetLabel()
+	if Duel.GetLocationCount(tp,LOCATION_MZONE,tp,LOCATION_REASON_TOFIELD,z)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,1,nil,e,tp,z1):GetFirst()
-	if Duel.SpecialSummon(sc,0,tp,tp,false,false,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE,z1)>0 then
-		local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_DECK+LOCATION_HAND,nil,e,1-tp,z2)
-		if Duel.CheckLocation(1-tp,LOCATION_MZONE,z2) and #g>0 and Duel.SelectYesNo(1-tp,aux.Stringid(id,1)) then
+	local sc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,1,nil,e,tp,z):GetFirst()
+	if Duel.SpecialSummon(sc,0,tp,tp,false,false,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE,z)>0 then
+		local sq=4-sc:GetSequence()
+		local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_DECK+LOCATION_HAND,nil,e,1-tp,2^sq)
+		if Duel.CheckLocation(1-tp,LOCATION_MZONE,sq) and #g>0
+			and Duel.SelectYesNo(1-tp,aux.Stringid(id,1)) then
 			Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_SPSUMMON)
 			local sg=g:Select(1-tp,1,1,nil)
 			Duel.BreakEffect()
-			Duel.SpecialSummon(sg,0,1-tp,1-tp,false,false,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE,z2)
+			Duel.SpecialSummon(sg,0,1-tp,1-tp,false,false,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE,2^sq)
 		end
 	end
 end

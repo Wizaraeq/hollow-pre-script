@@ -1,56 +1,56 @@
 --魔星のウルカ
-function c101201028.initial_effect(c)
-	--Special Summon 1 monster that leaves the field OR this card
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101201028,0))
+--Uruka the Magic Star
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+    --spsummon
+    local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_LEAVE_FIELD)
-	e1:SetRange(LOCATION_HAND+LOCATION_GRAVE)
-	e1:SetCountLimit(1,101201028)
-	e1:SetCondition(c101201028.spcon)
+	e1:SetRange(LOCATION_GRAVE+LOCATION_HAND)
+	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.spcon)
 	e1:SetCost(aux.bfgcost)
-	e1:SetTarget(c101201028.sptg)
-	e1:SetOperation(c101201028.spop)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	--Gain 1500 ATK if it is Special Summoned
+	--atkup
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101201028,1))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_ATKCHANGE)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetCountLimit(1,101201028+100)
-	e2:SetTarget(c101201028.atktg)
-	e2:SetOperation(c101201028.atkop)
+	e2:SetCountLimit(1,id+o)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetOperation(s.atkop)
 	c:RegisterEffect(e2)
 end
-function c101201028.cfilter(c,tp,rp)
-	return c:IsType(TYPE_MONSTER) and c:IsPreviousControler(tp)
-		and c:IsReason(REASON_EFFECT) and rp==1-tp
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	local tc=eg:GetFirst()
+	return #eg==1 and tc:IsPreviousControler(tp) and tc:IsPreviousLocation(LOCATION_MZONE)
+		and tc:GetReasonPlayer()==1-tp and tc:IsReason(REASON_EFFECT)
 end
-function c101201028.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return #eg==1 and c101201028.cfilter(eg:GetFirst(),tp,rp)
-end
-function c101201028.spfilter(c,e,tp)
+function s.spfilter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
 end
-function c101201028.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local tc=eg:GetFirst()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and (c101201028.spfilter(tc,e,tp) or c101201028.spfilter(c,e,tp)) end
+		and (s.spfilter(tc,e,tp) or s.spfilter(c,e,tp)) end
 	local loc=LOCATION_REMOVED
 	if (tc:IsLocation(LOCATION_GRAVE) or (tc:IsLocation(LOCATION_GRAVE) and tc:IsFaceup())) then loc=LOCATION_REMOVED+LOCATION_GRAVE end
 	c:CreateEffectRelation(e)
 	tc:CreateEffectRelation(e)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,loc)
 end
-function c101201028.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
 	local tc=eg:GetFirst()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() then --maybe also add aux.nvfilter(c)?
+	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	elseif c:IsRelateToEffect(e) and c:IsFaceup() then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
@@ -58,18 +58,13 @@ function c101201028.spop(e,tp,eg,ep,ev,re,r,rp)
 	c:ReleaseEffectRelation(e)
 	tc:ReleaseEffectRelation(e)
 end
-function c101201028.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_ATKCHANGE,e:GetHandler(),1,tp,1500)
-end
-function c101201028.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsFaceup() and c:IsRelateToEffect(e) then
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetValue(1500)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE+RESET_PHASE+PHASE_END,2)
-		c:RegisterEffect(e1)
-	end
+	if not c:IsRelateToChain() or c:IsFacedown() then return end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_UPDATE_ATTACK)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE+RESET_PHASE+PHASE_END,2)
+	e1:SetValue(1500)
+	c:RegisterEffect(e1)
 end

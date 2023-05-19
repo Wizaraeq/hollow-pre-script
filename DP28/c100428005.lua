@@ -1,5 +1,6 @@
 --転生炎獣レイジング・フェニックス
 --Salamangreat Raging Phoenix
+--Script by StupidStudiosN
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--link summon
@@ -31,7 +32,7 @@ function s.initial_effect(c)
 	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
 	e3:SetCode(EVENT_DESTROYED)
 	e3:SetRange(LOCATION_GRAVE)
-	e3:SetCountLimit(1,id+o*2)
+	e3:SetCountLimit(1,id+o)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
@@ -82,7 +83,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
 	if chk==0 then return eg:IsExists(s.tgfilter,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,2))
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local g=eg:FilterSelect(tp,s.tgfilter,1,1,nil,e,tp)
 	Duel.SetTargetCard(g)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)

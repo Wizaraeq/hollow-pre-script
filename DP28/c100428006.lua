@@ -1,107 +1,93 @@
 --転生炎獣の炎軍
-function c100428006.initial_effect(c)
-	--Shuffle 2 FIRE monsters into the Deck and Special Summon another one OR destroy 1 card on the field
+--Salamangreat Charge
+--Script by StupidStudiosN
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--Special Summon
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_TODECK+CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
-	e1:SetCountLimit(1,100428006+EFFECT_COUNT_CODE_OATH)
-	e1:SetTarget(c100428006.target)
-	e1:SetOperation(c100428006.operation)
+	e1:SetHintTiming(0,TIMING_END_PHASE)
+	e1:SetCountLimit(1,id)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
+	--Destroy
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_DESTROY)
+	e2:SetType(EFFECT_TYPE_ACTIVATE)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetCountLimit(1,id)
+	e2:SetCondition(s.descon)
+	e2:SetTarget(s.destg)
+	e2:SetOperation(s.desop)
+	c:RegisterEffect(e2)
 end
-function c100428006.filter1(c,e,tp)
-	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_FIRE) and c:IsCanBeEffectTarget(e)
-		and (c:IsAbleToDeck() or c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP))
+function s.filter1(c)
+	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsFaceupEx() and c:IsAbleToDeck()
 end
-function c100428006.filter2(c)
-	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_FIRE)
-		and c:IsType(TYPE_RITUAL+TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK) and c:GetAttack()~=c:GetBaseAttack()
+function s.filter2(c,e,tp)
+	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsFaceupEx() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and Duel.IsExistingTarget(s.filter1,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,2,c)
 end
-function c100428006.rescon(sg,e,tp)
-	return sg:IsExists(c100428006.spcheck,1,nil,sg,e,tp)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return false end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingTarget(s.filter2,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g1=Duel.SelectTarget(tp,s.filter2,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil,e,tp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g2=Duel.SelectTarget(tp,s.filter1,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,2,2,g1:GetFirst())
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,g2,2,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g1,1,0,0)
 end
-function c100428006.spcheck(c,sg,e,tp)
-	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and sg:FilterCount(Card.IsAbleToDeck,c)==2
-end
-function c100428006.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(c100428006.filter1,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,nil,e,tp)
-	local b1=#g>=3 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and g:CheckSubGroup(c100428006.rescon,3,3,e,tp)
-	local b2=Duel.IsExistingMatchingCard(c100428006.filter2,tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,c)
-	if chkc then return b2 and chkc:IsOnField() and chck~=c end
-	if chk==0 then return b1 or b2 end
-	local op=0
-	if b1 and not b2 then
-		op=Duel.SelectOption(tp,aux.Stringid(100428006,0))
-	end
-	if not b1 and b2 then
-		op=Duel.SelectOption(tp,aux.Stringid(100428006,1))+1
-	end
-	if b1 and b2 then
-		op=Duel.SelectOption(tp,aux.Stringid(100428006,0),aux.Stringid(100428006,1))
-	end
-	e:SetLabel(op)
-	if op==0 then
-		e:SetCategory(CATEGORY_TODECK+CATEGORY_SPECIAL_SUMMON)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-		local rg=g:SelectSubGroup(tp,c100428006.rescon,false,3,3,e,tp)
-		Duel.SetTargetCard(rg)
-		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,rg,1,tp,0)
-		Duel.SetOperationInfo(0,CATEGORY_TODECK,rg,2,tp,0)
-	else
-		e:SetCategory(CATEGORY_DESTROY)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local tc=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,c)
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,tc,1,tp,0)
-	end
-end
-function c100428006.operation(e,tp,eg,ep,ev,re,r,rp)
-	local op=e:GetLabel()
-	if op==0 then --Shuffle 2 FIRE monsters and Special Summon another
-		local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-		if #g<3 then return end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-		local tdg=g:SelectSubGroup(tp,c100428006.selectcond(g),false,2,2,e,tp)
-		local g=g-tdg
-		if Duel.SendtoDeck(tdg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 then
-			local tc=g:GetFirst()
-			if tc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
-				if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
-					local c=e:GetHandler()
-					--Negate its effects
-					local e1=Effect.CreateEffect(c)
-					e1:SetType(EFFECT_TYPE_SINGLE)
-					e1:SetCode(EFFECT_DISABLE)
-					e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-					e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-					tc:RegisterEffect(e1)
-					local e2=e1:Clone()
-					e2:SetCode(EFFECT_DISABLE_EFFECT)
-					e2:SetValue(RESET_TURN_SET)
-					c:RegisterEffect(e2)
-					--Cannot attack
-					local e3=Effect.CreateEffect(c)
-					e3:SetType(EFFECT_TYPE_SINGLE)
-					e3:SetCode(EFFECT_CANNOT_ATTACK)
-					e3:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-					e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-					tc:RegisterEffect(e3)
-				end
-				Duel.SpecialSummonComplete()
-			end
-		end
-	else --Destroy 1 card on the field
-		local tc=Duel.GetFirstTarget()
-		if tc:IsRelateToEffect(e) then
-			Duel.Destroy(tc,REASON_EFFECT)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local ex,g1=Duel.GetOperationInfo(0,CATEGORY_TODECK)
+	local ex,g2=Duel.GetOperationInfo(0,CATEGORY_SPECIAL_SUMMON)
+	if g1:GetFirst():IsRelateToEffect(e) and g1:GetNext():IsRelateToEffect(e) then
+		local tc=g2:GetFirst()
+		if Duel.SendtoDeck(g1,nil,SEQ_DECKSHUFFLE,REASON_EFFECT) and tc:IsRelateToEffect(e) then
+			Duel.BreakEffect()
+			Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_DISABLE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e1)
+			local e2=e1:Clone()
+			e2:SetCode(EFFECT_DISABLE_EFFECT)
+			e2:SetValue(RESET_TURN_SET)
+			tc:RegisterEffect(e2)
+			local e3=e1:Clone()
+			e3:SetType(EFFECT_TYPE_SINGLE)
+			e3:SetCode(EFFECT_CANNOT_ATTACK)
+			e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e3)
+			Duel.SpecialSummonComplete()
 		end
 	end
 end
-function c100428006.selectcond(resg,e,tp)
-	return function (sg,e,tp,mg)
-		return sg:IsExists(Card.IsAbleToDeck,2,nil) and resg:IsExists(Card.IsCanBeSpecialSummoned,1,sg,e,0,tp,false,false)
+function s.desfilter(c)
+	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsType(TYPE_FUSION+TYPE_RITUAL+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK) and c:GetAttack()>c:GetBaseAttack()
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_MZONE,0,1,nil)
+end
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsOnField() end
+	if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end
