@@ -19,7 +19,7 @@ end
 function c100428023.efftg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c100428023.damfilter(chkc) end
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local b1=Duel.IsExistingMatchingCard(c100428023.thspfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ft) and  Duel.GetFlagEffect(tp,100428023)==0
+	local b1=Duel.IsExistingMatchingCard(c100428023.thspfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ft) and Duel.GetFlagEffect(tp,100428023)==0
 	local b2=Duel.IsExistingTarget(c100428023.damfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) and Duel.GetFlagEffect(tp,100428023+100)==0
 	if chk==0 then return b1 or b2 end
 	local op=aux.SelectFromOptions(tp,
@@ -54,7 +54,7 @@ function c100428023.effop(e,tp,eg,ep,ev,re,r,rp)
 		if tc then
 			if ft>0 and tc:IsCanBeSpecialSummoned(e,0,tp,true,false)
 				and (not tc:IsAbleToHand() or Duel.SelectOption(tp,1190,1152)==1) then
-				Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP_DEFENSE)
+				Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)
 				local fid=e:GetHandler():GetFieldID()
 				tc:RegisterFlagEffect(100428023+200,RESET_EVENT+RESETS_STANDARD,0,1,fid)
 				local e1=Effect.CreateEffect(e:GetHandler())
