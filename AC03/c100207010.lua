@@ -1,85 +1,85 @@
---トライアングル－Ｏ
-function c100207010.initial_effect(c)
-	--Destroy all cards on the field
+--トライアングル－O
+--Triangle O
+--Script by StupidStudiosN
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--destroy and damage
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(100207010,0))
-	e1:SetCategory(CATEGORY_DESTROY)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCategory(CATEGORY_DESTROY)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,100207010) 
-	e1:SetCondition(c100207010.descon)
-	e1:SetTarget(c100207010.destg)
-	e1:SetOperation(c100207010.desop)
+	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.descon)
+	e1:SetTarget(s.destarget)
+	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1)
-	--Shuffle 1 "Crystal Skull", 1 "Ashoka Pillar", and 1 "Cabrera Stone" into the Deck
+	--draw
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100207010,1))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_TODECK+CATEGORY_DRAW)
-	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCountLimit(1,100207010) 
+	e2:SetCountLimit(1,id)
 	e2:SetCost(aux.bfgcost)
-	e2:SetTarget(c100207010.tdtg)
-	e2:SetOperation(c100207010.tdop)
+	e2:SetTarget(s.drtg)
+	e2:SetOperation(s.drop)
 	c:RegisterEffect(e2)
 end
-function c100207010.dcfilter1(c)
-	return c:IsFaceup() and c:IsCode(7903368)
+function s.desfilter(c, code)
+	return c:IsFaceup() and c:IsCode(code)
 end
-function c100207010.dcfilter2(c)
-	return c:IsFaceup() and c:IsCode(100207008)
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_ONFIELD,0,1,nil,7903368) 
+	and Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_ONFIELD,0,1,nil,100207008) 
+	and Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_ONFIELD,0,1,nil,100207009)
 end
-function c100207010.dcfilter3(c)
-	return c:IsFaceup() and c:IsCode(100207009)
+function s.destarget(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,e:GetHandler()) end
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
-function c100207010.descon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c100207010.dcfilter1,tp,LOCATION_ONFIELD,0,1,nil)
-		and Duel.IsExistingMatchingCard(c100207010.dcfilter2,tp,LOCATION_ONFIELD,0,1,nil)
-		and Duel.IsExistingMatchingCard(c100207010.dcfilter3,tp,LOCATION_ONFIELD,0,1,nil)
-end
-function c100207010.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local sg=Duel.GetMatchingGroup(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
-	if chk==0 then return #sg>0 end
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
-end
-function c100207010.desop(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,aux.ExceptThisCard(e))
 	local c=e:GetHandler()
-	local sg=Duel.GetMatchingGroup(nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,c)
-	if #sg>0 then
-		Duel.Destroy(sg,REASON_EFFECT)
+	if c:IsRelateToEffect(e) and Duel.Destroy(g,REASON_EFFECT) then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e1:SetCode(EFFECT_REFLECT_DAMAGE)
+		e1:SetTargetRange(1,0)
+		e1:SetValue(s.val)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
 	end
-	--Reflect effect damage
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e1:SetCode(EFFECT_REFLECT_DAMAGE)
-	e1:SetTargetRange(1,0)
-	e1:SetValue(c100207010.val)
-	e1:SetReset(RESET_PHASE+PHASE_END)
-	Duel.RegisterEffect(e1,tp)
 end
-function c100207010.val(e,re,ev,r,rp,rc)
+function s.val(e,re,ev,r,rp,rc)
 	return bit.band(r,REASON_EFFECT)~=0
 end
-function c100207010.tdfilter(c,e)
-	return c:IsCode(7903368,100207008,100207009) and c:IsAbleToDeck() and c:IsCanBeEffectTarget(e)
+function s.tdfilter(c,e)
+	return c:IsFaceup() and c:IsCode(7903368,100207008,100207009) and c:IsAbleToDeck() and c:IsCanBeEffectTarget(e)
 end
-function c100207010.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return false end
-	local c=e:GetHandler()
-	local sg=Duel.GetMatchingGroup(c100207010.tdfilter,tp,LOCATION_GRAVE,0,nil,e)
-	if chk==0 then return sg:CheckSubGroup(aux.dncheck,3,3) end
+function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.tdfilter(chkc) end
+	local g=Duel.GetMatchingGroup(s.tdfilter,tp,LOCATION_GRAVE,0,nil,e)
+	if chk==0 then return g:GetClassCount(Card.GetCode)>=3 and Duel.IsPlayerCanDraw(tp,3) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=sg:SelectSubGroup(tp,aux.dncheck,false,3,3)
-	Duel.SetTargetCard(g)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,#g,0,0)
+	aux.GCheckAdditional=aux.dncheck
+	local sg=g:SelectSubGroup(tp,aux.TRUE,false,3,3)
+	aux.GCheckAdditional=nil
+	Duel.SetTargetCard(sg)
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,3,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,3)
 end
-function c100207010.tdop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
-	if #g>0 and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0
-		and g:IsExists(Card.IsLocation,1,nil,LOCATION_DECK+LOCATION_EXTRA) then
+function s.drop(e,tp,eg,ep,ev,re,r,rp)
+	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
+	if tg:GetCount()<=0 then return end
+	Duel.SendtoDeck(tg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+	local g=Duel.GetOperatedGroup()
+	if g:IsExists(Card.IsLocation,1,nil,LOCATION_DECK) then Duel.ShuffleDeck(tp) end
+	local ct=g:FilterCount(Card.IsLocation,nil,LOCATION_DECK)
+	if ct>0 then
 		Duel.BreakEffect()
 		Duel.Draw(tp,3,REASON_EFFECT)
 	end

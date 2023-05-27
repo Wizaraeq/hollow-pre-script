@@ -117,7 +117,8 @@ end
 function c101202069.dcfilter4(c)
 	return c:IsFaceup() and c:IsSetCard(0x1046)
 end
-function c101202069.discon(e,tp,eg,ep,ev,re,r,rp)
+function c101202069.discon(e)
+	local tp=e:GetHandler():GetControler()
 	return not (Duel.IsExistingMatchingCard(c101202069.dcfilter1,tp,LOCATION_REMOVED,0,1,nil)
 		and Duel.IsExistingMatchingCard(c101202069.dcfilter2,tp,LOCATION_REMOVED,0,1,nil)
 		and Duel.IsExistingMatchingCard(c101202069.dcfilter3,tp,LOCATION_REMOVED,0,1,nil)

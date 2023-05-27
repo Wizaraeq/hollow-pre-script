@@ -3,8 +3,8 @@
 --coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
-    --spsummon
-    local e1=Effect.CreateEffect(c)
+	--spsummon
+	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
@@ -32,31 +32,25 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return #eg==1 and tc:IsPreviousControler(tp) and tc:IsPreviousLocation(LOCATION_MZONE)
 		and tc:GetReasonPlayer()==1-tp and tc:IsReason(REASON_EFFECT)
 end
-function s.spfilter(c,e,tp)
-	return c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP)
-end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local tc=eg:GetFirst()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and (s.spfilter(tc,e,tp) or s.spfilter(c,e,tp)) end
-	local loc=LOCATION_REMOVED
-	if (tc:IsLocation(LOCATION_GRAVE) or (tc:IsLocation(LOCATION_GRAVE) and tc:IsFaceup())) then loc=LOCATION_REMOVED+LOCATION_GRAVE end
+		and tc:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetTargetCard(tc)
+	local g=Group.CreateGroup(c,tc)
 	c:CreateEffectRelation(e)
 	tc:CreateEffectRelation(e)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,loc)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
-	local tc=eg:GetFirst()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) and tc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) then
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
-	elseif c:IsRelateToEffect(e) and c:IsFaceup() then
+	elseif c:IsRelateToEffect(e) and c:IsLocation(LOCATION_REMOVED) then
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	end
-	c:ReleaseEffectRelation(e)
-	tc:ReleaseEffectRelation(e)
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

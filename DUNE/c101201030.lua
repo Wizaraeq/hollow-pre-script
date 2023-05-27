@@ -50,8 +50,8 @@ function s.initial_effect(c)
 	e7:SetCondition(s.rvcon)
 	c:RegisterEffect(e7)
 end
-function s.mlimit(e,c,sumtype)
-	return sumtype==SUMMON_TYPE_FUSION
+function s.mlimit(e,c,st)
+	return st==SUMMON_TYPE_FUSION
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return r==REASON_LINK and e:GetHandler():IsLocation(LOCATION_GRAVE)

@@ -2,6 +2,7 @@
 --coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
+	aux.AddCodeList(c,96305350)
 	c:EnableReviveLimit()
 	--material
 	aux.AddXyzProcedure(c,nil,3,2)
@@ -17,7 +18,6 @@ function s.initial_effect(c)
 	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
 	--todeck
-	aux.AddCodeList(c,96305350)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_TOEXTRA+CATEGORY_SPECIAL_SUMMON)
@@ -78,6 +78,8 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.sfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,e,tp)
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		if #g>0 then
+			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		end
 	end
 end

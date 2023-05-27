@@ -5,7 +5,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--material
-	aux.AddFusionProcFun2(c,aux.FilterBoolFunction(Card.IsSummonLocation,LOCATION_EXTRA),aux.FilterBoolFunction(Card.IsLocation,LOCATION_HAND),true)
+	aux.AddFusionProcFun2(c,s.matfilter,aux.FilterBoolFunction(Card.IsLocation,LOCATION_HAND),true)
 	--draw
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -32,12 +32,16 @@ function s.initial_effect(c)
 	e2:SetOperation(s.desop)
 	c:RegisterEffect(e2)
 end
+function s.matfilter(c)
+	return c:IsSummonLocation(LOCATION_EXTRA) and c:IsLocation(LOCATION_MZONE)
+end
 function s.filter(c)
 	return c:IsSetCard(0x46) and c:IsType(TYPE_SPELL) and c:IsAbleToDeck()
 end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_GRAVE,0,1,nil) end
+	if chk==0 then return Duel.IsPlayerCanDraw(tp,1)
+		and Duel.IsExistingTarget(s.filter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
@@ -46,7 +50,10 @@ end
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,SEQ_DECKBOTTOM,REASON_EFFECT)>0
-		and tc:IsLocation(LOCATION_DECK) then Duel.Draw(tp,1,REASON_EFFECT) end
+		and tc:IsLocation(LOCATION_DECK) then
+		Duel.BreakEffect()
+		Duel.Draw(tp,1,REASON_EFFECT)
+	end
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return re:GetHandler()~=e:GetHandler()
