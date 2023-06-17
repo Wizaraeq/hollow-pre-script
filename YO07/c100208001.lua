@@ -51,6 +51,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterEffect(e1,tp)
 	end
 end
-function s.limit(e,re,tp)
+function s.limit(e,re,rp)
 	return re:GetHandler():IsCode(e:GetLabel())
 end

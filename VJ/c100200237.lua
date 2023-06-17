@@ -36,6 +36,7 @@ function s.sfilter(c,tc)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_EXTRA,0,1,nil,tp) end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
@@ -52,7 +53,7 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 		e1:SetTargetRange(1,0)
 		e1:SetLabel(sc:GetCode())
-		e1:SetTarget(s.splimit)
+		e1:SetTarget(s.slimit)
 		e1:SetReset(RESET_PHASE+PHASE_END)
 		Duel.RegisterEffect(e1,tp)
 		local e2=Effect.CreateEffect(c)
@@ -60,17 +61,17 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 		e2:SetCode(EFFECT_CANNOT_ACTIVATE)
 		e2:SetTargetRange(1,0)
-		e2:SetValue(s.aclimit)
+		e2:SetValue(s.alimit)
 		e2:SetLabel(sc:GetCode())
 		e2:SetReset(RESET_PHASE+PHASE_END)
 		Duel.RegisterEffect(e2,tp)
 	end
 end
-function s.splimit(e,c)
+function s.slimit(e,c,sp,st,spos,tp,se)
 	return c:IsCode(e:GetLabel())
 end
-function s.aclimit(e,re,tp)
-	return re:GetHandler():IsCode(e:GetLabel())
+function s.alimit(e,te)
+	return te:IsActiveType(TYPE_MONSTER) and te:GetHandler():IsCode(e:GetLabel())
 end
 function s.mfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and c:IsAbleToRemove()
@@ -95,6 +96,7 @@ function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk)
 		end
 		return res
 	end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_GRAVE)
 end
