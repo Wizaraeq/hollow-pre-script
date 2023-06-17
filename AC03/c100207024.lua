@@ -1,94 +1,93 @@
 --地縛牢
-function c100207024.initial_effect(c)
+--Earthbound Prison
+--coded by Lyris
+local s, id, o = GetID()
+function s.initial_effect(c)
 	--Activate
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_ACTIVATE)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetTarget(s.distg)
+	c:RegisterEffect(e0)
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetTarget(c100207024.target)
+	e1:SetType(EFFECT_TYPE_TARGET)
+	e1:SetCode(EFFECT_DISABLE)
+	e1:SetRange(LOCATION_FZONE)
 	c:RegisterEffect(e1)
-	--extra summon
+	--add normal summon
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100207024,1))
+	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetCode(EFFECT_EXTRA_SUMMON_COUNT)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetTargetRange(LOCATION_HAND+LOCATION_MZONE,0)
 	e2:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x21))
 	c:RegisterEffect(e2)
-	--negate effects
+	--halve lp
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(100207024,2))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_DISABLE)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_DESTROYED)
-	e3:SetCondition(c100207024.discon)
-	e3:SetOperation(c100207024.disop)
+	e3:SetCondition(s.hlpcon)
+	e3:SetTarget(s.hlptg)
+	e3:SetOperation(s.hlpop)
 	c:RegisterEffect(e3)
 end
-function c100207024.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and aux.disfilter1() end
+function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and aux.NegateEffectMonsterFilter(chkc) end
 	if chk==0 then return true end
-	if Duel.IsExistingTarget(aux.disfilter1,tp,0,LOCATION_MZONE,1,nil)
-		and Duel.SelectYesNo(tp,aux.Stringid(100207024,0)) then
+	if Duel.IsExistingTarget(aux.NegateEffectMonsterFilter,tp,0,LOCATION_MZONE,1,nil)
+		and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		e:SetCategory(CATEGORY_DISABLE)
 		e:SetProperty(EFFECT_FLAG_CARD_TARGET)
-		e:SetOperation(c100207024.activate)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-		local g=Duel.SelectTarget(tp,aux.disfilter1,tp,0,LOCATION_MZONE,1,1,nil)
+		e:SetOperation(s.disop)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISABLE)
+		local g=Duel.SelectTarget(tp,aux.NegateEffectMonsterFilter,tp,0,LOCATION_MZONE,1,1,nil)
+		Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
 	else
 		e:SetCategory(0)
 		e:SetProperty(0)
 		e:SetOperation(nil)
 	end
 end
-function c100207024.activate(e,tp,eg,ep,ev,re,r,rp)
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if c:IsRelateToEffect(e) and c:IsFaceup() and tc:IsRelateToEffect(e)
-		and not tc:IsImmuneToEffect(e) then
-		c:SetCardTarget(tc)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetRange(LOCATION_FZONE)
-		e1:SetCondition(c100207024.rcon)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1)
-	end
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) then c:SetCardTarget(tc) end
 end
-function c100207024.rcon(e)
-	return e:GetOwner():IsHasCardTarget(e:GetHandler())
+function s.filter(c)
+	return c:IsFaceupEx() and c:IsSetCard(0x21) and c:IsType(TYPE_MONSTER)
 end
-function c100207024.cfilter1(c)
-	return c:IsFaceup() and c:IsSetCard(0x21) and c:IsAttribute(ATTRIBUTE_DARK)
-end
-function c100207024.discon(e,tp,eg,ep,ev,re,r,rp)
+function s.hlpcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return rp==1-tp and c:IsPreviousControler(tp) and c:IsReason(REASON_EFFECT) and Duel.IsExistingMatchingCard(c100207024.cfilter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil)
+	return rp==1-tp and c:IsPreviousControler(tp) and c:IsReason(REASON_EFFECT) and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE+LOCATION_MZONE,0,1,nil)
 end
-function c100207024.disop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	Duel.SetLP(1-tp,math.ceil(Duel.GetLP(1-tp)/2))
+function s.hlptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
 	local g=Duel.GetMatchingGroup(aux.NegateAnyFilter,tp,0,LOCATION_ONFIELD,nil)
-	local tc=g:GetFirst()
-	while tc do
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,#g,0,0)
+end
+function s.hlpop(e,tp,eg,ep,ev,re,r,rp)
+	local lp=Duel.GetLP(1-tp)
+	Duel.SetLP(1-tp,math.ceil(lp/2))
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(aux.NegateAnyFilter,tp,0,LOCATION_ONFIELD,nil)
+	for tc in aux.Next(g) do
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_DISABLE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
+		local e2=e1:Clone()
 		e2:SetCode(EFFECT_DISABLE_EFFECT)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		e2:SetValue(RESET_TURN_SET)
 		tc:RegisterEffect(e2)
 		if tc:IsType(TYPE_TRAPMONSTER) then
-			local e3=Effect.CreateEffect(c)
-			e3:SetType(EFFECT_TYPE_SINGLE)
+			local e3=e1:Clone()
 			e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
-			e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 			tc:RegisterEffect(e3)
 		end
-		tc=g:GetNext()
 	end
 end

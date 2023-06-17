@@ -1,113 +1,107 @@
---繧ｳ繝ｳ繝舌ャ繝医�ｻ繝帙う繝ｼ繝ｫ
-function c100207007.initial_effect(c)
-	c:EnableCounterPermit(0x164)
-	--Synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+--コンバット・ホイール
+--Combat Wheel
+--coded by CVen00/ToonyBirb using modified outline originally created by XGlitchy30, edited & formatted by Lyris
+local s,id=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	--Cannot be destroyed by card effect once per turn
+	--material
+	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+	c:EnableCounterPermit(0x167)
+	--indestructible
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e1:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1)
-	e1:SetValue(c100207007.valcon)
+	e1:SetValue(s.indct)
 	c:RegisterEffect(e1)
-	--Gain ATK equal to half the total ATK of other monsters
+	--counter+atk
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100207007,0))
+	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_COUNTER)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetHintTiming(TIMING_DAMAGE_STEP)
-	e2:SetCondition(c100207007.atkcon)
-	e2:SetCost(c100207007.atkcost)
-	e2:SetTarget(c100207007.atktg)
-	e2:SetOperation(c100207007.atkop)
+	e2:SetCountLimit(1)
+	e2:SetHintTiming(0,TIMING_BATTLE_START)
+	e2:SetCondition(s.ctcon)
+	e2:SetCost(s.ctcost)
+	e2:SetTarget(s.cttg)
+	e2:SetOperation(s.ctop)
 	c:RegisterEffect(e2)
-	--Destroy all monsters you control
+	--destroy
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e0:SetCode(EVENT_LEAVE_FIELD_P)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e0:SetOperation(s.regop)
+	c:RegisterEffect(e0)
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(EVENT_LEAVE_FIELD_P)
-	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e3:SetOperation(c100207007.descon1)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_DESTROY)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetCondition(s.descon)
+	e3:SetTarget(s.destg)
+	e3:SetOperation(s.desop)
+	e3:SetLabelObject(e0)
 	c:RegisterEffect(e3)
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(100207007,1))
-	e4:SetCategory(CATEGORY_DESTROY)
-	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e4:SetCode(EVENT_BATTLE_DESTROYED)
-	e4:SetLabelObject(e3)
-	e4:SetCondition(c100207007.descon2)
-	e4:SetTarget(c100207007.destg)
-	e4:SetOperation(c100207007.desop)
-	c:RegisterEffect(e4)
 end
-function c100207007.valcon(e,re,r,rp)
-	return bit.band(r,REASON_EFFECT)~=0 and rp==1-e:GetHandlerPlayer()
+function s.indct(e,re,r,rp)
+	if r&REASON_EFFECT>0 and e:GetOwnerPlayer()~=rp then
+		return 1
+	else return 0 end
 end
-function c100207007.atkcon(e,tp,eg,ep,ev,re,r,rp)
+function s.ctcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()~=tp and (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE)
-		and (Duel.GetCurrentPhase()~=PHASE_DAMAGE or not Duel.IsDamageCalculated())
 end
-function c100207007.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:GetFlagEffect(100207007)==0 and c:IsCanAddCounter(0x164,1)
-		and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
+function s.ctcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
 	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
-	c:RegisterFlagEffect(100207007,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE,0,1)
 end
-function c100207007.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_MZONE,0,1,e:GetHandler()) end
+function s.cttg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,e:GetHandler()):GetSum(Card.GetAttack)>0 end
 end
-function c100207007.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsFacedown() or not c:IsRelateToEffect(e) then return end
-	--Opponent cannot target other monsters for attack
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-	e1:SetCode(EFFECT_CANNOT_BE_BATTLE_TARGET)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetTargetRange(LOCATION_MZONE,0)
-	e1:SetTarget(c100207007.atlimit)
-	e1:SetValue(1)
-	e1:SetReset(RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e1)
-	--Gain ATK
-	local atk=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,c):GetSum(Card.GetAttack)
-	if atk>0 then 
+	if c:IsFaceup() and c:IsRelateToEffect(e) then
+		local atk=(Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,c):GetSum(Card.GetAttack))/2
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
+		e1:SetValue(atk)
+		c:RegisterEffect(e1)
 		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_UPDATE_ATTACK)
-		e2:SetValue(atk//2)
+		e2:SetType(EFFECT_TYPE_FIELD)
+		e2:SetCode(EFFECT_CANNOT_SELECT_BATTLE_TARGET)
+		e2:SetRange(LOCATION_MZONE)
+		e2:SetTargetRange(0,LOCATION_MZONE)
+		e2:SetValue(s.atlimit)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		c:RegisterEffect(e2)
-		if c:IsCanAddCounter(0x164,1) then
-			Duel.BreakEffect()
-			c:AddCounter(0x164,1)
-		end
+		if c:IsCanAddCounter(0x167,1) then c:AddCounter(0x167,1) end
 	end
 end
-function c100207007.atlimit(e,c)
+function s.atlimit(e,c)
 	return c~=e:GetHandler()
 end
-function c100207007.descon1(e)
-	return e:SetLabel(e:GetHandler():GetCounter(0x164))
-end
-function c100207007.descon2(e)
-	return e:GetLabelObject():GetLabel()>0
-end
-function c100207007.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	local g=Duel.GetMatchingGroup(nil,tp,LOCATION_MZONE,0,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
-end
-function c100207007.desop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(nil,tp,LOCATION_MZONE,0,nil)
-	if #g>0 then
-		Duel.Destroy(g,REASON_EFFECT)
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+	if e:GetHandler():GetCounter(0x167)>0 then
+		e:SetLabel(1)
+	else
+		e:SetLabel(0)
 	end
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return e:GetHandler():IsReason(REASON_BATTLE) and e:GetLabelObject():GetLabel()==1
+end
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	local sg=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,sg,#sg,0,0)
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local sg=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
+	Duel.Destroy(sg,REASON_EFFECT)
 end

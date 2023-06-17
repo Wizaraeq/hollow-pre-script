@@ -1,51 +1,57 @@
 --ヴィサス＝サンサーラ
+--
+--Script by Trishula9
 function c101202004.initial_effect(c)
 	--change name
 	aux.EnableChangeCode(c,56099748,LOCATION_MZONE+LOCATION_GRAVE)
-	--Special summon itself from the hand
+	--spsummon
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(101202004,0))
+	e1:SetCategory(CATEGORY_TODECK+CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetCountLimit(1,101202004)
+	e1:SetTarget(c101202004.sptg)
+	e1:SetOperation(c101202004.spop)
+	c:RegisterEffect(e1)
+	--non tuner
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101202004,0))
-	e2:SetCategory(CATEGORY_TODECK+CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetRange(LOCATION_HAND)
-	e2:SetCountLimit(1,101202004+100)
-	e2:SetTarget(c101202004.sptg)
-	e2:SetOperation(c101202004.spop)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_NONTUNER)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e2:SetValue(c101202004.tnval)
 	c:RegisterEffect(e2)
-	--Can be treated as a non-tuner for a Synchro Summon
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE)
-	e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetCode(EFFECT_NONTUNER)
-	c:RegisterEffect(e3)
 end
-function c101202004.visasfilter(c,tp)
-	return c:IsFaceup() and c:IsSetCard(0x198) and c:IsAbleToDeck() and Duel.GetMZoneCount(tp,c,tp)>0
+function c101202004.retfilter(c,e)
+	return c:IsSetCard(0x198) and c:IsType(TYPE_MONSTER) and c:IsFaceupEx()
+		and c:IsAbleToDeck() and c:IsCanBeEffectTarget(e)
 end
 function c101202004.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(loc) and c101202004.visasfilter(chkc,tp)end
-	local c=e:GetHandler()
-	if chk==0 then return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and Duel.IsExistingTarget(c101202004.visasfilter,tp,LOCATION_MZONE+LOCATION_REMOVED+LOCATION_GRAVE,0,1,nil,tp) end
+	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED) and c101202004.retfilter(chkc) end
+	local g=Duel.GetMatchingGroup(c101202004.retfilter,tp,LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED,0,nil,e)
+	if chk==0 then return g:CheckSubGroup(aux.mzctcheck,1,#g,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectTarget(tp,c101202004.visasfilter,tp,LOCATION_MZONE+LOCATION_REMOVED+LOCATION_GRAVE,0,1,99,nil,tp)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,#g,tp,0)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
+	local tg=g:SelectSubGroup(tp,aux.mzctcheck,false,1,#g,tp)
+	Duel.SetTargetCard(tg)
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,tg,#tg,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function c101202004.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetTargetsRelateToChain()
-	if Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 then
-		local og=Duel.GetOperatedGroup()
-		local c=e:GetHandler()
-		if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 and #og>0 then
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_UPDATE_ATTACK)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			e1:SetValue(og:GetClassCount(Card.GetCode)*400)
-			c:RegisterEffect(e1)
-		end
+	local c=e:GetHandler()
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
+	Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+	local atk=Duel.GetOperatedGroup():Filter(Card.IsLocation,nil,LOCATION_DECK+LOCATION_EXTRA):GetClassCount(Card.GetCode)*400
+	if atk>0 and c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetValue(atk)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
+		c:RegisterEffect(e1)
 	end
+end
+function c101202004.tnval(e,c)
+	return e:GetHandler():IsControler(c:GetControler())
 end

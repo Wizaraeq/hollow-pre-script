@@ -1,6 +1,6 @@
 --フォトン・デルタ・ウィング
---coded by Lyris
 --Photon Delta Wing
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--spsummon

@@ -1,32 +1,34 @@
 --覇王天龍の魂
+--
+--Script by Trishula9
 function c101202069.initial_effect(c)
 	aux.AddCodeList(c,13331639)
-	--Activate
+	--activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101202069,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON+CATEGORY_REMOVE)
+	e1:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,101202069+EFFECT_COUNT_CODE_OATH)
 	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
+	e1:SetCountLimit(1,101202069+EFFECT_COUNT_CODE_OATH)
 	e1:SetCost(c101202069.cost)
 	e1:SetTarget(c101202069.target)
 	e1:SetOperation(c101202069.activate)
 	c:RegisterEffect(e1)
 end
-function c101202069.cfilter(c)
-	return c:IsType(TYPE_PENDULUM) and c:IsRace(RACE_SPELLCASTER) and c:GetBaseAttack()==2500
+function c101202069.rfilter(c,tp)
+	return c:GetBaseAttack()==2500 and c:IsRace(RACE_SPELLCASTER) and c:IsType(TYPE_PENDULUM) and c:IsFaceup()
 end
 function c101202069.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,c101202069.cfilter,1,nil) end
-	local g=Duel.SelectReleaseGroup(tp,c101202069.cfilter,1,1,nil)
+	if chk==0 then return Duel.CheckReleaseGroup(tp,c101202069.rfilter,1,nil,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+	local g=Duel.SelectReleaseGroup(tp,c101202069.rfilter,1,1,nil,tp)
 	Duel.Release(g,REASON_COST)
 end
 function c101202069.filter0(c)
-	return c:IsOnField() and c:IsAbleToRemove()
+	return c:IsAbleToRemove()
 end
 function c101202069.filter1(c,e)
-	return c:IsOnField() and c:IsAbleToRemove() and not c:IsImmuneToEffect(e)
+	return c:IsAbleToRemove() and not c:IsImmuneToEffect(e)
 end
 function c101202069.filter2(c,e,tp,m,f,chkf)
 	return c:IsType(TYPE_FUSION) and c:IsCode(13331639) and (not f or f(c))
@@ -39,7 +41,7 @@ function c101202069.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
 		local mg1=Duel.GetFusionMaterial(tp):Filter(c101202069.filter0,nil)
-		local mg2=Duel.GetMatchingGroup(c101202069.filter3,tp,LOCATION_MZONE+LOCATION_HAND+LOCATION_GRAVE+LOCATION_DECK+LOCATION_EXTRA,0,nil)
+		local mg2=Duel.GetMatchingGroup(c101202069.filter3,tp,LOCATION_DECK+LOCATION_EXTRA+LOCATION_GRAVE,0,nil)
 		mg1:Merge(mg2)
 		local res=Duel.IsExistingMatchingCard(c101202069.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
 		if not res then
@@ -53,13 +55,14 @@ function c101202069.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		end
 		return res
 	end
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE+LOCATION_DECK+LOCATION_EXTRA)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_EXTRA+LOCATION_ONFIELD+LOCATION_GRAVE)
 end
 function c101202069.activate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local chkf=tp
 	local mg1=Duel.GetFusionMaterial(tp):Filter(c101202069.filter1,nil,e)
-	local mg2=Duel.GetMatchingGroup(c101202069.filter3,tp,LOCATION_MZONE+LOCATION_HAND+LOCATION_GRAVE+LOCATION_DECK+LOCATION_EXTRA,0,nil)
+	local mg2=Duel.GetMatchingGroup(c101202069.filter3,tp,LOCATION_DECK+LOCATION_EXTRA+LOCATION_GRAVE,0,nil)
 	mg1:Merge(mg2)
 	local sg1=Duel.GetMatchingGroup(c101202069.filter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,chkf)
 	local mg3=nil
@@ -88,39 +91,35 @@ function c101202069.activate(e,tp,eg,ep,ev,re,r,rp)
 			local fop=ce:GetOperation()
 			fop(ce,e,tp,tc,mat2)
 		end
+		local b1=Duel.IsExistingMatchingCard(c101202069.efilter1,tp,LOCATION_REMOVED,0,1,nil)
+		local b2=Duel.IsExistingMatchingCard(c101202069.efilter2,tp,LOCATION_REMOVED,0,1,nil)
+		local b3=Duel.IsExistingMatchingCard(c101202069.efilter3,tp,LOCATION_REMOVED,0,1,nil)
+		local b4=Duel.IsExistingMatchingCard(c101202069.efilter4,tp,LOCATION_REMOVED,0,1,nil)
+		if not b1 or not b2 or not b3 or not b4 then
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_DISABLE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e1,true)
+			local e2=Effect.CreateEffect(c)
+			e2:SetType(EFFECT_TYPE_SINGLE)
+			e2:SetCode(EFFECT_DISABLE_EFFECT)
+			e2:SetValue(RESET_TURN_SET)
+			e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e2,true)
+		end
 		tc:CompleteProcedure()
-		local c=e:GetHandler()
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetCondition(c101202069.discon)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1,true)
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_DISABLE_EFFECT)
-		e2:SetCondition(c101202069.discon)
-		e2:SetValue(RESET_TURN_SET)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e2,true)
 	end
 end
-function c101202069.dcfilter1(c)
-	return c:IsFaceup() and c:IsSetCard(0x10f2)
+function c101202069.efilter1(c)
+	return c:IsSetCard(0x10f2) and c:IsFaceup()
 end
-function c101202069.dcfilter2(c)
-	return c:IsFaceup() and c:IsSetCard(0x2073)
+function c101202069.efilter2(c)
+	return c:IsSetCard(0x2073) and c:IsFaceup()
 end
-function c101202069.dcfilter3(c)
-	return c:IsFaceup() and c:IsSetCard(0x2017)
+function c101202069.efilter3(c)
+	return c:IsSetCard(0x2017) and c:IsFaceup()
 end
-function c101202069.dcfilter4(c)
-	return c:IsFaceup() and c:IsSetCard(0x1046)
-end
-function c101202069.discon(e)
-	local tp=e:GetHandler():GetControler()
-	return not (Duel.IsExistingMatchingCard(c101202069.dcfilter1,tp,LOCATION_REMOVED,0,1,nil)
-		and Duel.IsExistingMatchingCard(c101202069.dcfilter2,tp,LOCATION_REMOVED,0,1,nil)
-		and Duel.IsExistingMatchingCard(c101202069.dcfilter3,tp,LOCATION_REMOVED,0,1,nil)
-		and Duel.IsExistingMatchingCard(c101202069.dcfilter4,tp,LOCATION_REMOVED,0,1,nil))
+function c101202069.efilter4(c)
+	return c:IsSetCard(0x1046) and c:IsFaceup()
 end
