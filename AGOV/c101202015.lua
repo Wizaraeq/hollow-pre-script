@@ -1,101 +1,94 @@
 --エレキハダマグロ
-function c101202015.initial_effect(c)
-	--Can attack directly
+--Wattuna
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--direct attack
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_DIRECT_ATTACK)
 	c:RegisterEffect(e1)
-	--Special Summon itself from the hand if you inflict battle damage to the opponent
+	--spsummon
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101202015,0))
+	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetRange(LOCATION_HAND)
 	e2:SetCode(EVENT_DAMAGE_STEP_END)
-	e2:SetCountLimit(1,101202015)
-	e2:SetCondition(c101202015.spcon)
-	e2:SetTarget(c101202015.sptg)
-	e2:SetOperation(c101202015.spop)
+	e2:SetRange(LOCATION_HAND)
+	e2:SetCountLimit(1,id)
+	e2:SetCondition(s.spcon)
+	e2:SetTarget(s.sptg)
+	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
-	--Special Summon 1 "Watt" Synchro Monster from your Extra Deck
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101202015,1))
-	e3:SetCategory(CATEGORY_RELEASE+CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetCode(EVENT_BATTLE_DAMAGE)
-	e3:SetCountLimit(1,101202015+100)
-	e3:SetCondition(c101202015.spsynccon)
-	e3:SetTarget(c101202015.spsynctg)
-	e3:SetOperation(c101202015.spsyncop)
-	c:RegisterEffect(e3)
-	if not c101202015.global_check then
-		c101202015.global_check=true
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_BATTLE_DAMAGE)
-		ge1:SetOperation(c101202015.regop)
-		Duel.RegisterEffect(ge1,0)
+	if not s.global_check then
+		s.global_check=true
+		local e3=Effect.CreateEffect(c)
+		e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e3:SetCode(EVENT_BATTLE_DAMAGE)
+		e3:SetCondition(s.regcon)
+		e3:SetOperation(s.regop)
+		Duel.RegisterEffect(e3,0)
 	end
+	--s summon
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetCategory(CATEGORY_RELEASE+CATEGORY_SPECIAL_SUMMON)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_BATTLE_DAMAGE)
+	e4:SetCountLimit(1,id+o)
+	e4:SetCondition(s.sscon)
+	e4:SetTarget(s.sstg)
+	e4:SetOperation(s.ssop)
+	c:RegisterEffect(e4)
 end
-function c101202015.regop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=eg:GetFirst()
-	if ep~=tc:GetControler() then
-		Duel.RegisterFlagEffect(tc:GetControler(),101202015,RESET_PHASE+PHASE_DAMAGE,0,1)
-	end
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetFlagEffect(tp,id)>0
 end
-function c101202015.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFlagEffect(tp,101202015)>0
-end
-function c101202015.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
-function c101202015.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-	end
+	if c:IsRelateToEffect(e) then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end
 end
-function c101202015.spsynccon(e,tp,eg,ep,ev,re,r,rp)
+function s.regcon(e,tp,eg,ep,ev,re,r,rp)
+	return ep~=rp
+end
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.RegisterFlagEffect(rp,id,RESET_PHASE+PHASE_DAMAGE,0,1)
+end
+function s.sscon(e,tp,eg,ep,ev,re,r,rp)
 	return ep==1-tp and Duel.GetAttackTarget()==nil
 end
-function c101202015.filter(c,e)
-	return c:IsLevelAbove(1) and not c:IsType(TYPE_TUNER) and c:IsReleasableByEffect(e)
-		and (c:IsLocation(LOCATION_HAND) or c:IsFaceup())
+function s.mfilter(c)
+	return not c:IsType(TYPE_TUNER) and c:IsFaceupEx() and c:IsReleasableByEffect() and c:GetLevel()>0
 end
-function c101202015.spfilter(c,e,tp,matg,lv)
-	return c:IsSetCard(0xe) and c:IsType(TYPE_SYNCHRO)
-		and c:IsLevel(lv) and Duel.GetLocationCountFromEx(tp,tp,matg,c)>0
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.spfilter(c,e,tp,g)
+	return c:IsSetCard(0xe) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and g:CheckSubGroup(s.gcheck,1,#g,tp,e:GetHandler(),c)
 end
-function c101202015.rescon(sg,e,tp,mg)
-	return Duel.IsExistingMatchingCard(c101202015.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,sg,sg:GetSum(Card.GetLevel)+mg:GetLevel())
+function s.gcheck(g,tp,ec,sc)
+	return Duel.GetLocationCountFromEx(tp,tp,g+ec,sc)>0 and g:GetSum(Card.GetLevel)+ec:GetLevel()==sc:GetLevel()
 end
-function c101202015.spsynctg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sstg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(c101202015.filter,tp,LOCATION_HAND+LOCATION_MZONE,0,nil,e)
-	if chk==0 then return c:IsLevelAbove(1) and #g>=1
-		and g:CheckSubGroup(c101202015.rescon,1,#g,e,tp,c) end
-	Duel.SetOperationInfo(0,CATEGORY_RELEASE,nil,1,tp,0)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+	local g=Duel.GetReleaseGroup(tp,true):Filter(s.mfilter,c)
+	if chk==0 then return c:IsReleasableByEffect()
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,g) end
+	Duel.SetOperationInfo(0,CATEGORY_RELEASE,g,2,0,0)
 end
-function c101202015.spsyncop(e,tp,eg,ep,ev,re,r,rp)
+function s.ssop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not (c:IsFaceup() and c:IsRelateToEffect(e)) then return end
-	local g=Duel.GetMatchingGroup(c101202015.filter,tp,LOCATION_HAND+LOCATION_MZONE,0,nil,e)
-	if #g<1 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local rg=g:SelectSubGroup(tp,c101202015.rescon,false,1,#g,e,tp,c)
-	if #rg~=1 then return end
-	local lv=rg:GetSum(Card.GetLevel)+c:GetLevel()
-	rg:AddCard(c)
-	if Duel.Release(rg,REASON_EFFECT)>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sc=Duel.SelectMatchingCard(tp,c101202015.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,nil,lv):GetFirst()
-		if sc then
-			Duel.SpecialSummon(sc,0,tp,tp,false,false,POS_FACEUP)
-		end
+	local g=Duel.GetReleaseGroup(tp,true):Filter(s.mfilter,c)
+	if not (c:IsRelateToEffect(e) and c:IsReleasableByEffect()) or #g==0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local tc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,g):GetFirst()
+	if tc then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+		local sg=g:SelectSubGroup(tp,s.gcheck,false,1,#g,tp,c,tc)+c
+		if Duel.Release(sg,REASON_EFFECT)>0 then Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP) end
 	end
 end
