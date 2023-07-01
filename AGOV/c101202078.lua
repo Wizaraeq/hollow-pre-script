@@ -24,8 +24,9 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
 	local sg=g:SelectSubGroup(tp,aux.dabcheck,false,1,3)
 	Duel.ConfirmCards(1-tp,sg)
+	Duel.RaiseEvent(sg,EVENT_CUSTOM+101202018,e,REASON_COST,tp,tp,0)
+	Duel.ShuffleHand(tp)
 	e:SetLabel(#sg)
-	Duel.RaiseEvent(g,EVENT_CUSTOM+101202018,e,REASON_COST,tp,tp,0)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:IsCostChecked() end
@@ -61,10 +62,10 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if ct>2 then
 		Duel.BreakEffect()
 		if Duel.Damage(1-tp,800,REASON_EFFECT)>0 and Duel.GetLP(1-tp)>0 then
-			local dg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-			if #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+			local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,LOCATION_MZONE)
+			if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 				Duel.BreakEffect()
-				Duel.Destroy(dg,REASON_EFFECT)
+				Duel.Destroy(g,REASON_EFFECT)
 			end
 		end
 	end
