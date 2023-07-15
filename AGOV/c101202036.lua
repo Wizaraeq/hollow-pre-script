@@ -61,11 +61,11 @@ function c101202036.rmfilter(c)
 end
 function c101202036.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c101202036.rmfilter(chkc) and chkc:IsControler(1-tp) end
-	if chk==0 then return Duel.IsExistingTarget(c101202036.rmfilter,tp,0,LOCATION_MZONE,1,nil) and c:GetFlagEffect(101202036+100)<c:GetFlagEffectLabel(101202036) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c101202036.rmfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c101202036.rmfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) and c:GetFlagEffect(101202036+100)<c:GetFlagEffectLabel(101202036) end
 	c:RegisterFlagEffect(101202036+100,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,c101202036.rmfilter,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,c101202036.rmfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
 function c101202036.rmop(e,tp,eg,ep,ev,re,r,rp)

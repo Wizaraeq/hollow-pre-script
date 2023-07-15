@@ -49,7 +49,7 @@ function c101202071.eqfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_XYZ) and not c:IsForbidden()
 end
 function c101202071.filter(c,tp)
-	return c:IsFaceup() and c:IsType(TYPE_XYZ) and Duel.IsExistingMatchingCard(c101202071.eqfilter,tp,LOCATION_MZONE,0,1,c)
+	return c:IsFaceup() and c:IsType(TYPE_XYZ) and Duel.IsExistingMatchingCard(c101202071.eqfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,c)
 end
 function c101202071.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c101202071.filter(chkc,tp) end
@@ -64,7 +64,7 @@ function c101202071.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-		local eq=Duel.SelectMatchingCard(tp,c101202071.eqfilter,tp,LOCATION_MZONE,0,1,1,tc):GetFirst()
+		local eq=Duel.SelectMatchingCard(tp,c101202071.eqfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,tc):GetFirst()
 		if eq and Duel.Equip(tp,eq,tc) then
 			local c=e:GetHandler()
 			--Equip limit
