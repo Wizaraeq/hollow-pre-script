@@ -49,7 +49,7 @@ function c101202050.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c101202050.desop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local tc=Duel.SelectMatchingCard(tp,c101202050.desfilter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,1,nil):GetFirst()
+	local tc=Duel.SelectMatchingCard(tp,c101202050.desfilter,tp,LOCATION_MZONE+LOCATION_HAND,0,1,1,nil,tp):GetFirst()
 	if not tc then return end
 	local code=tc:GetCode()
 	if Duel.Destroy(tc,REASON_EFFECT)>0 then
