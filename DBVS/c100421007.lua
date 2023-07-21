@@ -46,7 +46,7 @@ function c100421007.intgop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterEffect(e1,tp)
 end
 function c100421007.tgfilter(c)
-	return c:IsSetCard(0x2a1) and c:IsAbleToGrave() and not c:IsCode(100421001)
+	return c:IsSetCard(0x2a1) and c:IsAbleToGrave() and not c:IsCode(100421007)
 end
 function c100421007.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0x2a1)
