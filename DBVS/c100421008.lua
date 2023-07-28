@@ -54,7 +54,7 @@ function c100421008.spfilter(c,e,tp,tc)
 end
 function c100421008.tcfilter(c,e,tp)
 	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousControler(tp) and c:IsReason(REASON_BATTLE+REASON_EFFECT)
-		and c:IsCanBeEffectTarget(e) and Duel.IsExistingMatchingCard(c100421008.spfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,c)
+		and c:IsCanBeEffectTarget(e) and Duel.IsExistingMatchingCard(c100421008.spfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,c) and c:IsLevelAbove(1)
 end
 function c100421008.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return c100421008.tcfilter(chkc,e,tp) end

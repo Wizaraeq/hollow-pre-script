@@ -57,7 +57,7 @@ function c100421001.spprocop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.SendtoDeck(rg,nil,SEQ_DECKSHUFFLE,REASON_COST)
 end
 function c100421001.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)<=1
+	return Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_MZONE,0)<=1
 end
 function c100421001.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return rp==1-tp
