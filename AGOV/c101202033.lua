@@ -1,5 +1,6 @@
---coded by Lyris
+--熾天の騎士ガイアプロミネンス
 --Gaia Prominence, the Kindling Seraph
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
@@ -38,8 +39,9 @@ function s.mfilter(c,fc)
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local act_loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
-	return ep==1-tp and re:IsActiveType(TYPE_MONSTER) and (act_loc==LOCATION_HAND or act_loc==LOCATION_GRAVE) and Duel.IsChainNegatable(ev)
+	local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
+	return not c:IsStatus(STATUS_BATTLE_DESTROYED) and rp==1-tp and re:IsActiveType(TYPE_MONSTER)
+		and loc&LOCATION_HAND+LOCATION_ONFIELD>0 and Duel.IsChainNegatable(ev)
 end
 function s.cfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsDiscardable()

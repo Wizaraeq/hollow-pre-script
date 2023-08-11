@@ -1,5 +1,6 @@
---coded by Lyris
+--オオヤツ・ツマムヒメ
 --Ooyatsu Tsumamuhime
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--token
@@ -53,7 +54,7 @@ function s.tkop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummon(tk,0,tp,tp,false,false,POS_FACEUP)
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentChain()==0
+	return Duel.GetCurrentChain()==0 and ep==1-tp
 end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckReleaseGroup(tp,Card.IsType,1,nil,TYPE_NORMAL) end

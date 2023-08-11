@@ -1,43 +1,44 @@
 --Zuttomozaurus
-function c101201081.initial_effect(c)
-	--Cannot be battle target while you control another Dinosaur monster
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--limit attack
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e1:SetCode(EFFECT_CANNOT_BE_BATTLE_TARGET)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCondition(c101201081.con)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetCondition(s.lacon)
 	e1:SetValue(aux.imval1)
 	c:RegisterEffect(e1)
-	--Destroy 1 other card you control
+	--destroy
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101201081,0))
+	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_DESTROY)
 	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,101201081)
-	e2:SetTarget(c101201081.destg)
-	e2:SetOperation(c101201081.desop)
+	e2:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetTarget(s.destg)
+	e2:SetOperation(s.desop)
 	c:RegisterEffect(e2)
 end
-function c101201081.filter(c)
+function s.cfilter(c)
 	return c:IsFaceup() and c:IsRace(RACE_DINOSAUR)
 end
-function c101201081.con(e)
-	return Duel.IsExistingMatchingCard(c101201081.filter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,e:GetHandler())
-end
-function c101201081.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.lacon(e)
 	local c=e:GetHandler()
-	if chkc then return chkc:IsOnField() and c:IsControler(tp) and chkc~=c end
+	return Duel.IsExistingMatchingCard(s.cfilter,c:GetControler(),LOCATION_MZONE,0,1,c)
+end
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local c=e:GetHandler()
+	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and chkc~=c end
 	if chk==0 then return Duel.IsExistingTarget(nil,tp,LOCATION_ONFIELD,0,1,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,nil,tp,LOCATION_ONFIELD,0,1,1,c)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
-function c101201081.desop(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.Destroy(tc,REASON_EFFECT)
-	end
+	if tc:IsRelateToEffect(e) then Duel.Destroy(tc,REASON_EFFECT) end
 end

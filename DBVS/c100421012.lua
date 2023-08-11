@@ -1,77 +1,79 @@
 --メメント・クレニアム・バースト
-function c100421012.initial_effect(c)
-	-- Activate
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_ACTIVATE)
-	e0:SetCode(EVENT_FREE_CHAIN)
-	e0:SetHintTiming(TIMING_ATTACK,TIMINGS_CHECK_MONSTER+TIMING_ATTACK)
-	c:RegisterEffect(e0)
-	-- Can only target your monster with the highest ATK for attack
+--Memento Cranium Burst
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_CANNOT_SELECT_BATTLE_TARGET)
-	e1:SetRange(LOCATION_SZONE)
-	e1:SetTargetRange(0,LOCATION_MZONE)
-	e1:SetCondition(c100421012.atcon)
-	e1:SetValue(c100421012.atlimit)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
+	--must attack
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
+	e2:SetCode(EFFECT_MUST_ATTACK)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetTargetRange(0,LOCATION_MZONE)
-	e2:SetCondition(c100421012.atcon)
+	e2:SetCondition(s.macon)
 	c:RegisterEffect(e2)
-	-- Negate a monster effect activated in your opponent's field
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(100421012,0))
-	e3:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DISABLE)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCode(EVENT_CHAINING)
-	e3:SetRange(LOCATION_SZONE)
-	e3:SetCountLimit(1,EFFECT_COUNT_CODE_CHAIN)
-	e3:SetCondition(c100421012.negcon)
-	e3:SetTarget(c100421012.negtg)
-	e3:SetOperation(c100421012.negop)
+	local e3=e2:Clone()
+	e3:SetCode(EFFECT_MUST_ATTACK_MONSTER)
+	e3:SetValue(s.matg)
 	c:RegisterEffect(e3)
+	--disable
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,0))
+	e4:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE+CATEGORY_DISABLE)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_CHAINING)
+	e4:SetRange(LOCATION_SZONE)
+	e4:SetCountLimit(1,id+EFFECT_COUNT_CODE_CHAIN)
+	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e4:SetCondition(s.discon)
+	e4:SetTarget(s.distg)
+	e4:SetOperation(s.disop)
+	c:RegisterEffect(e4)
 end
-function c100421012.cfilter(c)
+function s.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0x2a1)
 end
-function c100421012.atcon(e)
-	return Duel.IsExistingMatchingCard(c100421012.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
+function s.macon(e)
+	return Duel.IsExistingMatchingCard(s.filter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
 end
-function c100421012.atlimit(e,c)
-	local g=Duel.GetMatchingGroup(c100421012.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,nil)
-	local tg=g:GetMaxGroup(Card.GetAttack)
-	return not tg:IsContains(c) or c:IsFacedown()
+function s.matg(e,c)
+	local g=Duel.GetMatchingGroup(s.filter,e:GetHandlerPlayer(),LOCATION_MZONE,0,nil):GetMaxGroup(Card.GetAttack)
+	return g and g:IsContains(c)
 end
-function c100421012.cfilter(c)
-	return c:IsFaceup() and c:IsCode(100421001)
+function s.cfilter(c)
+	return c:IsFaceup() and c:IsCode(100421001) and c:IsAttackAbove(1000) and c:IsDefenseAbove(1000)
 end
-function c100421012.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and re:IsActiveType(TYPE_MONSTER) and re:GetActivateLocation()==LOCATION_MZONE
+function s.discon(e,tp,eg,ep,ev,re,r,rp)
+	if rp~=1-tp or not (re:IsActiveType(TYPE_MONSTER) and Duel.IsChainDisablable(ev)) then return false end
+	local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
+	return loc&LOCATION_MZONE>0
 end
-function c100421012.negtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c100421012.cfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c100421012.cfilter,tp,LOCATION_MZONE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATKDEF)
-	local g=Duel.SelectTarget(tp,c100421012.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
+function s.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.cfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.cfilter,tp,LOCATION_MZONE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	Duel.SelectTarget(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
 end
-function c100421012.negop(e,tp,eg,ep,ev,re,r,rp)
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetValue(-1000)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1)
-		local e2=e1:Clone()
-		e2:SetCode(EFFECT_UPDATE_DEFENSE)
-		tc:RegisterEffect(e2)
+	if not (tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:IsAttackAbove(1000) and tc:IsDefenseAbove(1000))
+		or tc:IsImmuneToEffect(e) then return end
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_UPDATE_ATTACK)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	e1:SetValue(-1000)
+	tc:RegisterEffect(e1)
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
+	tc:RegisterEffect(e2)
+	if not tc:IsHasEffect(EFFECT_REVERSE_UPDATE) then
 		Duel.NegateEffect(ev)
 	end
 end

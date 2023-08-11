@@ -1,73 +1,71 @@
---ＴＧ－ブレイクリミッター
-function c101202049.initial_effect(c)
-	--Search 2 "T.G." monsters with different names
+--TG－ブレイクリミッター
+--T.G. - Break Limiter
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101202049,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,101202049)
-	e1:SetCost(c101202049.cost)
-	e1:SetTarget(c101202049.target)
-	e1:SetOperation(c101202049.activate)
+	e1:SetCountLimit(1,id)
+	e1:SetCost(s.cost)
+	e1:SetTarget(s.target)
+	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	--Shuffle 1 "T.G." monster in your GY into the Deck, or add it to your hand
+	--return from grave
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101202049,1))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_TODECK+CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCountLimit(1,id)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1,101202049)
 	e2:SetCost(aux.bfgcost)
-	e2:SetTarget(c101202049.tdtg)
-	e2:SetOperation(c101202049.tdop)
+	e2:SetTarget(s.rttg)
+	e2:SetOperation(s.rtop)
 	c:RegisterEffect(e2)
 end
-function c101202049.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,e:GetHandler()) end
-	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
+	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST)
 end
-function c101202049.thfilter(c)
+function s.filter(c)
 	return c:IsSetCard(0x27) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
-function c101202049.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		local g=Duel.GetMatchingGroup(c101202049.thfilter,tp,LOCATION_DECK,0,nil)
-		return g:GetClassCount(Card.GetCode)>=2
-	end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,2,tp,LOCATION_DECK)
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK,0,nil):GetClassCount(Card.GetCode)>1 end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-function c101202049.activate(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(c101202049.thfilter,tp,LOCATION_DECK,0,nil)
-	if #g<2 then return end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local tg1=g:SelectSubGroup(tp,aux.dncheck,false,2,2)
-	Duel.SendtoHand(tg1,nil,REASON_EFFECT)
-	Duel.ConfirmCards(1-tp,tg1)
+	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK,0,nil):SelectSubGroup(tp,aux.dncheck,false,2,2)
+	if g then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
+	end
 end
-function c101202049.tdfilter(c,check)
-	return c:IsSetCard(0x27) and c:IsType(TYPE_MONSTER)
-		and (c:IsAbleToDeck() or (check and c:IsAbleToHand()))
+function s.cfilter(c)
+	return c:IsFaceup() and c:IsRace(RACE_MACHINE) and c:IsSetCard(0x27)
 end
-function c101202049.tohandfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x27) and c:IsRace(RACE_MACHINE)
+function s.rfilter(c,chk)
+	return c:IsSetCard(0x27) and c:IsType(TYPE_MONSTER) and (c:IsAbleToDeck() or chk and c:IsAbleToHand())
 end
-function c101202049.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local check=Duel.IsExistingMatchingCard(c101202049.tohandfilter,tp,LOCATION_MZONE,0,1,nil)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c101202049.tdfilter(chkc,check) end
-	if chk==0 then return Duel.IsExistingTarget(c101202049.tdfilter,tp,LOCATION_GRAVE,0,1,nil,check) end
+function s.rttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local check=Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.rfilter(chkc,check) end
+	if chk==0 then return Duel.IsExistingTarget(s.rfilter,tp,LOCATION_GRAVE,0,1,nil,check) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectTarget(tp,c101202049.tdfilter,tp,LOCATION_GRAVE,0,1,1,nil,check)
+	local g=Duel.SelectTarget(tp,s.rfilter,tp,LOCATION_GRAVE,0,1,1,nil,check)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
 end
-function c101202049.tdop(e,tp,eg,ep,ev,re,r,rp)
+function s.rtop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not tc:IsRelateToEffect(e) then return end
-	if Duel.IsExistingMatchingCard(c101202049.tohandfilter,tp,LOCATION_MZONE,0,1,nil) and tc:IsAbleToHand()
-		and (not tc:IsAbleToDeck() or Duel.SelectOption(tp,1190,aux.Stringid(101202049,2))==0) then
+	local check=Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil) and tc:IsAbleToHand()
+	if check and Duel.SelectEffectYesNo(tp,tc,aux.Stringid(id,2)) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
-	else
-		Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
-	end
+		Duel.ConfirmCards(1-tp,tc)
+	else Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT) end
 end

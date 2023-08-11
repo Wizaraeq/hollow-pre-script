@@ -1,46 +1,60 @@
 --厄災の星ティ・フォン
-function c101202042.initial_effect(c)
-	--xyz summon
-	aux.AddXyzProcedure(c,nil,12,2,c101202042.ovfilter,aux.Stringid(101202042,0),2,c101202042.xyzop)
+--Stellar Nemesis T-PHON - Doomsday Star
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	--Neither player can activate the effects of monsters with 3000 or more ATK
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e1:SetCode(EFFECT_CANNOT_ACTIVATE)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetTargetRange(1,1)
-	e1:SetCondition(c101202042.actlimcon)
-	e1:SetValue(c101202042.aclimit)
-	c:RegisterEffect(e1)
-	--Return 1 monster on the field to the hand
+	--material
+	aux.AddXyzProcedure(c,nil,12,2,s.mfilter,aux.Stringid(id,0),2,s.altop)
+	--limit effects
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101202042,1))
-	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_CANNOT_ACTIVATE)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1)
-	e2:SetCost(c101202042.thcost)
-	e2:SetTarget(c101202042.thtg)
-	e2:SetOperation(c101202042.thop)
+	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e2:SetTargetRange(1,1)
+	e2:SetCondition(s.lecon)
+	e2:SetValue(s.letg)
 	c:RegisterEffect(e2)
-	if not c101202042.global_check then
-		c101202042.global_check=true
-		local ge1=Effect.GlobalEffect(c)
+	--to hand
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1)
+	e3:SetCost(s.thcost)
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
+	c:RegisterEffect(e3)
+	if not s.global_check then
+		s.global_check=true
+		local ge1=Effect.CreateEffect(c)
 		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 		ge1:SetCode(EVENT_SPSUMMON_SUCCESS)
-		ge1:SetOperation(c101202042.checkop)
+		ge1:SetOperation(s.chk)
 		Duel.RegisterEffect(ge1,0)
 	end
 end
-function c101202042.cfilter(c,atk)
+function s.chk(e,tp,eg,ep,ev,re,r,rp)
+	for tc in aux.Next(eg) do
+		if tc:IsSummonLocation(LOCATION_EXTRA) then
+			local sp=tc:GetSummonPlayer()
+			Duel.RegisterFlagEffect(sp,id,RESET_PHASE+PHASE_END,0,1)
+			if Duel.GetFlagEffect(sp,id)>1 then
+				Duel.RegisterFlagEffect(sp,id+o,RESET_PHASE+PHASE_END,0,2)
+			end
+		end
+	end
+end
+function s.cfilter(c,atk)
 	return c:IsFaceup() and c:GetAttack()>atk
 end
-function c101202042.ovfilter(c,tp,xyzc)
-	return c:IsFaceup() and not Duel.IsExistingMatchingCard(c101202042.cfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c:GetAttack())
+function s.mfilter(c,tp,xyzc)
+	return c:IsFaceup() and not Duel.IsExistingMatchingCard(s.cfilter,c:GetControler(),LOCATION_MZONE,0,1,nil,c:GetAttack())
 end
-function c101202042.xyzop(e,tp,chk)
-	if chk==0 then return Duel.GetFlagEffect(1-tp,101202042+100)>0 end
+function s.altop(e,tp,chk)
+	if chk==0 then return Duel.GetFlagEffect(1-tp,id+o)>0 end
 	--Cannot Normal or Special Summon this turn
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -54,36 +68,24 @@ function c101202042.xyzop(e,tp,chk)
 	Duel.RegisterEffect(e2,tp)
 	return true
 end
-function c101202042.checkop(e,tp,eg,ep,ev,re,r,rp)
-	for tc in aux.Next(eg) do
-		if tc:IsSummonLocation(LOCATION_EXTRA) then
-			local sp=tc:GetSummonPlayer()
-			Duel.RegisterFlagEffect(sp,101202042,RESET_PHASE+PHASE_END,0,1)
-			if Duel.GetFlagEffect(sp,101202042)>1 then
-				Duel.RegisterFlagEffect(sp,101202042+100,RESET_PHASE+PHASE_END,0,2)
-			end
-		end
-	end
-end
-function c101202042.actlimcon(e,tp,eg,ep,ev,re,r,rp)
+function s.lecon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
 end
-function c101202042.aclimit(e,re,tp)
-	return re:GetHandler():IsAttackAbove(3000) and re:IsActiveType(TYPE_MONSTER)
+function s.letg(e,re,tp)
+	return re:IsActiveType(TYPE_MONSTER) and re:GetHandler():IsAttackAbove(3000)
 end
-function c101202042.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
+function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end
+	c:RemoveOverlayCard(tp,1,1,REASON_COST)
 end
-function c101202042.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,PLAYER_ALL,LOCATION_MZONE)
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+	if chk==0 then return #g>0 end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
-function c101202042.thop(e,tp,eg,ep,ev,re,r,rp)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local g=Duel.SelectMatchingCard(tp,Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	if #g>0 then
-		Duel.HintSelection(g)
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-	end
+	Duel.SendtoHand(g,nil,REASON_EFFECT)
 end

@@ -1,5 +1,6 @@
---coded by Lyris
+--侵略的外来種－I.A.S
 --Invasive Alien Species - I.A.S
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--indes
@@ -39,7 +40,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(Card.IsFaceup,e:GetHandlerPlayer(),0,LOCATION_FZONE,1,nil)
+	if aux.GetValueType(tp)=="Card" then tp=tp:GetControler() end
+	return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_FZONE,1,nil)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) end

@@ -1,5 +1,6 @@
---coded by Lyris
+--陀羅威
 --Tarai
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--spsummon
@@ -23,34 +24,31 @@ function s.initial_effect(c)
 	end
 end
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-	local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_CONTROLER)
-	local tc=re:GetHandler()
-	if re:IsActiveType(TYPE_MONSTER) and tc:IsRelateToEffect(re) and loc==LOCATION_MZONE then
-		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
+	local rc=re:GetHandler()
+	if not rc:IsRelateToEffect(re) or not re:IsActiveType(TYPE_MONSTER) then return end
+	local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
+	if loc==LOCATION_MZONE then
+		rc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET+RESET_PHASE+PHASE_END,0,1)
 	end
 end
-function s.filter(c)
-	return c:IsFaceup() and c:GetFlagEffect(id)>0 and c:GetSequence()<5
+function s.filter(c,e,tp)
+	local p,seq=tc:GetControler(),tc:GetSequence()
+	return c:IsFaceup() and c:GetFlagEffect(id)>0 and Duel.GetMZoneCount(p,c,tp,LOCATION_REASON_TOFIELD,1<<seq)>0
+		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,c:GetControler())
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc) end
-	local c=e:GetHandler()
-	local tg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and (Duel.GetMZoneCount(tp,tg)>0 or Duel.GetMZoneCount(1-tp,tg)>0) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc,e,tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,tp,0)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,e,tp)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		local zone=1<<tc:GetSequence()
-		local p=tc:IsControler(tp) and tp or (1-tp)
-		local c=e:GetHandler()
-		if Duel.Destroy(tc,REASON_EFFECT)>0 and c:IsRelateToEffect(e) then
-			Duel.SpecialSummon(c,0,tp,p,false,false,POS_FACEUP,zone)
-		end
+	local p,seq=tc:GetControler(),tc:GetSequence()
+	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)>0 and c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,p,false,false,POS_FACEUP,1<<seq)
 	end
 end

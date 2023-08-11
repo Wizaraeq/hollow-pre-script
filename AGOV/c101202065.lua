@@ -1,6 +1,6 @@
 --天子の指輪
---coded by Lyris
 --Angel Ring
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate

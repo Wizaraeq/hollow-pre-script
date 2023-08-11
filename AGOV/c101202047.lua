@@ -25,9 +25,8 @@ function c101202047.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetCountLimit(1,101202047+100)
-	e3:SetCondition(c101202047.pencon)
-	e3:SetTarget(c101202047.pentg)
-	e3:SetOperation(c101202047.penop)
+	e3:SetCondition(c101202047.pcon)
+	e3:SetOperation(c101202047.pop)
 	c:RegisterEffect(e3)
 	--multi attack
 	local e4=Effect.CreateEffect(c)
@@ -53,13 +52,11 @@ function c101202047.checkfilter(c)
 	return c:IsType(TYPE_PENDULUM) and c:IsPreviousPosition(POS_FACEDOWN) and c:IsSummonLocation(LOCATION_EXTRA)
 end
 function c101202047.checkop(e,tp,eg,ep,ev,re,r,rp)
-	local sumpl=nil
-	for tc in aux.Next(eg) do
-		sumpl=tc:GetSummonPlayer()
-		if tc:IsSummonLocation(LOCATION_EXTRA) and tc:IsType(TYPE_PENDULUM) and tc:IsPreviousPosition(POS_FACEDOWN)
-			and tc:IsFaceup() and sumpl==tc:GetOwner() then
-			Duel.RegisterFlagEffect(sumpl,101202047,RESET_PHASE+PHASE_END,0,1)
-		end
+	local g=eg:Filter(c101202047.checkfilter,nil)
+	local tc=g:GetFirst()
+	while tc do
+		Duel.RegisterFlagEffect(tc:GetSummonPlayer(),101202047,RESET_PHASE+PHASE_END,0,1)
+		tc=g:GetNext()
 	end
 end
 function c101202047.cfilter(c,tp)
@@ -86,109 +83,78 @@ function c101202047.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-function c101202047.PConditionFilter(c,e,tp,lscale,rscale)
-	local lv=0
-	if c.pendulum_level then
-		lv=c.pendulum_level
-	else
-		lv=c:GetLevel()
+function c101202047.pcon(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetFlagEffect(tp,101202047)<=0 then return false end
+	local c=e:GetHandler()
+	local lpz=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
+	local rpz=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+	if lpz==nil or rpz==nil then return false end
+	local loc=0
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then loc=loc+LOCATION_HAND end
+	if Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_PENDULUM)>0 then loc=loc+LOCATION_EXTRA end
+	if loc==0 then return false end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_EXTRA_PENDULUM_SUMMON)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetTargetRange(1,0)
+	e1:SetValue(aux.TRUE)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e1,tp)
+	local eset={e1}
+	local lscale=lpz:GetLeftScale()
+	local rscale=rpz:GetRightScale()
+	if lscale>rscale then lscale,rscale=rscale,lscale end
+	local g=Duel.GetFieldGroup(tp,loc,0)
+	local res=g:IsExists(aux.PConditionFilter,1,nil,e,tp,lscale,rscale,eset)
+	e1:Reset()
+	return res
+end
+function c101202047.pop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_EXTRA_PENDULUM_SUMMON)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetTargetRange(1,0)
+	e1:SetValue(aux.TRUE)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e1,tp)
+	local eset={e1}
+	local lpz=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
+	local rpz=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+	local lscale=lpz:GetLeftScale()
+	local rscale=rpz:GetRightScale()
+	if lscale>rscale then lscale,rscale=rscale,lscale end
+	local loc=0
+	local ft1=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	local ft2=Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_PENDULUM)
+	local ft=Duel.GetUsableMZoneCount(tp)
+	local ect=c29724053 and Duel.IsPlayerAffectedByEffect(tp,29724053) and c29724053[tp]
+	if ect and ect<ft2 then ft2=ect end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then
+		if ft1>0 then ft1=1 end
+		if ft2>0 then ft2=1 end
+		ft=1
 	end
-	local bool=Auxiliary.PendulumSummonableBool(c)
-	return (c:IsLocation(LOCATION_HAND) or (c:IsFaceup() and c:IsType(TYPE_PENDULUM)))
-		and lv>lscale and lv<rscale and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_PENDULUM,tp,bool,bool)
-		and not c:IsForbidden()
-end
-function c101202047.PendCondition(e,c,og)
-				if c==nil then return true end
-				local tp=c:GetControler()
-				local eset={Duel.IsPlayerAffectedByEffect(tp,101202047)}
-				local rpz=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
-				if rpz==nil or c==rpz then return false end
-				local lscale=c:GetLeftScale()
-				local rscale=rpz:GetRightScale()
-				if lscale>rscale then lscale,rscale=rscale,lscale end
-				local loc=0
-				if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then loc=loc+LOCATION_HAND end
-				if Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_PENDULUM)>0 then loc=loc+LOCATION_EXTRA end
-				if loc==0 then return false end
-				local g=nil
-				if og then
-					g=og:Filter(Card.IsLocation,nil,loc)
-				else
-					g=Duel.GetFieldGroup(tp,loc,0)
-				end
-				return g:IsExists(c101202047.PConditionFilter,1,nil,e,tp,lscale,rscale)
-end
-function c101202047.PendOperation(e,tp,eg,ep,ev,re,r,rp,c,sg,og)
-				local rpz=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
-				local lscale=c:GetLeftScale()
-				local rscale=rpz:GetRightScale()
-				if lscale>rscale then lscale,rscale=rscale,lscale end
-				local eset={Duel.IsPlayerAffectedByEffect(tp,101202047)}
-				local tg=nil
-				local loc=0
-				local ft1=Duel.GetLocationCount(tp,LOCATION_MZONE)
-				local ft2=Duel.GetLocationCountFromEx(tp,tp,nil,TYPE_PENDULUM)
-				local ft=Duel.GetUsableMZoneCount(tp)
-				local ect=c29724053 and Duel.IsPlayerAffectedByEffect(tp,29724053) and c29724053[tp]
-				if ect and ect<ft2 then ft2=ect end
-				if Duel.IsPlayerAffectedByEffect(tp,59822133) then
-					if ft1>0 then ft1=1 end
-					if ft2>0 then ft2=1 end
-					ft=1
-				end
-				if ft1>0 then loc=loc|LOCATION_HAND end
-				if ft2>0 then loc=loc|LOCATION_EXTRA end
-				if og then
-					tg=og:Filter(Card.IsLocation,nil,loc):Filter(c101202047.PConditionFilter,nil,e,tp,lscale,rscale)
-				else
-					tg=Duel.GetMatchingGroup(c101202047.PConditionFilter,tp,loc,0,nil,e,tp,lscale,rscale)
-				end
-				local ce=nil
-
-				if ce then
-					tg=tg:Filter(Auxiliary.PConditionExtraFilterSpecific,nil,e,tp,lscale,rscale,ce)
-				end
-				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-				Auxiliary.GCheckAdditional=Auxiliary.PendOperationCheck(ft1,ft2,ft)
-				local g=tg:SelectSubGroup(tp,aux.TRUE,true,1,math.min(#tg,ft))
-				Auxiliary.GCheckAdditional=nil
-				if not g then return end
-				sg:Merge(g)
-				Duel.HintSelection(Group.FromCards(c))
-				Duel.HintSelection(Group.FromCards(rpz))
-end
-function c101202047.check(e,tp,exc)
-	local lpz=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-	if lpz==nil then return false end
-	local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_EXTRA,0,exc,TYPE_MONSTER)
-	if #g==0 then return false end
-	return c101202047.PendCondition(e,lpz,g)
-end
-function c101202047.pencon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFlagEffect(tp,101202047)>0
-end
-function c101202047.check(e,tp,exc)
-	local lpz=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-	if lpz==nil then return false end
-	local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_EXTRA,0,exc,TYPE_MONSTER)
-	if #g==0 then return false end
-	return c101202047.PendCondition(e,lpz,g)
-end
-function c101202047.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return c101202047.check(e,tp,nil) end
-	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA+LOCATION_HAND)
-end
-function c101202047.penop(e,tp,eg,ep,ev,re,r,rp)
-	local lpz=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-	if lpz==nil then return end
-	local g=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_HAND+LOCATION_EXTRA,0,nil,TYPE_MONSTER)
-	if #g==0 then return end
-	--the summon should be done after the chain end
+	if ft1>0 then loc=loc|LOCATION_HAND end
+	if ft2>0 then loc=loc|LOCATION_EXTRA end
+	local tg=Duel.GetMatchingGroup(aux.PConditionFilter,tp,loc,0,nil,e,tp,lscale,rscale,eset)
+	tg=tg:Filter(aux.PConditionExtraFilterSpecific,nil,e,tp,lscale,rscale,e1)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	aux.GCheckAdditional=aux.PendOperationCheck(ft1,ft2,ft)
+	local g=tg:SelectSubGroup(tp,aux.TRUE,false,1,math.min(#tg,ft))
+	aux.GCheckAdditional=nil
+	if not g then
+		e1:Reset()
+		return
+	end
 	local sg=Group.CreateGroup()
-	c101202047.PendOperation(e,tp,eg,ep,ev,re,r,rp,lpz,sg,g)
+	sg:Merge(g)
+	Duel.HintSelection(Group.FromCards(lpz))
+	Duel.HintSelection(Group.FromCards(rpz))
 	Duel.SpecialSummon(sg,SUMMON_TYPE_PENDULUM,tp,tp,true,true,POS_FACEUP)
+	e1:Reset()
 end
 function c101202047.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsAbleToEnterBP()

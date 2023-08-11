@@ -1,6 +1,7 @@
---coded by Lyris
+--黒魔女ディアベルスター
 --Diabellestarr the Dark Witch
-local s, id, o = GetID()
+--coded by Lyris
+local s,id,o=GetID()
 function s.initial_effect(c)
 	--spsummon rule
 	local e1=Effect.CreateEffect(c)
@@ -9,9 +10,8 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetCondition(s.sprcon)
-	e1:SetTarget(s.sprtg)
 	e1:SetOperation(s.sprop)
 	c:RegisterEffect(e1)
 	--set s/t
@@ -40,29 +40,18 @@ function s.initial_effect(c)
 	e4:SetOperation(s.rvop)
 	c:RegisterEffect(e4)
 end
-function s.cfilter(c,tp,f,chk)
-	return f(c) and (chk or Duel.GetMZoneCount(tp,c)>0)
+function s.cfilter(c,tp,f)
+	return f(c) and Duel.GetMZoneCount(tp,c)>0
 end
 function s.sprcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
-	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,e:GetHandler(),tp,Card.IsAbleToGraveAsCost)
+	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,c,tp,Card.IsAbleToGraveAsCost)
 end
-function s.sprtg(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,e:GetHandler(),tp,Card.IsAbleToGraveAsCost)
+function s.sprop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local sg=g:SelectSubGroup(tp,aux.TRUE,true,1,1)
-	if #sg>0 then
-		sg:KeepAlive()
-		e:SetLabelObject(sg)
-		return true
-	end
-	return false
-end
-function s.sprop(e,tp,eg,ep,ev,re,r,rp)
-	local g=e:GetLabelObject()
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,1,c,tp,Card.IsAbleToGraveAsCost)
 	Duel.SendtoGrave(g,REASON_COST)
-	g:DeleteGroup()
 end
 function s.filter(c)
 	return c:IsSetCard(0x29e) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
@@ -86,9 +75,11 @@ function s.rvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
 function s.rvop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local chk=c:IsRelateToEffect(e)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,1,nil,tp,Card.IsAbleToGrave,not chk)
-	if Duel.SendtoGrave(g,REASON_EFFECT)>0 and chk then Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) end
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,1,nil,tp,Card.IsAbleToGrave)
+	local tc=g:GetFirst()
+	local c=e:GetHandler()
+	if tc and Duel.SendtoGrave(tc,REASON_EFFECT)>0 and tc:IsLocation(LOCATION_GRAVE) and c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	end
 end

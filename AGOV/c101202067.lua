@@ -1,5 +1,6 @@
---coded by Lyris
+--不死武士の悼み
 --Lament of the Immortal Bushi
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -28,11 +29,11 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-   local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
+	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
 	if chk==0 then return #g>0 end
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-   local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
+	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
 	Duel.Destroy(g,REASON_EFFECT)
 end

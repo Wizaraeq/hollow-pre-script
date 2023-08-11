@@ -1,5 +1,6 @@
---coded by Lyris
+--カードスキャナー
 --Card Scanner
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -30,8 +31,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>0
-		and Duel.GetFieldGroupCount(tp,0,LOCATION_DECK)>0 end
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,LOCATION_DECK,0,1,nil)
+		and Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_DECK,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CARDTYPE)
 	Duel.SetTargetParam(Duel.AnnounceType(tp))
 end
@@ -42,9 +43,9 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards({tp,1-tp},sc)
 	Duel.ConfirmCards({tp,1-tp},oc)
 	local op=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
-	if sc:IsType(1<<op) and sc:IsAbleToHand() then Duel.SendtoHand(sc,nil,REASON_EFFECT)
+	if sc:IsType(1<<op) then Duel.SendtoHand(sc,nil,REASON_EFFECT)
 	else Duel.MoveSequence(sc,SEQ_DECKTOP) end
-	if oc:IsType(1<<op) and oc:IsAbleToHand() then Duel.SendtoHand(oc,nil,REASON_EFFECT)
+	if oc:IsType(1<<op) then Duel.SendtoHand(oc,nil,REASON_EFFECT)
 	else Duel.MoveSequence(oc,SEQ_DECKTOP) end
 end
 function s.tdcon(e,tp,eg,ep,ev,re,r,rp)

@@ -1,94 +1,98 @@
 --冥骸府－メメントラン
-function c100421008.initial_effect(c)
-	-- Activate
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_ACTIVATE)
-	e0:SetCode(EVENT_FREE_CHAIN)
-	c:RegisterEffect(e0)
-	-- Prevent Spell/Trap activations during battle
+--Netherskull Temple - Mementoran
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
+	--Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e1:SetCode(EFFECT_CANNOT_ACTIVATE)
-	e1:SetRange(LOCATION_FZONE)
-	e1:SetTargetRange(0,1)
-	e1:SetValue(c100421008.aclimit)
-	e1:SetCondition(c100421008.actcon)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
-	-- Special Summon 1 "Memento" monster from your hand or GY 
+	--limit effect
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100421008,0))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
-	e2:SetCode(EVENT_DESTROYED)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_CANNOT_ACTIVATE)
 	e2:SetRange(LOCATION_FZONE)
-	e2:SetCountLimit(1,100421008)
-	e2:SetTarget(c100421008.sptg)
-	e2:SetOperation(c100421008.spop)
+	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e2:SetTargetRange(0,1)
+	e2:SetCondition(s.lecon)
+	e2:SetValue(aux.TargetBoolFunction(Effect.IsHasType,EFFECT_TYPE_ACTIVATE))
 	c:RegisterEffect(e2)
-	-- Set 1 "Memento" Spell/Trap from your GY to your field
+	--spsummon
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(100421008,1))
-	e3:SetCategory(CATEGORY_LEAVE_GRAVE)
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCode(EVENT_PHASE+PHASE_END)
+	e3:SetCode(EVENT_BATTLE_DESTROYED)
 	e3:SetRange(LOCATION_FZONE)
-	e3:SetCountLimit(1)
-	e3:SetCondition(c100421008.setcon)
-	e3:SetTarget(c100421008.settg)
-	e3:SetOperation(c100421008.setop)
+	e3:SetCountLimit(1,id)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e3:SetTarget(s.sptg)
+	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
+	local e4=e3:Clone()
+	e4:SetCode(EVENT_DESTROYED)
+	c:RegisterEffect(e4)
+	--set
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,1))
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e5:SetCode(EVENT_PHASE+PHASE_END)
+	e5:SetRange(LOCATION_FZONE)
+	e5:SetCountLimit(1)
+	e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e5:SetCondition(s.setcon)
+	e5:SetTarget(s.settg)
+	e5:SetOperation(s.setop)
+	c:RegisterEffect(e5)
 end
-function c100421008.aclimit(e,re,tp)
-	return re:IsHasType(EFFECT_TYPE_ACTIVATE)
+function s.lfilter(c,tp)
+	return c:IsControler(tp) and c:IsFaceup() and c:IsSetCard(0x2a1)
 end
-function c100421008.actcon(e)
-	local bc=Duel.GetBattleMonster(e:GetHandlerPlayer())
-	return bc and bc:IsFaceup() and bc:IsSetCard(0x2a1)
+function s.lecon(e)
+	local a=Duel.GetAttacker()
+	local d=Duel.GetAttackTarget()
+	return a and s.lfilter(a,tp) or d and s.lfilter(d,tp)
 end
-function c100421008.spfilter(c,e,tp,tc)
-	return c:IsSetCard(0x2a1) and c:IsLevelBelow(tc:GetLevel()-1)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetMZoneCount(tp)>0
+function s.cfilter(c,e,tp)
+	return c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_MZONE)
+		and c:IsReason(REASON_BATTLE+REASON_EFFECT) and c:IsCanBeEffectTarget(e) and c:IsFaceupEx()
+		and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,nil,e,tp,c:GetLevel())
 end
-function c100421008.tcfilter(c,e,tp)
-	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousControler(tp) and c:IsReason(REASON_BATTLE+REASON_EFFECT)
-		and c:IsCanBeEffectTarget(e) and Duel.IsExistingMatchingCard(c100421008.spfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,c) and c:IsLevelAbove(1)
+function s.filter(c,e,tp,lv)
+	return c:IsSetCard(0x2a1) and c:GetLevel()<lv and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function c100421008.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return c100421008.tcfilter(chkc,e,tp) end
-	if chk==0 then return eg:IsExists(c100421008.tcfilter,1,nil,e,tp) end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return eg:IsContains(chkc) and chkc:IsPreviousControler(tp)
+		and chkc:IsPreviousLocation(LOCATION_MZONE) and chkc:IsReason(REASON_BATTLE+REASON_EFFECT) end
+	local g=eg:Filter(s.cfilter,nil,e,tp)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE) and #g>0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local tc=eg:FilterSelect(tp,c100421008.tcfilter,1,1,nil,e,tp):GetFirst()
-	Duel.SetTargetCard(tc)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE)
+	local sg=g:Select(tp,1,1,nil)
+	Duel.SetTargetCard(sg)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_HAND)
 end
-function c100421008.spop(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if not tc:IsRelateToEffect(e) then return end
+	if not tc:IsRelateToEffect(e) or Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c100421008.spfilter),tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,e,tp,tc)
-	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
-	end
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.filter),tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil,e,tp,tc:GetLevel())
+	Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 end
-function c100421008.setcon(e,tp,eg,ep,ev,re,r,rp)
+function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp
 end
-function c100421008.setfilter(c)
+function s.sfilter(c)
 	return c:IsSetCard(0x2a1) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
 end
-function c100421008.settg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c100421008.setfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c100421008.setfilter,tp,LOCATION_GRAVE,0,1,nil) end
+function s.settg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.sfilter(c) end
+	if chk==0 then return Duel.IsExistingTarget(s.sfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local g=Duel.SelectTarget(tp,c100421008.setfilter,tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.sfilter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,1,0,0)
 end
-function c100421008.setop(e,tp,eg,ep,ev,re,r,rp)
+function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsSSetable() then
-		Duel.SSet(tp,tc)
-	end
+	if tc:IsRelateToEffect(e) then Duel.SSet(tp,tc) end
 end

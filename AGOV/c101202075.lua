@@ -1,5 +1,6 @@
---coded by Lyris
+--睨み統べるスネークアイズ
 --The Glaring Ruler Snake-Eyes
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -20,12 +21,9 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_MZONE,0,nil):GetSum(Card.GetLevel)>1
 end
 function s.mfilter(c,tp,ft)
-	local p=c:GetOwner()
 	local r=LOCATION_REASON_TOFIELD
-	if not c:IsControler(p) then r=LOCATION_REASON_CONTROL end
-	return c:IsFaceup() and Duel.GetLocationCount(p,LOCATION_SZONE,tp,r)>0
-		and c:CheckUniqueOnField(p,LOCATION_SZONE)
-		and (c:IsLocation(LOCATION_MZONE) or not c:IsForbidden())
+	if not c:IsControler(c:GetOwner()) then r=LOCATION_REASON_CONTROL end
+	return c:GetOriginalType()&TYPE_MONSTER>0 and Duel.GetLocationCount(c:GetOwner(),LOCATION_SZONE,tp,r)>0
 end
 function s.sfilter(c,e,tp)
 	return c:GetOriginalType()&TYPE_MONSTER>0 and c:GetType()&TYPE_CONTINUOUS+TYPE_SPELL==TYPE_CONTINUOUS+TYPE_SPELL

@@ -1,5 +1,6 @@
---coded by Lyris
+--死の罪宝－ルシエラ
 --Tainted Treasure of Doom - Luciela
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -29,8 +30,9 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
+	if not tc:IsRelateToEffect(e) then return end
 	local chk
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and not tc:IsImmuneToEffect(e) then
+	if tc:IsFaceup() and not tc:IsImmuneToEffect(e) then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_IMMUNE_EFFECT)
@@ -50,7 +52,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		chk=true
 	end
 	local g=Duel.GetMatchingGroup(s.dfilter,tp,0,LOCATION_MZONE,nil)
-	if #g>0 then
+	if tc:IsFaceup() and #g>0 then
 		if chk then Duel.BreakEffect() end
 		local dg=Group.CreateGroup()
 		for sc in aux.Next(g) do
@@ -75,7 +77,8 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnCount()~=e:GetLabel()
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	e:Reset()
+	if Duel.GetTurnCount()~=e:GetLabel()+1 then return end
 	Duel.Hint(HINT_CARD,0,id)
 	Duel.SendtoGrave(e:GetHandler(),REASON_EFFECT)
-	e:Reset()
 end
