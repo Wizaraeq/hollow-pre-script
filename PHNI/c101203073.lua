@@ -99,7 +99,7 @@ function c101203073.filter3(c,e)
 	return c:IsOnField() and not c:IsImmuneToEffect(e)
 end
 function c101203073.fcheck(tp,sg,fc)
-	return sg:IsExists(Card.IsCode,1,nil,78371393)
+	return sg:IsExists(Card.IsSetCard,1,nil,0x2a4)
 end
 function c101203073.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
