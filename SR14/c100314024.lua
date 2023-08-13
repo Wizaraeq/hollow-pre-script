@@ -78,7 +78,7 @@ function c100314024.xyzcond(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(Card.IsSummonPlayer,1,nil,1-tp)
 end
 function c100314024.xyzfilter(c,mg)
-	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsXyzSummonable(nil,mg)
+	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsXyzSummonable(mg)
 end
 function c100314024.xcfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x81)

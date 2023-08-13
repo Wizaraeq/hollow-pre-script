@@ -1,6 +1,6 @@
 --騎士皇爆誕
---coded by Lyris
 --Truth Centurion
+--coded by Lyris
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate

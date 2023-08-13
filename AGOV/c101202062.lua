@@ -33,18 +33,19 @@ function s.lfilter(c,tp)
 	return c:IsFaceup() and c:IsSetCard(0xe) and c:IsLocation(LOCATION_MZONE) and c:IsControler(tp)
 end
 function s.actlim(e,re,tp)
-	if not re:IsActivated() or re:GetCode()~=EVENT_SUMMON_SUCCESS
-		and re:GetCode()~=EVENT_SPSUMMON_SUCCESS then return end
 	local rc=re:GetHandler()
-	local rg=rc:GetColumnGroup()
-	local p=e:GetHandlerPlayer()
-	return rc:IsControler(1-p) and rg:IsContains(e:GetHandler()) or rg:IsExists(s.lfilter,1,nil,p)
+	local efftyp=re:GetType()
+	local effcod=re:GetCode()
+	return re:IsActiveType(TYPE_MONSTER) and rc:IsOnField()
+		and (e:GetHandler():GetColumnGroup():IsContains(rc) or rc:GetColumnGroup():IsExists(s.lfilter,1,nil,e:GetHandlerPlayer()))
+		and efftyp&EFFECT_TYPE_SINGLE>0 and ((efftyp&EFFECT_TYPE_TRIGGER_O)>0 or (efftyp&EFFECT_TYPE_TRIGGER_F))
+		and (effcod==EVENT_SUMMON_SUCCESS or effcod==EVENT_SPSUMMON_SUCCESS)
 end
 function s.cfilter(c,e,tp)
 	return c:IsFaceup() and c:IsSetCard(0xe) and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,e,tp,c:GetCode())
 end
-function s.filter(c,e,tp,...)
-	return c:IsSetCard(0xe) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(...)
+function s.filter(c,e,tp,code)
+	return c:IsSetCard(0xe) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(code)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and chkc:IsFaceup()
@@ -56,7 +57,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
 function s.splim(e,c)
-	return c:GetRace()~=RACE_THUNDER
+	return not c:IsRace(RACE_THUNDER)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
