@@ -14,7 +14,7 @@ function c101203073.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
-	e2:SetCountLimit(1,101203073)
+	e2:SetCountLimit(1,EFFECT_COUNT_CODE_SINGLE)
 	e2:SetTarget(c101203073.sptg)
 	e2:SetOperation(c101203073.spop)
 	c:RegisterEffect(e2)
@@ -26,7 +26,7 @@ function c101203073.initial_effect(c)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
-	e3:SetCountLimit(1,101203073+100)
+	e3:SetCountLimit(1,EFFECT_COUNT_CODE_SINGLE)
 	e3:SetCost(c101203073.fuscost)
 	e3:SetCondition(c101203073.fuscon)
 	e3:SetTarget(c101203073.fustg)
@@ -37,8 +37,9 @@ function c101203073.spfilter(c,e,tp)
 	return c:IsSetCard(0x2a4) and c:IsFaceupEx() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c101203073.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	if chk==0 then return Duel.GetFlagEffect(tp,101203073)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(c101203073.spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp) end
+	Duel.RegisterFlagEffect(tp,101203073,RESET_PHASE+PHASE_END,0,1)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_REMOVED)
 end
 function c101203073.spop(e,tp,eg,ep,ev,re,r,rp)
@@ -83,7 +84,7 @@ function c101203073.cfilter(c)
 	return c:IsFaceup() and c:IsCode(78371393)
 end
 function c101203073.fuscon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c101203073.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
+	return Duel.IsExistingMatchingCard(c101203073.cfilter,tp,LOCATION_ONFIELD,0,1,nil) and Duel.GetFlagEffect(tp,101203073+100)==0
 end
 function c101203073.filter0(c)
 	return c:IsFaceup() and c:IsCanBeFusionMaterial()
@@ -121,6 +122,7 @@ function c101203073.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 		end
 		return res
 	end
+	Duel.RegisterFlagEffect(tp,101203073+100,RESET_PHASE+PHASE_END,0,1)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function c101203073.fusop(e,tp,eg,ep,ev,re,r,rp)
