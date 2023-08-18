@@ -74,7 +74,7 @@ function c100421031.lkcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetAttacker():IsControler(1-tp)
 end
 function c100421031.lkfilter(c)
-	return c:IsLinkSummonable(nil)
+	return c:IsSetCard(0x2a3) and c:IsLinkSummonable(nil)
 end
 function c100421031.lktg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c100421031.lkfilter,tp,LOCATION_EXTRA,0,1,nil) end
