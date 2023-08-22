@@ -106,7 +106,7 @@ function c101203055.effop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 		local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 		if #g>0 then
-			Duel.HintSelection(g,true)
+			Duel.HintSelection(g)
 			Duel.Destroy(g,REASON_EFFECT)
 		end
 	elseif op==5 then

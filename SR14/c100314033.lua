@@ -45,8 +45,9 @@ function c100314033.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(c100314033.spfilter,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,nil,e,tp)
 	if #g<3 then return end
 	local sg=g:SelectSubGroup(tp,c100314033.sprescon,false,3,3,e,tp)
-	if #sg==3 then
+	if sg and #sg==3 then
 		local tc=sg:GetFirst()
+		local fid=c:GetFieldID()
 		while tc do
 			Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
 			local e1=Effect.CreateEffect(c)

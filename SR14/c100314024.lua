@@ -61,7 +61,7 @@ function c100314024.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
 		local sg=g:FilterSelect(tp,c100314024.desfilter,1,1,nil,e,tp)
 		e:SetLabelObject(sg:GetFirst())
-		Duel.HintSelection(sg,true)
+		Duel.HintSelection(sg)
 		sg:GetFirst():SetStatus(STATUS_DESTROY_CONFIRMED,true)
 		return true
 	else return false end

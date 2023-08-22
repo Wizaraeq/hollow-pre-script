@@ -59,7 +59,7 @@ function c100421040.activate(e,tp,eg,ep,ev,re,r,rp,ex)
 		local g=Duel.GetMatchingGroup(aux.NegateMonsterFilter,tp,0,LOCATION_MZONE,nil)
 		if break_chk then Duel.BreakEffect() end
 		if Duel.Damage(tp,500,REASON_EFFECT)>0 and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(100421040,4)) then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NEGATE)
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISABLE)
 			local nc=g:Select(tp,1,1,nil)
 			local tc=nc:GetFirst()
 			Duel.HintSelection(nc)
