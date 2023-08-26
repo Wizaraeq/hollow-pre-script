@@ -28,7 +28,9 @@ function s.filter(c)
 	return c:IsSetCard(0x2a5) and c:IsType(TYPE_MONSTER) and not c:IsForbidden()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+	local ft=0
+	if e:GetHandler():IsLocation(LOCATION_HAND) then ft=1 end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>ft
 		and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil) end
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
