@@ -1,107 +1,123 @@
---サクリファイス・Ｄ・ロータス
-function c101203003.initial_effect(c)
+--サクリファイス・D・ロータス
+--Script by passingDio0
+local s,id,o=GetID()
+function s.initial_effect(c)
 	aux.AddCodeList(c,78371393)
-	--Special Summon 1 "Yubel" monster from your Deck
+	aux.AddSetNameMonsterList(c,0x2a4)
+	--spsummon
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101203003,0))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1,101203003)
-	e1:SetCost(c101203003.spcost)
-	e1:SetTarget(c101203003.sptg)
-	e1:SetOperation(c101203003.spop)
+	e1:SetCountLimit(1,id)
+	e1:SetCost(s.spcost)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	--Change a monster effect to "Destroy 1 "Yubel" monster on the field"
+	--Change effect
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101203003,1))
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_POSITION)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCountLimit(1,101203003+100)
-	e2:SetCondition(c101203003.chcon)
-	e2:SetCost(c101203003.spcost)
-	e2:SetTarget(c101203003.chtg)
-	e2:SetOperation(c101203003.chop)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetHintTiming(TIMINGS_CHECK_MONSTER)
+	e2:SetCountLimit(1,id+o)
+	e2:SetCondition(s.chcon)
+	e2:SetCost(s.chcost)
+	e2:SetTarget(s.chtg)
+	e2:SetOperation(s.chop)
 	c:RegisterEffect(e2)
-	--Add this card to your hand or Special Summon it
+	--to hand or spsummon
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(101203003,2))
+	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_PHASE+PHASE_END)
 	e3:SetRange(LOCATION_GRAVE)
-	e3:SetCountLimit(1,101203003+200)
-	e3:SetCondition(c101203003.thcon)
-	e3:SetTarget(c101203003.thtg)
-	e3:SetOperation(c101203003.thop)
+	e3:SetCountLimit(1,id+o*2)
+	e3:SetCondition(s.thoscon)
+	e3:SetTarget(s.thostg)
+	e3:SetOperation(s.thosop)
 	c:RegisterEffect(e3)
 end
-function c101203003.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsReleasable() end
 	Duel.Release(e:GetHandler(),REASON_COST)
 end
-function c101203003.spfilter(c,e,tp)
+function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x2a4) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function c101203003.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetMZoneCount(tp,e:GetHandler())>0
-		and Duel.IsExistingMatchingCard(c101203003.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
-function c101203003.spop(e,tp,eg,ep,ev,re,r,rp)
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,c101203003.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-	if #g>0 then
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+	if g:GetCount()>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
-function c101203003.filter(c)
+function s.confilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x2a4)
 end
-function c101203003.chcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c101203003.filter,tp,LOCATION_MZONE,0,1,nil)
-		and re:IsActiveType(TYPE_MONSTER) and Duel.GetTurnPlayer()==1-tp
+function s.chcon(e,tp,eg,ep,ev,re,r,rp)
+return Duel.GetTurnPlayer()==1-tp
+	and re:IsActiveType(TYPE_MONSTER)
+	and Duel.IsExistingMatchingCard(s.confilter,tp,LOCATION_MZONE,0,1,nil)
 end
-function c101203003.chtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101203003.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+function s.chcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsReleasable() end
+	Duel.Release(e:GetHandler(),REASON_COST)
 end
-function c101203003.chop(e,tp,eg,ep,ev,re,r,rp)
+function s.chtg(e,tp,eg,ep,ev,re,r,rp,chk)
+if chk==0 then return Duel.IsPlayerCanDraw(tp,1)
+	and Duel.IsPlayerCanDraw(1-tp,1) end
+end
+function s.chop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Group.CreateGroup()
 	Duel.ChangeTargetCard(ev,g)
-	Duel.ChangeChainOperation(ev,c101203003.repop)
+	Duel.ChangeChainOperation(ev,s.repop)
 end
-function c101203003.repop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,c101203003.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	if #g>0 then
+function s.repfilter(c)
+	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x2a4)
+end
+function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.SelectMatchingCard(tp,s.repfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	if g:GetCount()>0 then
 		Duel.HintSelection(g)
 		Duel.Destroy(g,REASON_EFFECT)
 	end
 end
-function c101203003.filter2(c)
+function s.rccfilter(c)
 	return c:IsFaceup() and c:IsCode(78371393)
 end
-function c101203003.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp and Duel.IsExistingMatchingCard(c101203003.filter2,tp,LOCATION_ONFIELD,0,1,nil)
+function s.thoscon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnPlayer()==tp
+		and Duel.IsExistingMatchingCard(s.rccfilter,tp,LOCATION_MZONE,0,1,nil)
 end
-function c101203003.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToHand()
-		or (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false)) end
-end
-function c101203003.thop(e,tp,eg,ep,ev,re,r,rp) 
+function s.thostg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if not c:IsRelateToEffect(e) then return end
-	if aux.NecroValleyNegateCheck(c) then return end
-	if not aux.NecroValleyFilter()(c) then return end
-	local b1=c:IsAbleToHand()
-	local b2=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-	local op=aux.SelectFromOptions(tp,{b1,1190},{b2,1152})
-	if op==1 then
-		Duel.SendtoHand(c,nil,REASON_EFFECT)
-	end
-	if op==2 then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if chk==0 then return c:IsAbleToHand() or c:IsCanBeSpecialSummoned(e,0,tp,false,false)end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,c,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
+end
+function s.thosop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_OPERATECARD)
+	if c:IsRelateToEffect(e) then
+		if ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+			and (not c:IsAbleToHand() or Duel.SelectOption(tp,1190,1152)==1) then
+			Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+		else
+			Duel.SendtoHand(c,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,c)
+		end
 	end
 end

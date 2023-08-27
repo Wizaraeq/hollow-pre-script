@@ -1,79 +1,99 @@
 --ヴァルモニカの異神－ジュラルメ
-function c100421033.initial_effect(c)
-	c:SetSPSummonOnce(100421033)
-	--link summon
-	aux.AddLinkProcedure(c,aux.FilterBoolFunction(Card.IsLinkType,TYPE_EFFECT),1,1)
+--Odd Deity of Valmonica - Giurarme
+--coded by Lyris
+local s,id,o=GetID()
+function s.initial_effect(c)
 	c:EnableReviveLimit()
-	--splimit
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(EFFECT_SPSUMMON_COST)
-	e0:SetCost(c100421033.spcost)
-	c:RegisterEffect(e0)
-	--Destroy
+	--material
+	aux.AddLinkProcedure(c,aux.FilterBoolFunction(Card.IsType,TYPE_EFFECT),1,1)
+	--spsummon condition
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(100421033,0))
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
-	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e1:SetCondition(c100421033.descon)
-	e1:SetTarget(c100421033.destg)
-	e1:SetOperation(c100421033.desop)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_SPSUMMON_COST)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCost(s.spcost)
 	c:RegisterEffect(e1)
-	--multi attack
+	--spsum once
+	c:SetSPSummonOnce(id)
+	--destroy
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(100421033,1))
-	e2:SetType(EFFECT_TYPE_IGNITION)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetCondition(c100421033.atkcon)
-	e2:SetCost(c100421033.atkcost)
-	e2:SetTarget(c100421033.atktg)
-	e2:SetOperation(c100421033.atkop)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_DESTROY)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e2:SetCondition(s.descon)
+	e2:SetTarget(s.destg)
+	e2:SetOperation(s.desop)
 	c:RegisterEffect(e2)
+	--three attacks
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCondition(s.tacon)
+	e3:SetCost(s.tacost)
+	e3:SetTarget(s.tatg)
+	e3:SetOperation(s.taop)
+	c:RegisterEffect(e3)
 end
-function c100421033.spcfilter(c)
-	return c:IsFaceup() and c:GetOriginalRace()==RACE_FAIRY and c:GetCounter(0x16a)>=3
+function s.cfilter(c)
+	return c:GetOriginalRace()&RACE_FAIRY>0 and c:GetOriginalType()&TYPE_MONSTER>0 and c:GetCounter(0x16a)>2
 end
-function c100421033.spcost(e,c,tp,st)
-	if bit.band(st,SUMMON_TYPE_LINK)~=SUMMON_TYPE_LINK then return true end
-	return Duel.IsExistingMatchingCard(c100421033.spcfilter,tp,LOCATION_PZONE,0,1,nil)
+function s.spcost(e,c,tp,st)
+	if st&SUMMON_TYPE_LINK~=SUMMON_TYPE_LINK then return true end
+	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_PZONE,0,1,nil)
 end
-function c100421033.descon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK) and Duel.GetCounter(tp,1,0,0x16a)
 end
-function c100421033.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) end
-	local ct=Duel.GetCounter(tp,1,0,0x16a)
+	local ct=0
+	for i=0,1 do ct=ct+Duel.GetFieldCard(tp,LOCATION_PZONE,i):GetCounter(0x16a) end
 	if chk==0 then return ct>0 and Duel.IsExistingTarget(nil,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,nil,tp,0,LOCATION_MZONE,1,ct,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,0,0)
 end
-function c100421033.desop(e,tp,eg,ep,ev,re,r,rp)
-	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
-	if #tg>0 then
-		Duel.Destroy(tg,REASON_EFFECT)
-	end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Destroy(Duel.GetTargetsRelateToChain(),REASON_EFFECT)
 end
-function c100421033.atkcon(e,tp,eg,ep,ev,re,r,rp)
+function s.tacon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsAbleToEnterBP()
 end
-function c100421033.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,0,0x16a,3,REASON_COST) end
-	Duel.RemoveCounter(tp,1,0,0x16a,3,REASON_COST)
-end
-function c100421033.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return not e:GetHandler():IsHasEffect(EFFECT_EXTRA_ATTACK) end
-end
-function c100421033.atkop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetCode(EFFECT_EXTRA_ATTACK)
-		e1:SetValue(2)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		c:RegisterEffect(e1)
+function s.chk(g,tp)
+	local tl=0
+	for tc in aux.Next(g) do
+		local ct=0
+		for i=1,3 do
+			if tc:IsCanRemoveCounter(tp,0x16a,i,REASON_COST) then ct=i end
+		end
+		tl=tl+ct
 	end
-end 
+	return tl>2
+end
+function s.tacost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local g=Duel.GetFieldGroup(tp,LOCATION_PZONE,0)
+	if chk==0 then return g:CheckSubGroup(s.chk,1,99,tp) end
+	local ct=0
+	while ct<3 do
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+		local tc=g:FilterSelect(tp,Card.IsCanRemoveCounter,1,1,nil,tp,0x16a,1,REASON_COST):GetFirst()
+		tc:RemoveCounter(tp,0x16a,1,REASON_COST)
+		ct=ct+1
+	end
+end
+function s.tatg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():GetEffectCount(EFFECT_EXTRA_ATTACK)==0 end
+end
+function s.taop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_EXTRA_ATTACK)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	e1:SetValue(2)
+	c:RegisterEffect(e1)
+end

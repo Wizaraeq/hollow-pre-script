@@ -1,70 +1,78 @@
 --ナイトメア・ペイン
-function c101203054.initial_effect(c)
+--Script by passingDio0
+local s,id,o=GetID()
+function s.initial_effect(c)
 	aux.AddCodeList(c,78371393)
+	aux.AddSetNameMonsterList(c,0x2a4)
 	--Activate
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_ACTIVATE)
-	e0:SetCode(EVENT_FREE_CHAIN)
-	c:RegisterEffect(e0)
-	--Search 1 "Yubel" or 1 card that mentions it
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(101203054,0))
-	e1:SetCategory(CATEGORY_DESTROY+CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_SZONE)
-	e1:SetCountLimit(1,101203054)
-	e1:SetTarget(c101203054.destg)
-	e1:SetOperation(c101203054.desop)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
-	--Opponent's monsters must attack a "Yubel" monster
+	--add to hand
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_MUST_ATTACK)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_DESTROY+CATEGORY_SEARCH+CATEGORY_TOHAND)
+	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_SZONE)
-	e2:SetTargetRange(0,LOCATION_MZONE)
-	e2:SetCondition(c101203054.atkcon)
+	e2:SetCountLimit(1,id)
+	e2:SetTarget(s.thtg)
+	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
-	local e3=e2:Clone()
-	e3:SetCode(EFFECT_MUST_ATTACK_MONSTER)
-	e3:SetValue(aux.TargetBoolFunction(Card.IsSetCard,0x2a4))
+	--must attack
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetCode(EFFECT_MUST_ATTACK)
+	e3:SetRange(LOCATION_SZONE)
+	e3:SetTargetRange(0,LOCATION_MZONE)
+	e3:SetCondition(s.atkcon)
 	c:RegisterEffect(e3)
-	--Your opponent takes any battle damage you would have taken from battles involving your "Yubel" monsters instead
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
-	e4:SetRange(LOCATION_SZONE)
-	e4:SetTargetRange(LOCATION_MZONE,0)
-	e4:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x2a4))
-	e4:SetValue(1)
+	local e4=e3:Clone()
+	e4:SetCode(EFFECT_MUST_ATTACK_MONSTER)
+	e4:SetValue(s.atklimit)
 	c:RegisterEffect(e4)
+	--reflect
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetCode(EFFECT_REFLECT_BATTLE_DAMAGE)
+	e5:SetRange(LOCATION_SZONE)
+	e5:SetTargetRange(LOCATION_MZONE,0)
+	e5:SetTarget(s.reftg)
+	e5:SetValue(1)
+	c:RegisterEffect(e5)
 end
-function c101203054.desfilter(c)
-	return c:IsAttribute(ATTRIBUTE_DARK) and c:IsFaceupEx()
+function s.dfilter(c,e,tp)
+	return c:IsFaceupEx() and c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_DARK)
 end
-function c101203054.thfilter(c)
-	return (c:IsCode(78371393) or aux.IsCodeListed(c,78371393)) and c:IsAbleToHand() and not c:IsCode(101203054)
+function s.thfilter(c,code)
+	return (c:IsSetCard(0x2a4) or aux.IsSetNameMonsterListed(c,0x2a4)) and c:IsAbleToHand() and not c:IsCode(code)
 end
-function c101203054.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c101203054.desfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingMatchingCard(c101203054.thfilter,tp,LOCATION_DECK,0,1,nil) end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.dfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil,e,tp)
+		and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil,e:GetHandler():GetCode()) end
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,nil,1,tp,LOCATION_HAND+LOCATION_MZONE)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
-function c101203054.desop(e,tp,eg,ep,ev,re,r,rp)
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,c101203054.desfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil)
-	if #g>0 and Duel.Destroy(g,REASON_EFFECT)>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local sg=Duel.SelectMatchingCard(tp,c101203054.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-		if #sg>0 then
-			Duel.SendtoHand(sg,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,sg)
-		end
+	local g=Duel.SelectMatchingCard(tp,s.dfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil,e,tp)
+	if Duel.Destroy(g,REASON_EFFECT)<1 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local tg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_DECK,0,1,1,nil,e:GetHandler():GetCode())
+	if #g>0 then
+		Duel.SendtoHand(tg,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,tg)
 	end
 end
-function c101203054.cfilter(c)
-	return c:IsFaceup() or c:IsSetCard(0x2a4)
+function s.atkfilter(c)
+	return c:IsSetCard(0x2a4)
 end
-function c101203054.atkcon(e)
-	return Duel.IsExistingMatchingCard(c101203054.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
+function s.atkcon(e)
+	return Duel.IsExistingMatchingCard(s.atkfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
+end
+function s.atklimit(e,c)
+	return c:IsSetCard(0x2a4)
+end
+function s.reftg(e,c)
+	return c:IsFaceup() and c:IsSetCard(0x2a4)
 end

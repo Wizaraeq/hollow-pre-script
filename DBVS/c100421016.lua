@@ -1,10 +1,11 @@
 --重騎士プリメラ
+--Script by passingDio0
 local s,id,o=GetID()
 function s.initial_effect(c)
-	--Search 1 "Centurion" card
+	--to hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SUMMON_SUCCESS)
@@ -15,38 +16,32 @@ function s.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e2)
-	--Level 5 or higher "Centurion" monsters cannot be destroyed by card effects 
+	--effect destory
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetTargetRange(LOCATION_MZONE,0)
-	e3:SetCondition(s.indcon)
-	e3:SetTarget(s.indtg)
+	e3:SetCondition(s.edcon)
+	e3:SetTarget(s.edtg)
 	e3:SetValue(1)
 	c:RegisterEffect(e3)
-	--Special Summon this card
+	--spsummon from szone
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
-	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(LOCATION_SZONE)
+	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetCountLimit(1,id+o)
-	e4:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
+	e4:SetHintTiming(0,TIMING_MAIN_END)
 	e4:SetCondition(s.spcon)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
-function s.indcon(e)
-	return e:GetHandler():GetType()==TYPE_TRAP+TYPE_CONTINUOUS
-end
-function s.indtg(e,c)
-	return c:IsLevelAbove(5) and c:IsSetCard(0x2a5)
-end
 function s.thfilter(c)
-	return c:IsSetCard(0x2a5) and not c:IsCode(id) and c:IsAbleToHand() 
+	return c:IsSetCard(0x2a5) and not c:IsCode(id) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -55,7 +50,7 @@ end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 then
+	if g:GetCount()>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
 	end
@@ -68,8 +63,14 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e1,tp)
 end
-function s.splimit(e,c,tp,sumtp,sumpos)
+function s.splimit(e,c)
 	return c:IsCode(id)
+end
+function s.edcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():GetType()==TYPE_TRAP+TYPE_CONTINUOUS
+end
+function s.edtg(e,c)
+	return c:IsSetCard(0x2a5) and c:IsLevelAbove(5)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase()
@@ -83,7 +84,6 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-	end
+	if not c:IsRelateToEffect(e) then return end
+	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 end
