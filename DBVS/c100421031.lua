@@ -4,7 +4,7 @@
 local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.EnablePendulumAttribute(c)
-	c:EnableCounterPermit(0x16a,LOCATION_PZONE)
+	c:EnableCounterPermit(0x170,LOCATION_PZONE)
 	--counter
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_COUNTER)
@@ -70,7 +70,7 @@ function s.ctcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	c:AddCounter(0x16a,1)
+	c:AddCounter(0x170,1)
 	Duel.RaiseEvent(c,EVENT_CUSTOM+100421035,e,0,tp,tp,1)
 end
 function s.lscon(e,tp,eg,ep,ev,re,r,rp)

@@ -44,28 +44,26 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not tc:IsRelateToEffect(e) or Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)<1
 		or not tc:IsLocation(LOCATION_REMOVED) then return end
+	tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_STANDBY,0,2)
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_PHASE+PHASE_STANDBY)
+	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	e1:SetCountLimit(1)
-	e1:SetLabel(Duel.GetTurnCount()+1)
+	e1:SetLabel(Duel.GetTurnCount())
 	e1:SetLabelObject(tc)
 	e1:SetCondition(s.retcon)
 	e1:SetOperation(s.retop)
-	e1:SetReset(RESET_PHASE+PHASE_STANDBY,Duel.GetCurrentPhase()<=PHASE_STANDBY and 2 or 1)
+	e1:SetReset(RESET_PHASE+PHASE_STANDBY,2)
 	Duel.RegisterEffect(e1,tp)
-	tc:CreateEffectRelation(e1)
 end
 function s.retcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetLabel()==Duel.GetTurnCount() and e:GetLabelObject():IsRelateToEffect(e)
+	local tc=e:GetLabelObject()
+	return Duel.GetTurnCount()==e:GetLabel()+1 and tc:GetFlagEffect(id)>0
 end
 function s.retop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	local p=tc:GetOwner()
-	if tc and tc:IsLocation(LOCATION_REMOVED) and tc:IsRelateToEffect(e)
-		and tc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,p) then
-		Duel.SpecialSummon(tc,0,tp,p,false,false,POS_FACEUP)
-	end
+	Duel.SpecialSummon(tc,0,tp,tc:GetOwner(),false,false,POS_FACEUP)
 end
 function s.sfilter(c,e,tp)
 	return c:IsSetCard(0x2a5) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

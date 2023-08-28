@@ -38,7 +38,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.cfilter(c,tp)
-	return c:IsLocation(LOCATION_PZONE) and c:IsControler(tp) and c:GetCounter(0x16a)==3
+	return c:IsLocation(LOCATION_PZONE) and c:IsControler(tp) and c:GetCounter(0x170)==3
 end
 function s.concon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp)
