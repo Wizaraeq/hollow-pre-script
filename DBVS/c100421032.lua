@@ -7,7 +7,6 @@ function s.initial_effect(c)
 	c:EnableCounterPermit(0x170,LOCATION_PZONE)
 	--counter
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_COUNTER)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_DAMAGE)
 	e1:SetRange(LOCATION_PZONE)
@@ -39,7 +38,6 @@ function s.initial_effect(c)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1,id+o)
 	e4:SetCondition(s.cpcon)
-	e4:SetCost(s.cpcost)
 	e4:SetTarget(s.cptg)
 	e4:SetOperation(s.cpop)
 	c:RegisterEffect(e4)
@@ -62,12 +60,15 @@ function s.cfilter(c)
 	return c:GetOriginalRace()&RACE_FAIRY>0 and c:GetOriginalType()&TYPE_MONSTER>0
 end
 function s.ctcon(e,tp,eg,ep,ev,re,r,rp)
-	return ep==tp and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_PZONE,0,1,e:GetHandler()) and r==REASON_EFFECT
+	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_PZONE,0,1,e:GetHandler())
+		and r==REASON_EFFECT and ep==tp
 end
 function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	c:AddCounter(0x170,1)
-	Duel.RaiseEvent(c,EVENT_CUSTOM+100421035,e,0,tp,tp,1)
+	if c:GetCounter(0x170)==3 then
+		Duel.RaiseEvent(c,EVENT_CUSTOM+100421035,e,0,tp,tp,0)
+	end
 end
 function s.adval(e,c)
 	return Duel.GetCounter(e:GetHandlerPlayer(),1,0,0x170)*-100
@@ -103,25 +104,25 @@ function s.pfilter(c)
 	return c:IsSetCard(0x2a3) and (typ==TYPE_SPELL or typ==TYPE_TRAP) and c:IsAbleToRemoveAsCost()
 		and c:CheckActivateEffect(false,true,false)
 end
-function s.cpcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	e:SetLabel(1)
-	return true
-end
-function s.cptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then
-		if e:GetLabel()==0 then return false end
-		e:SetLabel(0)
-		return Duel.IsExistingMatchingCard(s.pfilter,tp,LOCATION_GRAVE,0,1,nil)
-	end
+function s.cptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:IsCostChecked()
+		and Duel.IsExistingMatchingCard(s.pfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local tc=Duel.SelectMatchingCard(tp,s.pfilter,tp,LOCATION_GRAVE,0,1,1,nil):GetFirst()
+	local te,ceg,cep,cev,cre,cr,crp=tc:CheckActivateEffect(false,true,true)
+	e:SetLabelObject(te)
 	Duel.Remove(tc,POS_FACEUP,REASON_COST)
-	e:SetLabelObject(tc)
+	e:SetProperty(te:GetProperty())
+	local tg=te:GetTarget()
+	if tg then tg(e,tp,ceg,cep,cev,cre,cr,crp,1) end
+	te:SetLabelObject(e:GetLabelObject())
+	e:SetLabelObject(te)
+	Duel.ClearOperationInfo(0)
 end
 function s.cpop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
-	if not tc then return end
-	local eff=tc:GetActivateEffect()
-	local op=eff:GetOperation()
+	local te=e:GetLabelObject()
+	if not te then return end
+	e:SetLabelObject(te:GetLabelObject())
+	local op=te:GetOperation()
 	if op then op(e,tp,eg,ep,ev,re,r,rp,2) end
 end

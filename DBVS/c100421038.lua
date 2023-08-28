@@ -10,12 +10,8 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
-	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
 end
 function s.filter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
@@ -23,17 +19,14 @@ end
 function s.hfilter(c)
 	return c:IsLevel(4) and c:IsAbleToHand()
 end
-function s.activate(e,tp,eg,ep,ev,re,r,rp,ex)
-	local op=nil
-	if ex then
-		op=ex
-	else
-		local sel_player=Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_PZONE,0,1,nil,0x2a3) and tp or 1-tp
-		op=Duel.SelectOption(sel_player,aux.Stringid(id,1),aux.Stringid(id,2))+1
+function s.activate(e,tp,eg,ep,ev,re,r,rp,op)
+	if op==nil then
+		local p=Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_PZONE,0,1,nil,0x2a3) and tp or 1-tp
+		op=aux.SelectFromOptions(p,{true,aux.Stringid(id,1)},{true,aux.Stringid(id,2)})
 	end
 	if op==1 then
 		if Duel.Recover(tp,500,REASON_EFFECT)<1 then return end
-		local g=Duel.SelectMatchingCard(1-tp,aux.NecroValleyFilter(s.filter),tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+		local g=Duel.SelectMatchingCard(1-tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
 		if #g>0 then
 			Duel.BreakEffect()
 			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)

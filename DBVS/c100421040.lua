@@ -11,7 +11,6 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(s.condition)
-	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
@@ -21,37 +20,30 @@ end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-end
 function s.afilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x2a3) and c:IsType(TYPE_LINK)
 end
-function s.activate(e,tp,eg,ep,ev,re,r,rp,ex)
+function s.activate(e,tp,eg,ep,ev,re,r,rp,op)
 	local c=e:GetHandler()
-	local op=nil
-	if ex then
-		op=ex
-	else
-		local both=Duel.IsExistingMatchingCard(s.afilter,tp,LOCATION_MZONE,0,1,nil)
-		if both then
-			op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2),aux.Stringid(id,3))+1
-		else
-			op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))+1
-		end
+	if op==nil then
+		local chk=Duel.IsExistingMatchingCard(s.afilter,tp,LOCATION_MZONE,0,1,nil)
+		op=aux.SelectFromOptions(tp,
+			{true,aux.Stringid(id,1)},
+			{true,aux.Stringid(id,2)},
+			{chk,aux.Stringid(id,3)})
 	end
-	if (op==1 or op==3) and Duel.Recover(tp,500,REASON_EFFECT)>0 then
+	if op&1>0 and Duel.Recover(tp,500,REASON_EFFECT)>0 then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_FIELD)
 		e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
 		e1:SetTargetRange(LOCATION_ONFIELD,0)
-		e1:SetTarget(s.tg)
+		e1:SetTarget(s.target)
 		e1:SetReset(RESET_PHASE+PHASE_END)
 		e1:SetValue(aux.tgoval)
 		Duel.RegisterEffect(e1,tp)
 		if op==3 then Duel.BreakEffect() end
 	end
-	if (op==2 or op==3) and Duel.Damage(tp,500,REASON_EFFECT)>0 then
+	if op&2>0 and Duel.Damage(tp,500,REASON_EFFECT)>0 then
 		local g=Duel.GetMatchingGroup(aux.NegateEffectMonsterFilter,tp,0,LOCATION_MZONE,nil)
 		if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISABLE)
@@ -72,6 +64,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp,ex)
 		end
 	end
 end
-function s.tg(e,c)
+function s.target(e,c)
 	return c:IsSetCard(0x2a3) and c:GetOriginalType()&TYPE_MONSTER>0
 end
