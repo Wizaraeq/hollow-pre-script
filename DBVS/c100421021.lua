@@ -1,4 +1,5 @@
 --誓いのエンブレーマ
+--Script by passingDio0
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate1
@@ -24,9 +25,11 @@ function s.filter1(c)
 	return c:IsSetCard(0x2a5) and c:IsType(TYPE_MONSTER) and not c:IsForbidden()
 end
 function s.target1(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ft=0
-	if e:GetHandler():IsLocation(LOCATION_HAND) then ft=1 end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>ft and Duel.IsExistingMatchingCard(s.filter1,tp,LOCATION_DECK,0,1,nil) end
+	if chk==0 then
+		local ct=Duel.GetLocationCount(tp,LOCATION_SZONE)
+		if e:IsHasType(EFFECT_TYPE_ACTIVATE) and not e:GetHandler():IsLocation(LOCATION_SZONE) then ct=ct-1 end
+		return Duel.IsExistingMatchingCard(s.filter1,tp,LOCATION_DECK,0,1,nil) and ct>0
+	end
 end
 function s.activate1(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -36,7 +39,6 @@ function s.activate1(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	if tc then
 		Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetCode(EFFECT_CHANGE_TYPE)
 		e1:SetType(EFFECT_TYPE_SINGLE)
@@ -45,24 +47,23 @@ function s.activate1(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(TYPE_TRAP+TYPE_CONTINUOUS)
 		tc:RegisterEffect(e1)
 		--splimit
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_FIELD)
-		e2:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-		e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-		e2:SetTargetRange(1,0)
-		e2:SetLabelObject(tc)
-		e2:SetCondition(s.con)
-		e2:SetTarget(s.splimit)
-		e2:SetReset(RESET_PHASE+PHASE_END)
-		Duel.RegisterEffect(e2,tp)
+		local e0=Effect.CreateEffect(c)
+		e0:SetType(EFFECT_TYPE_FIELD)
+		e0:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+		e0:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e0:SetTargetRange(1,0)
+		e0:SetLabel(tc:GetOriginalCodeRule())
+		e0:SetCondition(s.splimitcon)
+		e0:SetTarget(s.splimit)
+		e0:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e0,tp)
 	end
 end
 function s.filter2(c,e)
-	local tc=e:GetLabelObject()
-	return (c:GetFlagEffect(id)>0 or c:IsOriginalCodeRule(tc:GetOriginalCodeRule())) and c:IsFaceup() 
+	return c:IsOriginalCodeRule(e:GetLabel()) and c:IsFaceup()
 end
-function s.con(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_ONFIELD,0,1,nil,e)
+function s.splimitcon(e)
+	return Duel.IsExistingMatchingCard(s.filter2,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil,e)
 end
 function s.splimit(e,c)
 	return not c:IsSetCard(0x2a5) and c:IsLocation(LOCATION_EXTRA)
@@ -77,6 +78,6 @@ function s.activate2(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if g:GetCount()>0 then
-		Duel.SSet(tp,g)
+		Duel.SSet(tp,g:GetFirst())
 	end
 end
