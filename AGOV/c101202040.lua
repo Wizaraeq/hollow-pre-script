@@ -49,13 +49,15 @@ function s.thfilter(c)
 	return c:IsSetCard(0x4073) and c:IsAbleToHand()
 end
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
-	local ct=g:GetClassCount(Card.GetCode)
-	local rt=math.min(ct,c:GetOverlayCount(),2)
-	if chk==0 then return rt>0 and c:CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	c:RemoveOverlayCard(tp,1,rt,REASON_COST)
-	local ct=Duel.GetOperatedGroup():GetCount()
+	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
+	local ct=0
+	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil,e,tp)
+	if g:GetClassCount(Card.GetCode)==0 then return false end
+	if g:GetClassCount(Card.GetCode)>=2 then
+		ct=e:GetHandler():RemoveOverlayCard(tp,1,2,REASON_COST)
+	else
+		ct=e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
+	end
 	e:SetLabel(ct)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -64,11 +66,10 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,ct,tp,LOCATION_DECK)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
 	if g:GetCount()>0 then
 		local ct=e:GetLabel()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local sg=g:SelectSubGroup(tp,aux.dncheck,false,ct,ct)
 		if sg then
 			Duel.SendtoHand(sg,nil,REASON_EFFECT)

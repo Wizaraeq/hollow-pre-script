@@ -70,7 +70,7 @@ function c101202073.activate(e,tp,eg,ep,ev,re,r,rp)
 		local fid=tc:GetFieldID()
 		tc:RegisterFlagEffect(101202073,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,fid)
 		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(101202073,3)) --"Banish the summoned monster"
+		e1:SetDescription(aux.Stringid(101202073,3))
 		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 		e1:SetCode(EVENT_PHASE+PHASE_END)
 		e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
