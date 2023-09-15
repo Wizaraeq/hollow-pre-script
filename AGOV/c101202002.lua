@@ -112,7 +112,6 @@ function c101202002.thop1(e,tp,eg,ep,ev,re,r,rp)
 	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT) and tc:IsLocation(LOCATION_HAND) then
 		local g1=Duel.GetMatchingGroup(c101202002.scfilter,tp,LOCATION_EXTRA,0,nil)
 		local g2=Duel.GetMatchingGroup(c101202002.xyzfilter,tp,LOCATION_EXTRA,0,nil)
-		Duel.ConfirmCards(1-tp,tc)
 		if (g1:GetCount()>0 or g2:GetCount()>0)
 			and Duel.SelectYesNo(tp,aux.Stringid(101202002,5)) then
 			Duel.BreakEffect()
@@ -133,7 +132,7 @@ function c101202002.thfilter2(c,tp)
 end
 function c101202002.thcon2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return eg:IsExists(c101202002.thfilter2,1,c,tp) and c:IsFaceup()
+	return eg:IsExists(c101202002.thfilter2,1,c,tp) and not eg:IsContains(c) and c:IsFaceup()
 end
 function c101202002.thtg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToHand() end
