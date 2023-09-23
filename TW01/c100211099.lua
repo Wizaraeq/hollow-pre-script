@@ -57,7 +57,7 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 		and (Duel.GetTurnCount()~=e:GetHandler():GetTurnID() or e:GetHandler():IsReason(REASON_RETURN))
 end
 function s.tgfilter(c,e)
-	return c:IsFaceup() and c:IsSetCard(0xbb) and c:IsType(TYPE_MONSTER) and c:IsCanBeEffectTarget(e)
+	return c:IsSetCard(0xbb) and c:IsType(TYPE_MONSTER) and c:IsCanBeEffectTarget(e) and c:IsFaceup()
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
