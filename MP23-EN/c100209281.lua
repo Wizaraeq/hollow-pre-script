@@ -1,6 +1,6 @@
+--聖騎士と聖剣の巨城
 --Camelot, Realm of Noble Knights and Noble Arms
 --coded by Lyris
---Camelot, Realm of Noble Knights and Noble Arms
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
@@ -37,10 +37,10 @@ function s.dfilter(c,e)
 	return c:GetEquipTarget() and c:IsDestructable(e) and not c:IsStatus(STATUS_DESTROY_CONFIRMED)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.dfilter,tp,LOCATION_SZONE,0,nil,e)
 	if chk==0 then return eg:IsExists(s.filter,1,nil,tp)
 		and #g>0 end
+	local c=e:GetHandler()
 	if Duel.SelectEffectYesNo(tp,c,96) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
 		local tc=g:Select(tp,1,1,nil):GetFirst()
@@ -62,7 +62,8 @@ function s.pfilter(c,tp)
 end
 function s.rptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:IsAbleToRemove() and Duel.IsExistingMatchingCard(s.pfilter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,nil,tp) end
+	if chk==0 then return c:IsAbleToRemove()
+		and Duel.IsExistingMatchingCard(s.pfilter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,nil,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,c,1,0,0)
 end
 function s.sfilter(c,e,tp)
@@ -78,9 +79,8 @@ function s.rpop(e,tp,eg,ep,ev,re,r,rp)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_PHASE+PHASE_STANDBY)
+	e1:SetReset(RESET_PHASE+PHASE_STANDBY,2)
 	e1:SetCountLimit(1)
-	e1:SetLabel(Duel.GetTurnCount())
-	e1:SetLabelObject(c)
 	e1:SetCondition(s.retcon)
 	e1:SetOperation(s.retop)
 	Duel.RegisterEffect(e1,tp)
@@ -100,7 +100,7 @@ function s.rpop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.retcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnCount()>e:GetLabel()
+	return e:GetOwner():GetFlagEffect(id)>0
 end
 function s.retop(e,tp,eg,ep,ev,re,r,rp)
 	local fc=Duel.GetFieldCard(tp,LOCATION_FZONE,0)
@@ -108,6 +108,6 @@ function s.retop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SendtoGrave(fc,REASON_RULE)
 		Duel.BreakEffect()
 	end
-	Duel.MoveToField(e:GetHandler(),tp,tp,LOCATION_FZONE,POS_FACEUP,true)
+	Duel.MoveToField(e:GetOwner(),tp,tp,LOCATION_FZONE,POS_FACEUP,true)
 	e:Reset()
 end

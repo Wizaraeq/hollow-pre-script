@@ -1,9 +1,8 @@
 --マジェスペクター・ポーキュパイン
---coded by Lyris
 --Majespecter Porcupine - Yamaarashi
-local s, id, o = GetID()
+--coded by Lyris
+local s,id,o=GetID()
 function s.initial_effect(c)
-	--pendulum summon
 	aux.EnablePendulumAttribute(c)
 	--cannot target
 	local e1=Effect.CreateEffect(c)
@@ -73,5 +72,5 @@ function s.sstg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.ssop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToChain() then Duel.SSet(tp,tc) end
+	if tc and tc:IsRelateToChain() then Duel.SSet(tp,tc) end
 end

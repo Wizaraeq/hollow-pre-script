@@ -1,91 +1,92 @@
 --粛声なる威光
-function c101203076.initial_effect(c)
+--Script by kiritosoft
+local s,id,o=GetID()
+function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(0,TIMING_STANDBY_PHASE)
 	c:RegisterEffect(e1)
-	--Activate 1 of these effects
+	--add or special summon
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(101203076,0))
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_TODECK)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_SZONE)
-	e2:SetHintTiming(0,TIMING_MAIN_END+TIMINGS_CHECK_MONSTER)
-	e2:SetCountLimit(1,101203076)
-	e2:SetCondition(c101203076.effcon)
-	e2:SetTarget(c101203076.efftg)
-	e2:SetOperation(c101203076.effop)
+	e2:SetCountLimit(1,id)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
+	e2:SetCondition(s.condition)
+	e2:SetTarget(s.sptg2)
+	e2:SetOperation(s.spop2)
 	c:RegisterEffect(e2)
+	--destroy
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_DESTROY)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetRange(LOCATION_SZONE)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e3:SetRange(LOCATION_SZONE)
+	e3:SetCountLimit(1,id)
+	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
+	e3:SetCondition(s.condition)
+	e3:SetTarget(s.destg)
+	e3:SetOperation(s.desop)
+	c:RegisterEffect(e3)
 end
-function c101203076.effcon(e,tp,eg,ep,ev,re,r,rp)
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2
 end
-function c101203076.tdfilter(c)
-	return c:IsAbleToDeck() and (c:GetType()==TYPE_SPELL+TYPE_RITUAL or
-		(c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_WARRIOR+RACE_DRAGON) and bit.band(c:GetType(),0x81)==0x81))
-end
-function c101203076.filter(c,e,tp,ft)
+function s.dfilter(c,e,tp,ft)
 	return c:IsSetCard(0x2a6) and c:IsType(TYPE_MONSTER) and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)))
 end
-function c101203076.cfilter(c)
-	return c:IsFaceup() and c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_WARRIOR+RACE_DRAGON) and bit.band(c:GetType(),0x81)==0x81
+function s.tdfilter(c)
+	return c:IsAbleToDeck() and c:IsType(TYPE_RITUAL) and ((c:IsRace(RACE_WARRIOR+RACE_DRAGON) and c:IsType(TYPE_MONSTER) and c:IsAttribute(ATTRIBUTE_LIGHT)) or c:IsType(TYPE_SPELL))
 end
-function c101203076.efftg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
-	local b1=Duel.IsExistingMatchingCard(c101203076.tdfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil)
-		and Duel.IsExistingMatchingCard(c101203076.filter,tp,LOCATION_DECK,0,1,nil,e,tp,Duel.GetLocationCount(tp,LOCATION_MZONE))
-	local c=e:GetHandler()
-	local ct=Duel.GetMatchingGroupCount(c101203076.cfilter,tp,LOCATION_MZONE,0,nil)
-	local b2=ct>0 and Duel.IsExistingTarget(nil,tp,0,LOCATION_ONFIELD,1,nil) and c:IsStatus(STATUS_EFFECT_ENABLED)
-	if chk==0 then return b1 or b2 end
-		op=aux.SelectFromOptions(tp,
-			{b1,aux.Stringid(101203076,1)},
-			{b2,aux.Stringid(101203076,2)})
-	e:SetLabel(op)
-	if op==1 then
-		e:SetCategory(CATEGORY_TODECK+CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON)
-		e:SetProperty(0)
-		Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE)
-	elseif op==2 then
-		e:SetCategory(CATEGORY_DESTROY)
-		e:SetProperty(EFFECT_FLAG_CARD_TARGET)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectTarget(tp,nil,tp,0,LOCATION_ONFIELD,1,ct,nil)
-		g:AddCard(c)
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,#g,tp,0)
-	end
+function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.dfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ft)
+		and Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,nil) end
 end
-function c101203076.effop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetLabel()==1 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-		local tdg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c101203076.tdfilter),tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil)
-		if #tdg==0 then return end
-		Duel.HintSelection(tdg)
-		if Duel.SendtoDeck(tdg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 then
-			local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_OPERATECARD)
-			local sc=Duel.SelectMatchingCard(tp,c101203076.filter,tp,LOCATION_DECK,0,1,1,nil,e,tp,ft):GetFirst()
-			if sc then
-				if sc:IsAbleToHand() and (not sc:IsCanBeSpecialSummoned(e,0,tp,false,false) or ft<=0 or Duel.SelectOption(tp,1190,1152)==0) then
-					Duel.SendtoHand(sc,nil,REASON_EFFECT)
-					Duel.ConfirmCards(1-tp,sc)
-				else
-					Duel.SpecialSummon(sc,0,tp,tp,false,false,POS_FACEUP)
-				end
+function s.spop2(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g1=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil)
+	local tc1=g1:GetFirst()
+	if tc1 and Duel.SendtoDeck(tc1,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 then
+		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_OPERATECARD)
+		local g=Duel.SelectMatchingCard(tp,s.dfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,ft)
+		local tc=g:GetFirst()
+		if tc then
+			if ft>0 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false)
+				and (not tc:IsAbleToHand() or Duel.SelectOption(tp,1190,1152)==1) then
+				Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+			else
+				Duel.SendtoHand(tc,nil,REASON_EFFECT)
+				Duel.ConfirmCards(1-tp,tc)
 			end
 		end
-	elseif e:GetLabel()==2 then
-		--Destroy both the targets and this card
-		local c=e:GetHandler()
-		if not c:IsRelateToEffect(e) then return end
-		local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-		local g=tg:Filter(Card.IsRelateToEffect,nil,e)
-		if #g==0 then return end
-		g:AddCard(c)
-		if #g>0 then
-			Duel.Destroy(g,REASON_EFFECT)
-		end
+	end
+end
+function s.desfilters(c)
+	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and c:IsType(TYPE_RITUAL) and c:IsRace(RACE_WARRIOR+RACE_DRAGON) and c:IsAttribute(ATTRIBUTE_LIGHT)
+end
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.desfilters,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
+	local ct=Duel.GetMatchingGroupCount(s.desfilters,tp,LOCATION_MZONE,0,e:GetHandler())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,ct,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	local g=tg:Filter(Card.IsRelateToEffect,nil,e)
+	if g:GetCount()>0 then
+		g:AddCard(e:GetHandler())
+		Duel.Destroy(g,REASON_EFFECT)
 	end
 end

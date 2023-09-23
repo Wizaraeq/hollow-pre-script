@@ -21,7 +21,7 @@ function s.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_RECOVER)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e2:SetType(EFFECT_TYPE_QUICK_F)
 	e2:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1)
@@ -95,6 +95,6 @@ end
 function s.spfgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		 Duel.SpecialSummon(c,0,tp,1-tp,false,false,POS_FACEUP)
+		Duel.SpecialSummon(c,0,tp,1-tp,false,false,POS_FACEUP)
 	end
 end

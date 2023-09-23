@@ -1,7 +1,7 @@
+--クロノダイバー・パワーリザーブ
 --Time Thief Power Reserve
 --coded by Lyris
---Time Thief Power Reserve
-local s, id, o = GetID()
+local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -9,7 +9,6 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DECKDES+CATEGORY_GRAVE_SPSUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
 	e1:SetCountLimit(1,id)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
@@ -21,7 +20,6 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_GRAVE)
-	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER)
 	e2:SetCountLimit(1,id+o)
 	e2:SetCondition(s.rmcon)
 	e2:SetCost(aux.bfgcost)
@@ -52,7 +50,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.cfilter(c)
-	return c:IsFaceup() and c:IsType(TYPE_XYZ) and c:GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_SPELL) and c:GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_TRAP)
+	return c:IsFaceup() and c:IsType(TYPE_XYZ)
+		and c:GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_SPELL)
+		and c:GetOverlayGroup():IsExists(Card.IsType,1,nil,TYPE_TRAP)
 end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
@@ -65,7 +65,5 @@ end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-	if #g>0 then
-		Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-	end
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 end

@@ -14,7 +14,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	--to hand
+	--spsummon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
@@ -28,6 +28,7 @@ function s.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
+	--to grave
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
@@ -48,7 +49,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function s.cfilter(c,tp)
-	return c:GetOriginalAttribute()==ATTRIBUTE_FIRE and (c:IsReason(REASON_BATTLE) or c:IsReason(REASON_EFFECT)) and c:IsPreviousControler(tp)
+	return c:IsPreviousControler(tp) and not c:IsPreviousLocation(LOCATION_SZONE) and c:GetOriginalAttribute()==ATTRIBUTE_FIRE
+		and c:IsReason(REASON_BATTLE+REASON_EFFECT)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp)
@@ -64,7 +66,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
-function s.thfilter(c,e,tp)
+function s.thfilter(c)
 	return c:IsSetCard(0x81) and c:IsAbleToHand() and c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -74,7 +76,7 @@ end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-	if g~=0 then
+	if #g~=0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
 	end

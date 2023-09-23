@@ -1,4 +1,5 @@
 --白の輪廻
+--Script by Lee
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--activate
@@ -33,9 +34,8 @@ function s.initial_effect(c)
 	e3:SetOperation(s.desop)
 	c:RegisterEffect(e3)
 end
-s.self_tuner=true
 function s.filter(c)
-	return c:IsRace(RACE_FISH) and c:IsType(TYPE_MONSTER) and c.self_tuner and c:IsAbleToHand() 
+	return c:IsRace(RACE_FISH) and c:IsType(TYPE_MONSTER) and c.treat_itself_tuner and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end
@@ -43,7 +43,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK,0,nil)
-	if g:GetCount()>0  then
+	if g:GetCount()>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local sg=g:Select(tp,1,1,nil)
 		Duel.SendtoHand(sg,nil,REASON_EFFECT)
@@ -52,15 +52,15 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetAttacker()
-	return tc:IsControler(tp) and tc:IsSetCard(0x2a7) and tc:IsChainAttackable()
+	return tc:IsControler(tp) and tc:IsSetCard(0x2a7) and tc:IsRelateToBattle()
+		and tc:IsChainAttackable()
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetAttacker()
-	if not tc:IsRelateToBattle() then return end
 	Duel.ChainAttack()
 end
 function s.cfilter(c,tp)
-	return c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_GRAVE) and c:GetOriginalType()&TYPE_SYNCHRO~=0 and c:IsRace(RACE_FISH) and c:IsLevelAbove(8)
+	return c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_GRAVE)
+		and c:IsType(TYPE_SYNCHRO) and c:IsRace(RACE_FISH) and c:IsLevelAbove(8)
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp)
