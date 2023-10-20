@@ -45,15 +45,28 @@ function c100211052.attrop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetValue(attr)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
 	c:RegisterEffect(e1)
-	if tn_chk==0 then return end
+	if tn_chk>0 and not c:IsType(TYPE_TUNER) and Duel.SelectYesNo(tp,aux.Stringid(100211052,2)) then
 	Duel.BreakEffect()
-	--Can be treated as a Tuner this turn
+	--non tuner
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
 	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e2:SetCode(30765615)
+	e2:SetCode(EFFECT_ADD_TYPE)
 	e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	e2:SetValue(TYPE_TUNER)
 	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCode(EFFECT_NONTUNER)
+	e3:SetValue(c100211052.tnval)
+	e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	c:RegisterEffect(e3)
+	end
+end
+function c100211052.tnval(e,c)
+	return e:GetHandler():IsControler(c:GetControler())
 end
 function c100211052.thcfilter(c)
 	return c:IsSetCard(0x2) and c:IsType(TYPE_SYNCHRO) and c:IsFaceup()
