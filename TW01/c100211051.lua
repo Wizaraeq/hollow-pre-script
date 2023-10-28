@@ -82,25 +82,34 @@ function s.smop(e,tp,eg,ep,ev,re,r,rp)
 	e0:SetTarget(s.splimit)
 	e0:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e0,tp)
+	--splimit2
+	local e1=e0:Clone()
+	e1:SetTarget(s.splimit1)
+	Duel.RegisterEffect(e1,tp)
 	--synchro level
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
 	e3:SetCode(EFFECT_SYNCHRO_MATERIAL_CUSTOM)
+	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
 	e3:SetTarget(s.syntg)
 	e3:SetValue(1)
 	e3:SetOperation(s.synop)
 	local e31=Effect.CreateEffect(c)
 	e31:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+	e31:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
 	e31:SetReset(RESET_PHASE+PHASE_END)
 	e31:SetTargetRange(LOCATION_MZONE,0)
 	e31:SetLabelObject(e3)
 	Duel.RegisterEffect(e31,tp)
 end
 function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
-	return se:IsHasType(EFFECT_TYPE_ACTIONS) and c:IsLocation(LOCATION_EXTRA) and bit.band(sumtype,SUMMON_TYPE_SYNCHRO)~=SUMMON_TYPE_SYNCHRO
+	return c:IsLocation(LOCATION_EXTRA) and bit.band(sumtype,SUMMON_TYPE_SYNCHRO)~=SUMMON_TYPE_SYNCHRO
 end
-function s.smcfilter(c)
-	return c:IsSetCard(0x2) and c:IsType(TYPE_TUNER)
+function s.splimit1(e,c,sump,sumtype,sumpos,targetp,se)
+	return se:IsHasType(EFFECT_TYPE_ACTIONS) and c:IsLocation(LOCATION_EXTRA)
+end
+function s.smcfilter(c,sc)
+	return c:IsSetCard(0x2) and c:IsTuner(sc)
 end
 function s.synfilter(c,syncard,tuner,f)
 	return c:IsFaceupEx() and c:IsCanBeSynchroMaterial(syncard,tuner) and (f==nil or f(c,syncard))
@@ -117,7 +126,7 @@ function s.syngoal(g,tp,lv,syncard,minc,ct)
 	return ct>=minc and Duel.GetLocationCountFromEx(tp,tp,g,syncard)>0
 		and g:CheckWithSumEqual(Card.GetSynchroLevel,lv,ct,ct,syncard)
 		and aux.MustMaterialCheck(g,tp,EFFECT_MUST_BE_SMATERIAL)
-		and g:IsExists(s.smcfilter,1,nil)
+		and g:IsExists(s.smcfilter,1,nil,syncard)
 end
 function s.syntg(e,syncard,f,min,max)
 	local minc=min+1
@@ -150,4 +159,4 @@ function s.synop(e,tp,eg,ep,ev,re,r,rp,syncard,f,min,max)
 		g:Merge(sg)
 	end
 	Duel.SetSynchroMaterial(g)
-end 
+end

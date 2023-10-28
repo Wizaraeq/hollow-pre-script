@@ -2,6 +2,7 @@
 --scripted by REIKAI
 local s,id,o=GetID()
 function s.initial_effect(c)
+	aux.AddCodeList(c,101203019,101203066)
 	c:EnableReviveLimit()
 	--search
 	local e1=Effect.CreateEffect(c)
