@@ -88,12 +88,12 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g2,1,0,0)
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local ex1,tg1=Duel.GetOperationInfo(0,CATEGORY_REMOVE)
 	local ex2,tg2=Duel.GetOperationInfo(0,CATEGORY_SPECIAL_SUMMON)
-	if tg1:GetFirst():IsRelateToEffect(e) and Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT)~=0 then
-		Duel.Remove(tg1,POS_FACEUP,REASON_EFFECT)
-	end
-	if tg2:GetFirst():IsRelateToEffect(e) and tg2:GetFirst():IsRace(RACE_FISH) then
+	local rc=tg1:GetFirst()
+	tg1:AddCard(c)
+	if rc:IsRelateToEffect(e) and c:IsRelateToEffect(e) and Duel.Remove(tg1,POS_FACEUP,REASON_EFFECT)==2 and tg2:GetFirst():IsRelateToEffect(e) then
 		Duel.SpecialSummon(tg2,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

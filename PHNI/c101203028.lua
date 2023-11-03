@@ -15,7 +15,6 @@ function s.initial_effect(c)
 	--Reduce the Levels of all other monsters by 1
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_LVCHANGE)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,id+o)
@@ -60,7 +59,6 @@ end
 function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.lvfilter,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler())
 	if chk==0 then return #g>0 end
-	Duel.SetOperationInfo(0,CATEGORY_LVCHANGE,g,#g,tp,0)
 end
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

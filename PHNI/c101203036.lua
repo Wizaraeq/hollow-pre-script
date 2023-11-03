@@ -28,7 +28,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local res=Duel.TossDice(tp,1)
 	local c=e:GetHandler()
 	if chlnk==2 and c:IsFaceup() and c:IsRelateToEffect(e) then
-		e1=Effect.CreateEffect(c)
+		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(res*500)

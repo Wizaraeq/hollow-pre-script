@@ -20,7 +20,7 @@ end
 function s.filter1(c,e,tp)
 	return c:GetRank()>0 and c:IsFaceup() and c:IsSetCard(0xba) and c:IsCanBeEffectTarget(e)
 end
-function s.filter2(c,e,tp,mg)   
+function s.filter2(c,e,tp,mg)
 	return c:IsRank(mg:GetSum(Card.GetRank)) and c:IsSetCard(0xba) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
 function s.fselect(g,tp,e)
@@ -29,7 +29,7 @@ end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local rg=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,e)
-	if chk==0 then return rg:CheckSubGroup(s.fselect,2,99,tp,e) end
+	if chk==0 then return rg:CheckSubGroup(s.fselect,2,99,tp,e) and aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local sg=rg:SelectSubGroup(tp,s.fselect,false,2,99,tp,e)
 	Duel.SetTargetCard(sg)
@@ -39,6 +39,7 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tg=Duel.GetTargetsRelateToChain()
+	if not aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL) then return end
 	if tg:GetCount()<2 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tg)
@@ -51,5 +52,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			end
 			Duel.Overlay(sc,Group.FromCards(tc))
 		end
+		sc:CompleteProcedure()
 	end
 end

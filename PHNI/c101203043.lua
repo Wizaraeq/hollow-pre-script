@@ -62,7 +62,7 @@ function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 	local ct,nlv=e:GetLabel()
 	if c:IsRelateToEffect(e) and c:IsFaceup() then
 		--Gains ATK equal to the level of the non-tuners used x 300
-		e1=Effect.CreateEffect(c)
+		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
 		e1:SetValue(nlv*300)

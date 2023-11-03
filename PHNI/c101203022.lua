@@ -1,4 +1,4 @@
---アロマリリスーロザリーナ
+--アロマリリス－ロザリーナ
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--recover 
@@ -40,12 +40,13 @@ function s.retg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and chkc:IsFaceup() end
 	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,rec)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
+	local tc=g:GetFirst()
+	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,math.ceil(tc:GetAttack()/2))
 end
 function s.recop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetFirstTarget()
-	local rec=(math.ceil(g:GetAttack()/2))
+	local rec=math.ceil(g:GetAttack()/2)
 	if g:IsFaceup() and g:IsRelateToEffect(e) then
 	Duel.Recover(tp,rec,REASON_EFFECT) end
 end
