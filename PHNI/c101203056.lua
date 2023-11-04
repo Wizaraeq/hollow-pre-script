@@ -17,21 +17,26 @@ end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2 or Duel.GetTurnPlayer()~=tp and Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE
 end
-function s.filter1(c,e,tp)
+function s.filter1(c,e)
 	return c:GetRank()>0 and c:IsFaceup() and c:IsSetCard(0xba) and c:IsCanBeEffectTarget(e)
 end
-function s.filter2(c,e,tp,mg)
-	return c:IsRank(mg:GetSum(Card.GetRank)) and c:IsSetCard(0xba) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
+function s.filter2(c,e,tp,rk)
+	return c:IsRank(rk) and c:IsSetCard(0xba) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
-function s.fselect(g,tp,e)
-	return g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE) and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,g)
+function s.fselect(g,e,tp)
+	local rk=g:GetSum(Card.GetRank)
+	return g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE) and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,rk)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local rg=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,e)
-	if chk==0 then return rg:CheckSubGroup(s.fselect,2,99,tp,e) and aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL) end
+	if chkc then return false end
+	if chk==0 then
+		local res=rg:CheckSubGroup(s.fselect,2,#rg,e,tp)
+		return res and aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL)
+	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local sg=rg:SelectSubGroup(tp,s.fselect,false,2,99,tp,e)
+	local sg=rg:SelectSubGroup(tp,s.fselect,false,2,#rg,e,tp)
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,sg:Filter(Card.IsLocation,nil,LOCATION_GRAVE),1,0,0)
@@ -42,7 +47,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if not aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_XMATERIAL) then return end
 	if tg:GetCount()<2 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sg=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tg)
+	local sg=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tg:GetSum(Card.GetRank))
 	local sc=sg:GetFirst()
 	if sc and Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)~=0 then
 		for tc in aux.Next(tg) do
