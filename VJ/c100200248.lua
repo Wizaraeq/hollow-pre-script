@@ -39,7 +39,7 @@ function s.lcheck(g,lc)
 	return g:IsExists(Card.IsLinkType,1,nil,TYPE_LINK)
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return ep==1-tp and Duel.GetCurrentChain(true)>=2
+	return ep==1-tp and Duel.GetCurrentChain()>=2
 		and Duel.IsChainDisablable(ev) and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
 end
 function s.costfilter(c)
@@ -62,7 +62,7 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 		local g=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_ONFIELD,1,1,nil)
 		if #g>0 then
-			Duel.HintSelection(g,true)
+			Duel.HintSelection(g)
 			Duel.BreakEffect()
 			Duel.Destroy(g,REASON_EFFECT)
 		end
