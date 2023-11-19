@@ -47,9 +47,12 @@ function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return #g>0 end
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
+function s.desfilter(c)
+	return c:IsSetCard(0xba) and c:IsType(TYPE_XYZ)
+end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_ONFIELD,nil)
-	if Duel.Destroy(g,REASON_EFFECT)>0 and e:GetHandler():GetOverlayGroup():Filter(Card.IsType,nil,TYPE_XYZ):GetClassCount(Card.GetCode)>=3 then
+	if Duel.Destroy(g,REASON_EFFECT)>0 and e:GetHandler():GetOverlayGroup():Filter(s.desfilter,nil):GetClassCount(Card.GetCode)>=3 then
 		local dg=Duel.GetOperatedGroup():Filter(Card.IsType,nil,TYPE_MONSTER)
 		local atk=0
 		for c in aux.Next(dg) do

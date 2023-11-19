@@ -60,7 +60,7 @@ function s.syntg(e,syncard,f,min,max)
 	local c=e:GetHandler()
 	local tp=syncard:GetControler()
 	local lv=syncard:GetLevel()
-	if lv<=c:GetLevel() and lv<=s.cardiansynlevel(c) then return false end
+	if lv<=c:GetLevel() and lv<=s.cardiansynlevel(c,syncard) then return false end
 	local g=Group.FromCards(c)
 	local mg=Duel.GetSynchroMaterial(tp):Filter(s.synfilter,c,syncard,c,f)
 	return mg:IsExists(s.syncheck,1,g,g,mg,tp,lv,syncard,minc,maxc)
@@ -97,7 +97,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,0,tp,LOCATION_HAND+ LOCATION_EXTRA)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,0,tp,LOCATION_HAND+LOCATION_EXTRA)
 end
 function s.syncfilter(c,tp)
 	return c:IsSetCard(0x2) and c:IsType(TYPE_SYNCHRO) and c:IsSynchroSummonable(nil)

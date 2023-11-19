@@ -74,7 +74,7 @@ function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	return bc and bc:IsStatus(STATUS_BATTLE_DESTROYED)
 end
 function s.spfilter(c,e,tp)
-	if not (c:IsSetCard(0x20f8) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)) then return false end
+	if not (c:IsSetCard(0x20f8) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)) then return false end
 	if c:IsLocation(LOCATION_EXTRA) then
 		return Duel.GetLocationCountFromEx(tp,tp,g,c)>0
 	else
@@ -118,7 +118,7 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	if sg:GetCount()==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local rg=sg:SelectSubGroup(tp,s.gcheck,false,1,2,ft1,ft2,ft3,ect,ft)
-	Duel.SpecialSummon(rg,0,tp,tp,false,false,POS_FACEUP)
+	Duel.SpecialSummon(rg,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 end
 function s.spcon3(e,tp,eg,ep,ev,re,r,rp)
 	return ep~=tp

@@ -29,6 +29,52 @@ function s.initial_effect(c)
 	e2:SetOperation(s.smop)
 	c:RegisterEffect(e2)
 end
+function Auxiliary.smcfilter(c)
+	return c:IsSetCard(0x2) and c:IsType(TYPE_TUNER)
+end
+function Auxiliary.SynMixCheckGoal(tp,sg,minc,ct,syncard,sg1,smat,gc,mgchk)
+	if ct<minc then return false end
+	local g=sg:Clone()
+	g:Merge(sg1)
+	if Duel.GetLocationCountFromEx(tp,tp,g,syncard)<=0 then return false end
+	if gc and not gc(g) then return false end
+	if smat and not g:IsContains(smat) then return false end
+	if not Auxiliary.MustMaterialCheck(g,tp,EFFECT_MUST_BE_SMATERIAL) then return false end
+	if Duel.IsPlayerAffectedByEffect(tp,100211051) then 
+		if not g:IsExists(Auxiliary.smcfilter,1,nil) then return false end
+	end
+	if not g:CheckWithSumEqual(Card.GetSynchroLevel,syncard:GetLevel(),g:GetCount(),g:GetCount(),syncard)
+		and (not g:IsExists(Card.IsHasEffect,1,nil,89818984)
+		or not g:CheckWithSumEqual(Auxiliary.GetSynchroLevelFlowerCardian,syncard:GetLevel(),g:GetCount(),g:GetCount(),syncard))
+		then return false end
+	local hg=g:Filter(Auxiliary.SynMixHandFilter,nil,tp,syncard)
+	local hct=hg:GetCount()
+	if hct>0 and not mgchk then
+		local found=false
+		for c in Auxiliary.Next(g) do
+			local he,hf,hmin,hmax=c:GetHandSynchro()
+			if he then
+				found=true
+				if hf and hg:IsExists(Auxiliary.SynLimitFilter,1,c,hf,he,syncard) then return false end
+				if (hmin and hct<hmin) or (hmax and hct>hmax) then return false end
+			end
+		end
+		if not found then return false end
+	end
+	for c in Auxiliary.Next(g) do
+		local le,lf,lloc,lmin,lmax=c:GetTunerLimit()
+		if le then
+			local lct=g:GetCount()-1
+			if lloc then
+				local llct=g:FilterCount(Card.IsLocation,c,lloc)
+				if llct~=lct then return false end
+			end
+			if lf and g:IsExists(Auxiliary.SynLimitFilter,1,c,lf,le,syncard) then return false end
+			if (lmin and lct<lmin) or (lmax and lct>lmax) then return false end
+		end
+	end
+	return true
+end
 function s.mfilter(c)
 	return c:IsLevelBelow(4) and c:IsSetCard(0x2)
 end
@@ -94,6 +140,14 @@ function s.smop(e,tp,eg,ep,ev,re,r,rp)
 	e3:SetTarget(s.syntg)
 	e3:SetValue(1)
 	e3:SetOperation(s.synop)
+	--splimit
+	local e21=Effect.CreateEffect(c)
+	e21:SetType(EFFECT_TYPE_FIELD)
+	e21:SetCode(100211051)
+	e21:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e21:SetTargetRange(1,0)
+	e21:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e21,tp)
 	local e31=Effect.CreateEffect(c)
 	e31:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
 	e31:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
