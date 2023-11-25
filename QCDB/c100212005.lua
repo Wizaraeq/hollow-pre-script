@@ -64,9 +64,6 @@ function s.spop1(e,tp,eg,ep,ev,re,r,rp)
 	if not c:IsRelateToEffect(e) then return end
 	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 end
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(SET_SUPREME_KING_DRAGON) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
-end
 function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsStatus(STATUS_BATTLE_DESTROYED) then return false end
@@ -76,9 +73,9 @@ end
 function s.spfilter(c,e,tp)
 	if not (c:IsSetCard(0x20f8) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)) then return false end
 	if c:IsLocation(LOCATION_EXTRA) then
-		return Duel.GetLocationCountFromEx(tp,tp,g,c)>0
+		return Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 	else
-		return Duel.GetMZoneCount(tp,g)>0
+		return Duel.GetMZoneCount(tp,nil)>0
 	end
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
