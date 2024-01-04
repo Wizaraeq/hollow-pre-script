@@ -36,9 +36,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local chkf=tp
 		local mg1=Duel.GetFusionMaterial(tp)
-		if Duel.GetFieldGroupCount(tp,LOCATION_PZONE,0)>=2 then
-			mg1:Merge(Duel.GetMatchingGroup(s.filter0,tp,LOCATION_PZONE,0,nil,e))
-		end
+		mg1:Merge(Duel.GetMatchingGroup(s.filter0,tp,LOCATION_PZONE,0,nil,e))
 		local res=Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
 		if not res then
 			local ce=Duel.GetChainMaterial(tp)
@@ -56,9 +54,7 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
 	local mg1=Duel.GetFusionMaterial(tp)
-	if Duel.GetFieldGroupCount(tp,LOCATION_PZONE,0)>=2 then
-		mg1:Merge(Duel.GetMatchingGroup(s.filter0,tp,LOCATION_PZONE,0,nil,e))
-	end
+	mg1:Merge(Duel.GetMatchingGroup(s.filter0,tp,LOCATION_PZONE,0,nil,e))
 	local sg1=Duel.GetMatchingGroup(s.filter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,chkf)
 	local mg2=nil
 	local sg2=nil

@@ -54,7 +54,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 --spe
 function s.costfilter(c)
-	return c:IsRace(RACE_FISH) and c:IsAbleToRemoveAsCost() and c:IsFaceupEx() and not c:IsCode(id)
+	return c:IsRace(RACE_FISH) and c:IsAbleToRemoveAsCost() and c:IsFaceupEx() and Duel.GetMZoneCount(tp,c)>0 and not c:IsCode(id)
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_GRAVE,0,1,nil) end
