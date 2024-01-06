@@ -35,6 +35,9 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_MZONE,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_MZONE)
 end
+function s.tdfilter(c)
+	return c:IsFaceup() and c:IsAbleToHand()
+end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.rmfilter,tp,LOCATION_MZONE,0,nil)
 	if g:GetCount()==0 then return end
@@ -58,7 +61,7 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetOperation(s.retop)
 	Duel.RegisterEffect(e1,tp)
 	local ct=#og
-	local thg=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_ONFIELD,nil)
+	local thg=Duel.GetMatchingGroup(s.tdfilter,tp,0,LOCATION_ONFIELD,nil)
 	if ct*#thg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
