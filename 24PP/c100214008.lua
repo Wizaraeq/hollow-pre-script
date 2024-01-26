@@ -20,7 +20,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCountLimit(1,id+o)
-	e2:SetTarget(s.damtg)
+	e2:SetCondition(s.damcon)
 	e2:SetOperation(s.damop)
 	c:RegisterEffect(e2)
 	--to grave
@@ -58,13 +58,10 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.afilter(c)
-  return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsFaceup()
+	return c:IsAttribute(ATTRIBUTE_FIRE) and c:IsFaceup()
 end
-function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.afilter,tp,LOCATION_MZONE,0,1,nil) end
-	local g=Duel.GetMatchingGroup(s.afilter,tp,LOCATION_MZONE,0,nil)
-	local dam=g:GetClassCount(Card.GetCode)*400
-	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,dam)
+function s.damcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsExistingMatchingCard(s.afilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.afilter,tp,LOCATION_MZONE,0,nil)

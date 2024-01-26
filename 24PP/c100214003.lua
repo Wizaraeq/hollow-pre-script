@@ -28,6 +28,7 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e4:SetCountLimit(1)
 	e4:SetRange(LOCATION_SZONE)
+	e4:SetCondition(s.dmcon)
 	e4:SetCost(s.dmcost)
 	e4:SetTarget(s.dmtg)
 	e4:SetOperation(s.dmop)
@@ -63,6 +64,9 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Destroy(sg,REASON_EFFECT)
 	end
 end
+function s.dmcon(e,tp,eg,ep,ev,re,r,rp)
+	return tp~=Duel.GetTurnPlayer()
+end
 function s.cfilter(c,tp)
 	return c:IsFacedown() and c:IsAbleToGraveAsCost()
 end
@@ -73,10 +77,9 @@ function s.dmcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_ONFIELD,0,1,1,c,tp)
 	Duel.SendtoGrave(g,REASON_COST)
 end
-function s.dmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+function s.dmtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ac=Duel.GetAttacker()
-	if chkc then return chkc==ac end
-	if chk==0 then return ac:IsOnField() and ac:IsControler(1-tp) end
+	if chk==0 then return ac:IsOnField() end
 	Duel.SetTargetCard(ac)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,ac,1,0,0)
 end

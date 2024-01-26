@@ -1,4 +1,5 @@
 --百鬼羅刹 巨魁ガボンガ
+--lua by Gim J.Blocks
 function c101203047.initial_effect(c)
 	Duel.EnableGlobalFlag(GLOBALFLAG_DETACH_EVENT)
 	--xyz summon

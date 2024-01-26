@@ -50,7 +50,7 @@ function s.filter1(c,e)
 	return c:IsAbleToRemove() and not c:IsImmuneToEffect(e)
 end
 function s.exfilter0(c)
-	return c:IsRace(RACE_PLANT) and c:IsCanBeFusionMaterial() and c:IsAbleToRemove()
+	return  c:IsRace(RACE_PLANT) and c:IsCanBeFusionMaterial() and c:IsAbleToRemove()
 end
 function s.exfilter1(c,e)
 	return c:IsRace(RACE_PLANT) and c:IsCanBeFusionMaterial() and c:IsAbleToRemove() and not c:IsImmuneToEffect(e)
@@ -136,7 +136,9 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 			aux.FCheckAdditional=nil
 			aux.GCheckAdditional=nil
 			tc:SetMaterial(mat1)
-			Duel.Remove(mat1,POS_FACEUP,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+			local rg=mat1:Filter(Card.IsLocation,nil,LOCATION_GRAVE)
+			mat1:Sub(rg)
+			Duel.Remove(mat1+rg,POS_FACEUP,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 			Duel.BreakEffect()
 			Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
 		else

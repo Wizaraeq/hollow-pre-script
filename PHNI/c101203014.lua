@@ -36,7 +36,7 @@ end
 function s.spfilter(c,e,tp)
 	local atk=c:GetTextAttack()
 	local def=c:GetTextDefense()
-	return atk>=0 and def>=0 and atk==def and c:IsLevel(10) and c:IsRace(RACE_FIEND+RACE_PYRO+RACE_THUNDER) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
+	return atk>=0 and def>=0 and atk==def and c:IsRace(RACE_FIEND+RACE_PYRO+RACE_THUNDER) and c:IsLevel(10) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end
@@ -45,7 +45,7 @@ end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil)
-	if g:GetCount()>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then	  
+	if g:GetCount()>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then
 		Duel.ConfirmCards(1-tp,g)
 		if Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_HAND,0,1,nil) and Duel.GetMZoneCount(tp)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 			local sc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp):GetFirst()

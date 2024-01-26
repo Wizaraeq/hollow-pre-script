@@ -1,5 +1,5 @@
 --幾星霜
---lua by zengsxing
+--Scripted by zengsxing
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate

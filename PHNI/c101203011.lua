@@ -1,4 +1,5 @@
 --百鬼羅刹 冷血ミアンダ
+--lua by Gim J.Blocks
 function c101203011.initial_effect(c)
 	--spcial summon
 	local e1=Effect.CreateEffect(c)

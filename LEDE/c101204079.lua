@@ -53,12 +53,17 @@ function s.atklimit(e,c)
 end
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetSummonType()==SUMMON_TYPE_SPECIAL+SUMMON_VALUE_SELF and c:IsReason(REASON_BATTLE) and c:IsPreviousControler(tp) and c==Duel.GetAttackTarget() and Duel.GetAttacker():IsControler(1-tp)
+	return c:GetSummonType()==SUMMON_TYPE_SPECIAL+SUMMON_VALUE_SELF and c:IsReason(REASON_BATTLE) and c:IsPreviousControler(tp) and c==Duel.GetAttackTarget() and ((Duel.GetAttacker():IsControler(1-tp) and c:IsLocation(LOCATION_ONFIELD)) or Duel.GetAttacker():IsPreviousControler(1-tp))
 end
 function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	local bc=e:GetHandler():GetBattleTarget()
-	local dam=bc:GetBaseAttack()
+	local dam=0
+	if  bc:IsLocation(LOCATION_MZONE) then
+		dam=bc:GetBaseAttack()
+	else
+		dam=bc:GetTextAttack()
+	end
 	if dam<0 then dam=0 end
 	dam=math.min(3000,dam*2)
 	Duel.SetTargetPlayer(1-tp)

@@ -1,4 +1,5 @@
 --百鬼羅刹 神速ブーン
+--lua by Gim J.Blocks
 function c101203010.initial_effect(c)
 	--special summon
 	local e1=Effect.CreateEffect(c)

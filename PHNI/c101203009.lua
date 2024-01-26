@@ -1,4 +1,5 @@
 --百鬼羅刹 爆音クラッタ
+--lua by Gim J.Blocks
 function c101203009.initial_effect(c)
 	--special summon
 	local e1=Effect.CreateEffect(c)

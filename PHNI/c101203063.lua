@@ -1,4 +1,5 @@
 --ダーク・エレメント
+-- By 八宫一月
 local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.AddCodeList(c,25955164,62340868,98434877)

@@ -4,11 +4,12 @@ local s, id, o = GetID()
 function s.initial_effect(c)
 	aux.EnablePendulumAttribute(c)
 	--to extra
+	aux.RegisterMergedDelayedEvent(c,id,EVENT_DESTROYED)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOEXTRA)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e1:SetCode(EVENT_DESTROYED)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_CUSTOM+id)
 	e1:SetRange(LOCATION_PZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
@@ -42,35 +43,39 @@ function s.initial_effect(c)
 	e4:SetOperation(s.pzop)
 	c:RegisterEffect(e4)
 end
-function s.cfilter(c,tp)
+function s.cfilter(c,tp,chk)
 	return c:IsPreviousPosition(POS_FACEUP) and c:GetPreviousTypeOnField()&(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ)>0
 		and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousControler(tp) and (c:IsReason(REASON_BATTLE)
 			or c:IsReason(REASON_EFFECT) and c:GetReasonPlayer()==1-tp)
+		and (not chk or Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,c))
 end
-function s.filter(c,race)
-	return c:IsType(TYPE_PENDULUM) and c:GetOriginalRace()&race>0
+function s.chk(c,tc)
+	return c:GetOriginalRace()==tc:GetOriginalRace()
+end
+function s.filter(c,r)
+	if not c:IsType(TYPE_PENDULUM) then return false end
+	local t=type(r)
+	if t=='userdata' then
+		local v=aux.GetValueType(r)
+		if v=='Card' then return s.chk(c,r)
+		elseif v=='Group' then return r:IsExists(s.chk,1,c,c)
+		else return false end
+	elseif t=='number' then return c:GetOriginalRace()==r
+	else return false end
 end
 function s.txcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp)
 end
 function s.txtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		local g=eg:Filter(s.cfilter,nil,tp)
-		local race=0
-		local tc=g:GetFirst()
-		while tc do
-			race=bit.bor(race,tc:GetOriginalRace())
-			tc=g:GetNext()
-		end
-		e:SetLabel(race)
-		return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,race)
-	end
+	local g=eg:Filter(s.cfilter,nil,tp,chk==0)
+	if chk==0 then return #g>0 end
+	Duel.SetTargetCard(g)
 	Duel.SetOperationInfo(0,CATEGORY_TOEXTRA,nil,1,tp,LOCATION_DECK)
 end
 function s.txop(e,tp,eg,ep,ev,re,r,rp)
-	local race=e:GetLabel()
+	local g=Duel.GetTargetsRelateToChain()
 	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,3))
-	local tg=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,race)
+	local tg=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,g)
 	if #tg>0 then
 		Duel.SendtoExtraP(tg,nil,REASON_EFFECT)
 	end
