@@ -45,10 +45,10 @@ function s.filter2(c,e,tp,m,f,chkf)
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
 end
 function s.exfilter0(c)
-	return c:IsSetCard(0x1a1) and c:IsCanBeFusionMaterial() and c:IsAbleToDeck()
+	return c:IsSetCard(0x1a1) and c:IsType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and c:IsAbleToDeck()
 end
 function s.exfilter1(c,e)
-	return c:IsSetCard(0x1a1) and c:IsCanBeFusionMaterial() and c:IsAbleToDeck() and not c:IsImmuneToEffect(e)
+	return c:IsSetCard(0x1a1) and c:IsType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and c:IsAbleToDeck() and not c:IsImmuneToEffect(e)
 end
 function s.fcheck(tp,sg,fc)
 	return sg:IsExists(Card.IsSetCard,1,nil,0x1a1)
@@ -83,13 +83,13 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local chkf=tp
 	local mg1=Duel.GetFusionMaterial(tp):Filter(s.filter1,nil,e)
 	aux.FCheckAdditional=s.fcheck
-	local sg1=Duel.GetMatchingGroup(s.filter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,chkf)
 	if Duel.GetFlagEffect(tp,id)>0 then
 		local sg=Duel.GetMatchingGroup(s.exfilter1,tp,LOCATION_GRAVE,0,nil,e)
 		if sg:GetCount()>0 then
 			mg1:Merge(sg)
 		end
 	end
+	local sg1=Duel.GetMatchingGroup(s.filter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,chkf)
 	aux.FCheckAdditional=nil
 	local mg2=nil
 	local sg2=nil

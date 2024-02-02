@@ -26,11 +26,12 @@ function s.thfilter2(c)
 	return c:IsSetCard(0x1a3) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand() and not c:IsCode(id)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp,op)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COUNTER)
-	local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_PZONE,0,1,1,nil):GetFirst()
-	if tc then
-	tc:AddCounter(0x6a,1)
 	if op==nil then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COUNTER)
+		local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_PZONE,0,1,1,nil):GetFirst()
+		if tc then
+			tc:AddCounter(0x6a,1)
+		end
 		op=aux.SelectFromOptions(tp,{true,aux.Stringid(id,1)},{true,aux.Stringid(id,2)})
 	end
 	if op==1 then
@@ -52,6 +53,5 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp,op)
 			Duel.SendtoHand(sg2,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,sg2)
 		end
-	end
 	end
 end
