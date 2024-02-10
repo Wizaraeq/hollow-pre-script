@@ -37,7 +37,7 @@ end
 function s.condition2(e,tp,eg,ep,ev,re,r,rp)
 	if e==re or not Duel.IsChainNegatable(ev) then return false end
 	local ex,tg,tc=Duel.GetOperationInfo(ev,CATEGORY_DESTROY)
-	return ex and tg~=nil and s.condition(e,tp,eg,ep,ev,re,r,rp) and tc+tg:FilterCount(s.cfilter,nil)-#tg>0
+	return rp==1-tp and ex and tg~=nil and s.condition(e,tp,eg,ep,ev,re,r,rp) and tc+tg:FilterCount(s.cfilter,nil)-#tg>0
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(Card.IsAttackPos,tp,0,LOCATION_MZONE,nil)
