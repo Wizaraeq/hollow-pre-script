@@ -58,7 +58,7 @@ function s.chngcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Release(e:GetHandler(),REASON_COST)
 end
 function s.repfilter(c)
-	return c:IsSetCard(0x2a4) and c:IsType(TYPE_MONSTER) and (c:IsFaceup() or not c:IsOnField())
+	return c:IsSetCard(0x1a5) and c:IsType(TYPE_MONSTER) and (c:IsFaceup() or not c:IsOnField())
 end
 function s.chngtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.repfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_DECK,0,1,e:GetHandler()) end
