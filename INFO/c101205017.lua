@@ -59,12 +59,15 @@ function s.tgfilter(c,e,tp)
 	return (c:IsType(TYPE_MONSTER) or (c:IsSetCard(0x2b1) and c:IsType(TYPE_EQUIP) and c:IsFaceup() and c:IsControler(tp)))
 		and c:IsAbleToGrave() and c:IsCanBeEffectTarget(e)
 end
+function s.tgfilter0(c,e,tp)
+	return c:IsFaceup() and c:IsControler(tp) and c:IsSetCard(0x2b1) and c:IsType(TYPE_EQUIP)
+end
 function s.rescon(sg,e,tp)
-	return sg:FilterCount(Card.IsType,nil,TYPE_EQUIP)==1
+	return sg:FilterCount(s.tgfilter0,nil,e,tp)==1
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
-	local sg=Duel.GetMatchingGroup(s.filter1,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,e,tp)
+	local sg=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,e,tp)
 	if chk==0 then return #sg>1 and sg:CheckSubGroup(s.rescon,2,2,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=sg:SelectSubGroup(tp,s.rescon,false,2,2,e,tp)

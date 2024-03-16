@@ -38,7 +38,7 @@ function s.thcfilter(c,tp)
 	return c:IsControler(tp) and c:IsFaceup() and c:IsSetCard(0x154) and c:IsPreviousControler(tp)
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.thcfilter,1,e:GetHandler(),tp) and e:GetHandler():IsStatus(STATUS_EFFECT_ENABLED)
+	return eg:IsExists(s.thcfilter,1,e:GetHandler(),tp)
 end
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckReleaseGroup(tp,Card.IsSetCard,1,nil,0x154) end
