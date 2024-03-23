@@ -1,7 +1,7 @@
 --黒き魔術師－ブラック・マジシャン
 local s,id,o=GetID()
 function s.initial_effect(c)
-	aux.AddCodeList(c,46986414,101204051)
+	aux.AddCodeList(c,46986414,79791878)
 	--change code
 	aux.EnableChangeCode(c,46986414)
 	--Special Summon from hand
@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.cfilter(c)
-	return c:IsFaceup() and c:IsCode(101204051)
+	return c:IsFaceup() and c:IsCode(79791878)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)

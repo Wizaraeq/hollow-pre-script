@@ -1,7 +1,6 @@
 --竜輝巧－νＩＩ
 local s,id,o=GetID()
 function s.initial_effect(c)
-	c:EnableReviveLimit()
 	--splimit
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
