@@ -35,14 +35,18 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.thcfilter(c,tp)
-	return c:IsControler(tp) and c:IsFaceup() and c:IsSetCard(0x154) and c:IsPreviousControler(tp)
+	return c:IsFaceup() and c:IsSetCard(0x154)
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.thcfilter,1,e:GetHandler(),tp)
 end
+function s.rfilter(c,tp)
+	return c:IsSetCard(0x154) and (c:IsControler(tp) or c:IsFaceup())
+end
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,Card.IsSetCard,1,nil,0x154) end
-	local g=Duel.SelectReleaseGroup(tp,Card.IsSetCard,1,1,nil,0x154)
+	if chk==0 then return Duel.CheckReleaseGroup(tp,s.rfilter,1,nil,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+	local g=Duel.SelectReleaseGroup(tp,s.rfilter,1,1,nil,tp)
 	Duel.Release(g,REASON_COST)
 end
 function s.thfilter(c)

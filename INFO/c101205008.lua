@@ -31,7 +31,7 @@ function s.counterfilter(c)
 	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsSetCard(0x1083)
 end
 function s.costfilter(c,e,tp)
-	return c:IsRankAbove(1) and c:IsType(TYPE_XYZ) and not c:IsPublic() and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,c,e,tp,c)
+	return c:IsRankAbove(1) and c:IsType(TYPE_XYZ) and c:IsSetCard(0x1083) and not c:IsPublic() and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,c,e,tp,c)
 end
 function s.spfilter(c,e,tp,pc)
 	return c:IsLevel(pc:GetRank()) and c:IsSetCard(0x1083) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

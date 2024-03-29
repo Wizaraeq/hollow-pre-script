@@ -44,9 +44,9 @@ function s.initial_effect(c)
 	end
 end
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.GetAttacker():RegisterFlagEffect(id,RESETS_STANDARD_PHASE_END,0,1)
+	Duel.GetAttacker():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 	local ac=Duel.GetAttackTarget()
-	if ac then ac:RegisterFlagEffect(id,RESETS_STANDARD_PHASE_END,0,1) end
+	if ac then ac:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1) end
 end
 function s.quickcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetOverlayGroup():IsExists(Card.IsRace,1,nil,RACE_ILLUSION)
