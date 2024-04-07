@@ -41,18 +41,18 @@ function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		if e:GetLabel()==1 then
 			e:SetLabel(0)
 			return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_GRAVE,0,1,nil)
-				and Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,e:GetHandler())
+				and Duel.IsExistingTarget(Card.IsType,tp,0,LOCATION_ONFIELD,1,e:GetHandler(),TYPE_SPELL+TYPE_TRAP)
 		else return false end
 	end
 	e:SetLabel(0)
-	local rt=Duel.GetTargetCount(aux.TRUE,tp,0,LOCATION_ONFIELD,e:GetHandler())
+	local rt=Duel.GetTargetCount(Card.IsType,tp,0,LOCATION_ONFIELD,e:GetHandler(),TYPE_SPELL+TYPE_TRAP)
 	if rt>2 then rt=2 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local cg=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_GRAVE,0,1,rt,nil)
 	local ct=cg:GetCount()
 	Duel.Remove(cg,POS_FACEUP,REASON_COST)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,ct,ct,e:GetHandler())
+	local g=Duel.SelectTarget(tp,Card.IsType,tp,0,LOCATION_ONFIELD,ct,ct,e:GetHandler(),TYPE_SPELL+TYPE_TRAP)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
