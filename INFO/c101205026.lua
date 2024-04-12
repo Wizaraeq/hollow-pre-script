@@ -21,6 +21,7 @@ function s.initial_effect(c)
 	e3:SetCode(EFFECT_SPSUMMON_PROC)
 	e3:SetRange(LOCATION_HAND)
 	e3:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
+	e3:SetCondition(s.hspcon)
 	e3:SetValue(s.hspval)
 	c:RegisterEffect(e3)
 	--Place this card in your Pendulum Zone
@@ -44,14 +45,24 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.NegateEffect(ev)
 	end
 end
+function s.hspzone(tp)
+	local zone=0
+	local lg=Duel.GetFieldGroup(tp,LOCATION_ONFIELD,LOCATION_ONFIELD)
+	for tc in aux.Next(lg) do
+		zone=bit.bor(zone,tc:GetColumnZone(LOCATION_MZONE,tp))
+	end
+	return bit.bnot(zone)
+end
+function s.hspcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	local zone=s.hspzone(tp)
+	return Duel.GetLocationCount(tp,LOCATION_MZONE,tp,LOCATION_REASON_TOFIELD,zone)>0
+end
 function s.hspval(e,c)
 	local tp=c:GetControler()
-	local oz=0
-	local fg=Duel.GetFieldGroup(tp,LOCATION_ONFIELD,LOCATION_ONFIELD)
-	for tc in aux.Next(fg) do
-		oz=oz|tc:GetColumnZone(LOCATION_MZONE,0,0,tp)
-	end
-	return 0,0x1f&~oz
+	local zone=s.hspzone(tp)
+	return 0,zone
 end
 function s.pencon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

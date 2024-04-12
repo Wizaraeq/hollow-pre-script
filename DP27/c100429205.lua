@@ -118,17 +118,16 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	local c=e:GetHandler()
 	if tc:IsRelateToEffect(e) then
-		local e1=Effect.CreateEffect(c)
+		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_ONLY_ATTACK_MONSTER)
+		e1:SetRange(LOCATION_MZONE)
 		e1:SetTargetRange(0,LOCATION_MZONE)
+		e1:SetCode(EFFECT_CANNOT_SELECT_BATTLE_TARGET)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		e1:SetValue(s.atklimit)
-		e1:SetLabel(tc:GetRealFieldID())
-		e1:SetReset(RESET_PHASE+PHASE_END)
-		Duel.RegisterEffect(e1,tp)
-		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET+RESET_PHASE+PHASE_END,0,0)
+		tc:RegisterEffect(e1)
 	end
 end
 function s.atklimit(e,c)
-	return c:GetRealFieldID()==e:GetLabel()
+	return c~=e:GetHandler()
 end
