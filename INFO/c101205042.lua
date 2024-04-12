@@ -60,7 +60,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.cfilter(c,tp)
-	return c:IsType(TYPE_XYZ) and c:IsSetCard(0x95) and c:IsSummonPlayer(tp) and c:IsFaceup()
+	return c:IsType(TYPE_XYZ) and c:IsSetCard(0x1083) and c:IsSummonPlayer(tp) and c:IsFaceup()
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp)
