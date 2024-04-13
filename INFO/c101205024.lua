@@ -32,17 +32,22 @@ end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 	end
 end
-function s.desfilter(c)
-	return c:IsFaceup() and c:IsAllTypes(TYPE_SPELL+TYPE_FIELD)
+function s.desfilter(c,tp)
+	if not c:IsFaceup() then return false end
+	if c:IsControler(tp) then
+		return Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_DECK,0,1,nil,c:GetCode())
+	else
+		return aux.NegateAnyFilter(c) and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,nil)
+	end
 end
 function s.thfilter1(c,code)
 	return c:IsAllTypes(TYPE_SPELL+TYPE_FIELD) and c:IsAbleToHand() and not c:IsCode(code)
@@ -51,9 +56,10 @@ function s.thfilter2(c)
 	return c:IsAllTypes(TYPE_SPELL+TYPE_FIELD) and c:IsAbleToHand() 
 end
 function s.fieldefftg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingTarget(s.desfilter,tp,LOCATION_FZONE,LOCATION_FZONE,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_FZONE) and s.desfilter(chkc,tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.desfilter,tp,LOCATION_FZONE,LOCATION_FZONE,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectTarget(tp,s.desfilter,tp,LOCATION_FZONE,LOCATION_FZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.desfilter,tp,LOCATION_FZONE,LOCATION_FZONE,1,1,nil,tp)
 	local sc=g:GetFirst()
 	local code=sc:GetCode()
 	if sc:GetControler()==tp and Duel.IsExistingMatchingCard(s.thfilter1,tp,LOCATION_DECK,0,1,1,nil,code) then
