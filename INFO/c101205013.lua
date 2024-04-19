@@ -52,7 +52,7 @@ function s.dspop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.spconfilter(c,tp)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsReason(REASON_COST) and c:IsControler(tp)
+	return bit.band(c:GetPreviousTypeOnField(),TYPE_SPELL+TYPE_TRAP)~=0 and c:IsReason(REASON_COST) and c:IsControler(tp)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return not eg:IsContains(e:GetHandler()) and eg:IsExists(s.spconfilter,1,nil,tp)
