@@ -1,6 +1,7 @@
 --千年の宝を守りしゴーレム
 local s,id,o=GetID()
 function s.initial_effect(c)
+	aux.AddCodeList(c,101205053)
 	--The activation of your "Millennium Cross" cannot be negated.
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
