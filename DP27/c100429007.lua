@@ -49,7 +49,7 @@ function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,#g,0,0)
 	if e:IsHasType(EFFECT_TYPE_ACTIVATE)
 		and Duel.IsExistingMatchingCard(s.dcfilter,tp,LOCATION_MZONE,0,1,nil) then
-		e:SetProperty(EFFECT_FLAG_CANNOT_INACTIVATE+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
+		e:SetProperty(EFFECT_FLAG_CANNOT_INACTIVATE+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CAN_FORBIDDEN)
 	else
 		e:SetProperty(0)
 	end
