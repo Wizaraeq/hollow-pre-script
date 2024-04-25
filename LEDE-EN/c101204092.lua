@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	--Your opponent cannot target it with monster effects
 	local e2=e1:Clone()
 	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-	e2:SetValue(aux.tgoval)
+	e2:SetValue(s.efilter)
 	c:RegisterEffect(e2)
 	--Destroy all Spells and Traps your opponent controls
 	local e3=Effect.CreateEffect(c)
@@ -44,6 +44,9 @@ function s.initial_effect(c)
 end
 function s.ffilter(c)
 	return c:IsRace(RACE_PYRO) and c:IsLevelBelow(9)
+end
+function s.efilter(e,re,rp)
+	return aux.tgoval(e,re,rp) and re:IsActiveType(TYPE_MONSTER)
 end
 function s.stdescon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
