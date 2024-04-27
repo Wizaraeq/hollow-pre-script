@@ -56,15 +56,14 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:IsAttackAbove(1000) end
+	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsFacedown() or not c:IsRelateToEffect(e) or c:GetAttack()<1000
-		or Duel.GetCurrentChain()~=ev+1 or c:IsStatus(STATUS_BATTLE_DESTROYED) then
-		return
-	end
+	if not (c:IsRelateToEffect(e) and c:IsFaceup() and c:IsAttackAbove(1000) and c:IsDefenseAbove(1000)
+		and not c:IsStatus(STATUS_BATTLE_DESTROYED) and Duel.GetCurrentChain()==ev+1) then return end
+	local prev_atk,prev_def=c:GetAttack(),c:GetDefense()
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
@@ -72,7 +71,10 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
 	e1:SetValue(-1000)
 	c:RegisterEffect(e1)
-	if not c:IsHasEffect(EFFECT_REVERSE_UPDATE) then
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
+	c:RegisterEffect(e2)
+	if c:IsAttack(prev_atk-1000) and c:IsDefense(prev_def-1000) and not c:IsHasEffect(EFFECT_REVERSE_UPDATE) then
 		Duel.NegateActivation(ev)
 	end
 end

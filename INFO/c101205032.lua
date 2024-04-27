@@ -47,12 +47,16 @@ end
 function s.negcostfilter(c)
 	return c:IsSetCard(0x154) and c:IsType(TYPE_MONSTER) and c:GetAttack()>0 and c:IsAbleToRemoveAsCost()
 end
+function s.rescon(g,tp,atk)
+	Duel.SetSelectedCard(g)
+	return (atk==0 and #g==1) or (atk>0 and g:CheckWithSumGreater(Card.GetAttack,atk))
+end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local atk=re:GetHandler():GetBaseAttack()
 	local g=Duel.GetMatchingGroup(s.negcostfilter,tp,LOCATION_GRAVE,0,nil)
-	if chk==0 then return atk>0 and #g>0 and g:CheckWithSumGreater(Card.GetAttack,atk) end
+	if chk==0 then return #g>0 and g:CheckSubGroup(s.rescon,1,#g,tp,atk) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local rg=g:SelectWithSumGreater(tp,Card.GetAttack,atk)
+	local rg=g:SelectSubGroup(tp,s.rescon,true,1,g:GetCount(),tp,atk)
 	Duel.Remove(rg,POS_FACEUP,REASON_COST)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
