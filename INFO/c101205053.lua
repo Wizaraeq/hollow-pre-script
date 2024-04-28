@@ -27,14 +27,11 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,e:GetHandler(),1,0,0)
 end
 function s.tdfilter(c)
-	return c:GetOriginalType()&TYPE_MONSTER>0 and c:IsAbleToDeck()
-end
-function s.excfilter(c)
-	return (c:IsSetCard(0xde) and c:GetOriginalLevel()==10)
-		or c:IsCode(76232340) or c:IsSetCard(0x2af,0x2ae)
+	if (c:IsSetCard(0xde) and c:GetOriginalLevel()>=10) or c:IsSetCard(0x2af,0x2ae) then return false end
+	return c:IsFaceup() and c:GetOriginalType()&TYPE_MONSTER>0 and c:IsAbleToDeck()
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
 	local sg=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_ONFIELD,0,5,5,nil)
 	Duel.ConfirmCards(1-tp,sg)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
@@ -43,8 +40,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.BreakEffect()
 		if Duel.SpecialSummon(sc,0,tp,tp,false,false,POS_FACEUP)==0 then return end
 		local tdg=Duel.GetMatchingGroup(s.tdfilter,tp,LOCATION_ONFIELD,0,nil)
-		local excg=Duel.GetMatchingGroup(s.excfilter,tp,LOCATION_ONFIELD,0,nil)
-		tdg=tdg-excg
 		if #tdg>0 then
 			Duel.BreakEffect()
 			Duel.SendtoDeck(tdg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
