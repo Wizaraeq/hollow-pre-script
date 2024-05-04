@@ -53,7 +53,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 end
 function s.lvfilter(c,att,lv)
-	return c:IsFaceup() and c:IsRace(RACE_DRAGON) and not (c:IsAttribute(att) or c:IsLevel(lv))
+	return c:IsFaceup() and c:IsLevelAbove(1) and c:IsRace(RACE_DRAGON) and not (c:IsAttribute(att) or c:IsLevel(lv))
 end
 function s.chtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
