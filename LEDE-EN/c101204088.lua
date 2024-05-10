@@ -24,14 +24,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.cttg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsCanAddCounter,tp,0,LOCATION_MZONE,1,nil,0x1171,1) end
-	Duel.SetOperationInfo(0,CATEGORY_COUNTER,g,1,0x1171,1)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsCanAddCounter,tp,0,LOCATION_MZONE,1,nil,0x106b,1) end
+	Duel.SetOperationInfo(0,CATEGORY_COUNTER,g,1,0x106b,1)
 end
 function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local tc=Duel.SelectMatchingCard(tp,Card.IsCanAddCounter,tp,0,LOCATION_MZONE,1,1,nil,0x1171,1):GetFirst()
-	if tc and tc:AddCounter(0x1171,1) and tc:GetFlagEffect(id)==0 then
+	local tc=Duel.SelectMatchingCard(tp,Card.IsCanAddCounter,tp,0,LOCATION_MZONE,1,1,nil,0x106b,1):GetFirst()
+	if tc and tc:AddCounter(0x106b,1) and tc:GetFlagEffect(id)==0 then
 		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,0)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
@@ -61,11 +61,11 @@ function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.limcon(e)
-	return e:GetHandler():GetCounter(0x1171)>0
+	return e:GetHandler():GetCounter(0x106b)>0
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local bc=e:GetHandler():GetBattleTarget()
-	return bc and bc:GetCounter(0x1171)>0 and bc:IsControler(1-tp)
+	return bc and bc:GetCounter(0x106b)>0 and bc:IsControler(1-tp)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

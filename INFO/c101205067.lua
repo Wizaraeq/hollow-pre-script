@@ -1,8 +1,8 @@
 --ＢＢＳ
 local s,id,o=GetID()
 function s.initial_effect(c)
-	c:EnableCounterPermit(0x172)
-	c:SetCounterLimit(0x172,10)
+	c:EnableCounterPermit(0x6c)
+	c:SetCounterLimit(0x6c,10)
 	--Activate
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_ACTIVATE)
@@ -46,19 +46,19 @@ function s.adctcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.addct(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetOperationInfo(0,CATEGORY_COUNTER,nil,1,0,0x172)
+	Duel.SetOperationInfo(0,CATEGORY_COUNTER,nil,1,0,0x6c)
 end
 function s.addc(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		c:AddCounter(0x172,1)
-		if c:GetCounter(0x172)==10 then
+		c:AddCounter(0x6c,1)
+		if c:GetCounter(0x6c)==10 then
 			Duel.RaiseEvent(c,EVENT_CUSTOM+id,e,0,tp,tp,0)
 		end
 	end
 end
 function s.val(e,c)
-	return e:GetHandler():GetCounter(0x172)*100
+	return e:GetHandler():GetCounter(0x6c)*100
 end
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep==tp

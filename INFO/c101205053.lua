@@ -27,7 +27,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,e:GetHandler(),1,0,0)
 end
 function s.tdfilter(c)
-	if (c:IsSetCard(0xde) and c:GetOriginalLevel()>=10) or c:IsSetCard(0x2af,0x2ae) then return false end
+	if (c:IsSetCard(0xde) and c:GetOriginalLevel()>=10) or c:IsSetCard(0x1ae) then return false end
 	return c:IsFaceup() and c:GetOriginalType()&TYPE_MONSTER>0 and c:IsAbleToDeck()
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)

@@ -16,7 +16,7 @@ function s.initial_effect(c)
 	Duel.AddCustomActivityCounter(id,ACTIVITY_CHAIN,s.counterfilter)
 end
 function s.counterfilter(re,tp,cid)
-	return not (re:GetHandler():IsSetCard(0x2b5) and re:IsActiveType(TYPE_MONSTER))
+	return not (re:GetHandler():IsSetCard(0x1b2) and re:IsActiveType(TYPE_MONSTER))
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetFieldGroupCount(tp,LOCATION_ONFIELD,0)==0
@@ -46,7 +46,7 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.aclimit(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
-	if ep~=tp or not (re:IsActiveType(TYPE_MONSTER) and rc and rc:IsSetCard(0x2b5) and not rc:IsCode(id)) then return end
+	if ep~=tp or not (re:IsActiveType(TYPE_MONSTER) and rc and rc:IsSetCard(0x1b2) and not rc:IsCode(id)) then return end
 	Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
 end
 function s.econ(e)
@@ -54,7 +54,7 @@ function s.econ(e)
 end
 function s.elimit(e,te,tp)
 	local tc=te:GetHandler()
-	return te:IsActiveType(TYPE_MONSTER) and tc:IsSetCard(0x2b5) and not tc:IsCode(id)
+	return te:IsActiveType(TYPE_MONSTER) and tc:IsSetCard(0x1b2) and not tc:IsCode(id)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

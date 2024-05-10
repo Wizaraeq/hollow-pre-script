@@ -41,7 +41,7 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(c,REASON_COST+REASON_DISCARD)
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x2b1) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
+	return c:IsSetCard(0x1b0) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -56,11 +56,11 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.tgfilter(c,e,tp)
-	return (c:IsType(TYPE_MONSTER) or (c:IsSetCard(0x2b1) and c:IsType(TYPE_EQUIP) and c:IsFaceup() and c:IsControler(tp)))
+	return (c:IsType(TYPE_MONSTER) or (c:IsSetCard(0x1b0) and c:IsType(TYPE_EQUIP) and c:IsFaceup() and c:IsControler(tp)))
 		and c:IsAbleToGrave() and c:IsCanBeEffectTarget(e)
 end
 function s.tgfilter0(c,e,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsSetCard(0x2b1) and c:IsType(TYPE_EQUIP)
+	return c:IsFaceup() and c:IsControler(tp) and c:IsSetCard(0x1b0) and c:IsType(TYPE_EQUIP)
 end
 function s.rescon(sg,e,tp)
 	return sg:FilterCount(s.tgfilter0,nil,e,tp)==1

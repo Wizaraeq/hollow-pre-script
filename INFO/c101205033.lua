@@ -91,7 +91,7 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.NegateActivation(ev)
 end
 function s.setfilter(c)
-	return c:IsSSetable() and (c:IsCode(64043465) or (c:IsSetCard(0x2b0) and c:IsType(TYPE_SPELL+TYPE_TRAP)))
+	return c:IsSSetable() and c:IsSetCard(0x1af) and c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) end

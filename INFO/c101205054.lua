@@ -45,7 +45,7 @@ function s.stfilter(c)
 	return c:IsType(TYPE_MONSTER) and not c:IsForbidden()
 end
 function s.stfilter2(c)
-	return s.stfilter(c) and c:IsSetCard(0x2af,0x2ae)
+	return s.stfilter(c) and c:IsSetCard(0x1ae)
 end
 function s.sttg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>1
@@ -95,5 +95,5 @@ function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterEffect(e1)
 end
 function s.tg(e,c)
-	return c:IsSetCard(0x2af,0x2ae)
+	return c:IsSetCard(0x1ae)
 end
