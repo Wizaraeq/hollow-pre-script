@@ -27,6 +27,11 @@ function s.initial_effect(c)
 	e2:SetTarget(s.xtg)
 	e2:SetOperation(s.xop)
 	c:RegisterEffect(e2)
+	--
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(id)
+	c:RegisterEffect(e3)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return not e:GetHandler():IsReason(REASON_DRAW)

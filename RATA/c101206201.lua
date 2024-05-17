@@ -22,7 +22,7 @@ function s.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
-	c:RegisterEffect(e1)
+	c:RegisterEffect(e2)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
@@ -42,7 +42,7 @@ function s.initial_effect(c)
 end
 function s.chainfilter(re,tp,cid)
 	local rc=re:GetHandler()
-	return not (rc:GetType()==TYPE_SPELL and re:IsHasType(EFFECT_TYPE_ACTIVATE))
+	return not (rc:IsType(TYPE_SPELL) and re:IsHasType(EFFECT_TYPE_ACTIVATE))
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCustomActivityCount(id,tp,ACTIVITY_CHAIN)>0
