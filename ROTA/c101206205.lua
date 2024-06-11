@@ -89,11 +89,12 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 			if dtc then
 				g:RemoveCard(dtc)
 				local atc=g:GetFirst()
+				if atc==dtc then atc=g:GetNext() end
 				local at=dtc:GetOverlayGroup()
 				if #at>0 then
 					Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTACH)
-					at=at:Select(tp,1,1,nil)
-					Duel.Overlay(atc,at)
+					st=at:Select(tp,1,1,nil)
+					Duel.Overlay(atc,st)
 				end
 			end
 		end

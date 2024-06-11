@@ -98,18 +98,25 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
+function s.atkfilter(c)
+	return c:IsType(TYPE_XYZ) and c:IsFaceup()
+end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and tc:RemoveOverlayCard(tp,1,1,REASON_EFFECT) and
 		c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) then
 		Duel.BreakEffect()
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetValue(-600)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1)
+		local ag=Duel.GetMatchingGroup(s.atkfilter,tp,LOCATION_MZONE,0,nil)
+		if #ag>0 then
+			local fg=ag:Select(tp,1,1,nil):GetFirst()
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_UPDATE_ATTACK)
+			e1:SetValue(-600)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			fg:RegisterEffect(e1)
+		end
 	end
 end
 function s.matcon(e,tp,eg,ep,ev,re,r,rp)
@@ -142,6 +149,7 @@ function s.matop(e,tp,eg,ep,ev,re,r,rp)
 		if dtc then
 			g:RemoveCard(dtc)
 			local atc=g:GetFirst()
+			if atc==dtc then atc=g:GetNext() end
 			local at=dtc:GetOverlayGroup()
 			if #at>0 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTACH)
