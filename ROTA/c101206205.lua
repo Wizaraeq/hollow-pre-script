@@ -83,16 +83,19 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	elseif op==2 then
 		local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-		if #g~=2 then return end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DEATTACHFROM)
-		local dtc=g:FilterSelect(tp,s.overlayfilter,1,1,nil):GetFirst()
-		g:RemoveCard(dtc)
-		local atc=g:GetFirst()
-		local at=dtc:GetOverlayGroup()
-		if #at>0 then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTACH)
-			at=at:Select(tp,1,1,nil)
+		if #g==2 and g:CheckSubGroup(s.rescon,2,2,e,tp) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DEATTACHFROM)
+			local dtc=g:FilterSelect(tp,s.overlayfilter,1,1,nil):GetFirst()
+			if dtc then
+				g:RemoveCard(dtc)
+				local atc=g:GetFirst()
+				local at=dtc:GetOverlayGroup()
+				if #at>0 then
+					Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTACH)
+					at=at:Select(tp,1,1,nil)
+					Duel.Overlay(atc,at)
+				end
+			end
 		end
-		Duel.Overlay(atc,at)
 	end
 end
