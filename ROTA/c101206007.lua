@@ -26,7 +26,6 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1,id+o)
-	e3:SetCost(s.setcost)
 	e3:SetTarget(s.settg)
 	e3:SetOperation(s.setop)
 	c:RegisterEffect(e3)
@@ -61,9 +60,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SpecialSummon(sg,0,1-tp,1-tp,false,false,POS_FACEUP)
 		end
 	end
-end
-function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return not e:GetHandler():IsPublic() end
 end
 function s.setfilter(c)
 	return c:IsSetCard(0x2ba) and c:IsType(TYPE_TRAP) and c:IsSSetable()
