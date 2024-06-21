@@ -108,5 +108,5 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.actlimit(e,re,rp)
 	local rc=re:GetHandler()
-	return re:IsActiveType(TYPE_MONSTER) and rc:IsOnField()
+	return re:IsActiveType(TYPE_MONSTER) and rc:IsOnField() and rc:IsSummonType(SUMMON_TYPE_SPECIAL)
 end

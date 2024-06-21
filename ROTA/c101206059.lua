@@ -49,10 +49,10 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_PHASE+PHASE_END)
 	e1:SetValue(1)
 	Duel.RegisterEffect(e1,tp)
-	if Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+	if Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp,ac) and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,ac)
-		Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
+		Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 	end
 end
 function s.tg(e,c)
@@ -69,11 +69,11 @@ function s.rmfilter1(c,tp)
 	return c:IsType(TYPE_NORMAL) and Duel.IsExistingMatchingCard(s.rmfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,c:GetAttack())
 end
 function s.rmfilter2(c,atk)
-	return c:IsAttackAbove(atk+1) and c:IsType(TYPE_MONSTER) and c:IsControlerCanBeChanged()
+	return c:GetAttack()>atk and c:IsType(TYPE_MONSTER) and c:IsAbleToRemove()
 end
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_MZONE) and chkc:IsControler(tp) and s.rmfilter1(chkc,e,tp) end
-	if chk==0 then return Duel.IsExistingTarget(s.rmfilter1,tp,LOCATION_GRAVE+LOCATION_MZONE,0,1,nil,tp) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) and chkc:IsControler(tp) and s.rmfilter1(chkc,tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.rmfilter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local tc=Duel.SelectTarget(tp,s.rmfilter1,tp,LOCATION_GRAVE+LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
 	local g=Duel.GetMatchingGroup(s.rmfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tc:GetAttack())

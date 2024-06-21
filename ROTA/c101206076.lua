@@ -45,7 +45,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetTarget(s.tg)
 	e1:SetValue(1)
 	Duel.RegisterEffect(e1,tp)
-	if Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+	if Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil,e,tp,ac) and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,e,tp,ac)
 		Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
@@ -62,10 +62,10 @@ function s.filter1(c,tp)
 	return c:IsType(TYPE_NORMAL) and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,c:GetAttack())
 end
 function s.filter2(c,atk)
-	return c:IsAttackAbove(atk+1) and c:IsType(TYPE_MONSTER)
+	return c:GetAttack()>atk and c:IsType(TYPE_MONSTER)
 end
 function s.contg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_MZONE) and chkc:IsControler(tp) and s.filter1(chkc,e,tp) end
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_MZONE) and chkc:IsControler(tp) and s.filter1(chkc,tp) end
 	if chk==0 then return Duel.IsExistingTarget(s.filter1,tp,LOCATION_GRAVE+LOCATION_MZONE,0,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local tc=Duel.SelectTarget(tp,s.filter1,tp,LOCATION_GRAVE+LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
@@ -75,8 +75,8 @@ end
 function s.conop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local g=Duel.SelectMatchingCard(tp,s.filter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,tc:GetAttack())
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONTROL)
+		local g=Duel.SelectMatchingCard(tp,s.filter2,tp,0,LOCATION_MZONE,1,1,nil,tc:GetAttack())
 		if g:GetCount()>0 then
 			Duel.HintSelection(g)
 			Duel.GetControl(g,tp,PHASE_END,1)
