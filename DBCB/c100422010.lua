@@ -70,7 +70,7 @@ function s.matfilter(sg,tp,g)
 	return Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_EXTRA,0,1,nil,sg)
 end
 function s.xyzfilter(c,mg)
-	return c:IsXyzSummonable(mg,1,#mg)
+	return c:IsXyzSummonable(mg,#mg,#mg) and mg:IsExists(Card.IsSetCard,1,nil,0x2bd)
 end
 function s.zfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x2bd) and c:IsCanBeXyzMaterial(nil)
@@ -87,7 +87,7 @@ function s.ovfilter(c,tp,sg)
 	return mg:CheckSubGroup(s.gselect,1,#mg,c,sg)
 end
 function s.gselect(sg,c,g)
-	return c:IsXyzSummonable(sg,1,#sg) and sg:IsExists(Card.IsSetCard,1,nil,0x2bd)
+	return c:IsXyzSummonable(sg,#sg,#sg) and sg:IsExists(Card.IsSetCard,1,nil,0x2bd)
 end
 function s.xyztg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local mg=Duel.GetMatchingGroup(s.zfilter,tp,LOCATION_MZONE,0,nil,e,tp)

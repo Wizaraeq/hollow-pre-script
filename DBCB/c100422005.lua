@@ -34,17 +34,17 @@ function s.initial_effect(c)
 	e3:SetOperation(s.atkop)
 	c:RegisterEffect(e3)
 end
-function s.spfilter(c)
-	return c:IsSetCard(0x2bd) and c:IsAbleToDeckOrExtraAsCost()
+function s.spcfilter(c)
+	return c:IsSetCard(0x2bd) and c:IsType(TYPE_MONSTER) and c:IsAbleToDeckOrExtraAsCost()
 end
 function s.spcon(e,c)
 	if c==nil then return true end
-	local tp=c:GetControler()
+	local tp=e:GetHandlerPlayer()
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil)
+		and Duel.IsExistingMatchingCard(s.spcfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,c)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
-	local g=Duel.GetMatchingGroup(s.spcostfilter1,tp,LOCATION_HAND+LOCATION_GRAVE,0,nil)
+	local g=Duel.GetMatchingGroup(s.spcfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local tc=g:SelectUnselect(nil,tp,false,true,1,1)
 	if tc then
