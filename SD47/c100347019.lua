@@ -46,6 +46,17 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 		end
 	end
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e2:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e2:SetTargetRange(1,0)
+	e2:SetTarget(s.splimit)
+	e2:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e2,tp)
+end
+function s.splimit(e,c)
+	return not c:IsRace(RACE_DRAGON) and c:IsLocation(LOCATION_EXTRA)
 end
 function s.filter1(c,e)
 	return not c:IsImmuneToEffect(e)

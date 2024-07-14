@@ -69,7 +69,7 @@ function s.rmfilter1(c,tp)
 	return c:IsType(TYPE_NORMAL) and Duel.IsExistingMatchingCard(s.rmfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,c:GetAttack())
 end
 function s.rmfilter2(c,atk)
-	return c:GetAttack()>atk and c:IsType(TYPE_MONSTER) and c:IsAbleToRemove()
+	return c:GetAttack()<atk and c:IsType(TYPE_MONSTER) and c:IsAbleToRemove()
 end
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) and chkc:IsControler(tp) and s.rmfilter1(chkc,tp) end
