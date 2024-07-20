@@ -29,7 +29,7 @@ function s.cfilter1(c,tp)
 	return (c:IsSetCard(0x2b9) or c:IsType(TYPE_NORMAL)) and not c:IsPublic()
 end
 function s.cfilter2(c)
-	return (c:IsType(TYPE_NORMAL) and not c:IsType(TYPE_TOKEN)) or (c:IsLevelAbove(5) and c:IsSetCard(0x2b9))
+	return (c:IsType(TYPE_NORMAL) or (c:IsSetCard(0x2b9) and c:IsLevelAbove(5))) and c:IsFaceup() and not c:IsType(TYPE_TOKEN)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(s.cfilter1,tp,LOCATION_HAND,0,1,nil)

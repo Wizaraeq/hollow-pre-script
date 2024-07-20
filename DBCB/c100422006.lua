@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--Monsters you control gain 100 ATK per Xyz material this card has
 	local e2b=e2:Clone()
-	e2b:SetCode(EFFECT_UPDATE_DEFENSE)
+	e2b:SetCode(EFFECT_UPDATE_ATTACK)
 	e2b:SetTargetRange(0,LOCATION_MZONE)
 	e2b:SetValue(s.atkvalue2)
 	c:RegisterEffect(e2b)

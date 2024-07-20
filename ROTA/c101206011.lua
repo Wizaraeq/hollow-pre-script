@@ -49,11 +49,11 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.eqcon1(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return not Duel.IsPlayerAffectedByEffect(tp,95937545)
+	return not aux.GoldenAllureQueenCondition(c,tp)
 end
 function s.eqcon2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return Duel.IsPlayerAffectedByEffect(tp,95937545)
+	return aux.GoldenAllureQueenCondition(c,tp)
 end
 function s.filter(c)
 	return c:IsType(TYPE_MONSTER) and not c:IsForbidden()
@@ -74,9 +74,13 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+		local atk=tc:GetTextAttack()
+		local def=tc:GetTextDefense()
+		if atk<0 then atk=0 end
+		if def<0 then def=0 end
 		if not Duel.Equip(tp,tc,c,false) then return end
 		--Add Equip limit
-		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,0)
+		tc:RegisterFlagEffect(FLAG_ID_ALLURE_QUEEN,RESET_EVENT+RESETS_STANDARD,0,0,id)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetProperty(EFFECT_FLAG_COPY_INHERIT+EFFECT_FLAG_OWNER_RELATE)
