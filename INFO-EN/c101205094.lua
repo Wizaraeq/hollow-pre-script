@@ -59,10 +59,10 @@ function s.atkval(e,c)
 	return c:GetBaseDefense()
 end
 function s.fdcon1(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(Card.IsFacedown,tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(Card.IsFacedown,e:GetHandler():GetControler(),LOCATION_MZONE,0,1,nil)
 end
 function s.fdcon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(Card.IsFacedown,tp,0,LOCATION_MZONE,1,nil)
+	return Duel.IsExistingMatchingCard(Card.IsFacedown,e:GetHandler():GetControler(),0,LOCATION_MZONE,1,nil)
 end
 function s.fdtg(e,c)
 	return c:IsStatus(STATUS_SPSUMMON_TURN)

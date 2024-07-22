@@ -39,6 +39,9 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,LOCATION_HAND+LOCATION_DECK)
 end
+function s.filter(c)
+	return c:IsFaceup() and c:IsCanTurnSet()
+end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local f1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 	local f2=Duel.GetLocationCount(1-tp,LOCATION_MZONE,tp)>0
@@ -51,18 +54,18 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		op=aux.SelectFromOptions(tp,
 			{b1,aux.Stringid(id,2)},
 			{b2,aux.Stringid(id,3)})
-	if op==1 then
-		if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)==0 then return end
-	elseif op==2 then
-		if Duel.SpecialSummon(tc,0,tp,1-tp,false,false,POS_FACEDOWN_DEFENSE)==0 then return end
-	end
-	local g=Duel.GetMatchingGroup(aux.AND(Card.IsFaceup,Card.IsCanTurnSet),tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-	if #g==0 or not Duel.SelectYesNo(tp,aux.Stringid(id,4)) then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
-	local pc=g:Select(tp,1,1,nil):GetFirst()
-	if pc then
-		Duel.BreakEffect()
-		Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
+	local target_player=op==1 and tp or 1-tp
+	local summon_pos=op==1 and POS_FACEUP or POS_FACEDOWN_DEFENSE
+	if Duel.SpecialSummon(tc,0,tp,target_player,false,false,summon_pos)==0 then return end
+	if tc:IsFacedown() then Duel.ConfirmCards(tp,tc) end
+	local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
+		local pc=g:Select(tp,1,1,nil):GetFirst()
+		if pc then
+			Duel.BreakEffect()
+			Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
+		end
 	end
 end
 function s.thfilter(c,e)
