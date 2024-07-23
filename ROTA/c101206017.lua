@@ -75,7 +75,7 @@ function s.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return c:IsAbleToRemoveAsCost() and Duel.IsExistingMatchingCard(Card.IsAbleToGraveAsCost,tp,LOCATION_HAND,0,1,nil) end
 	Duel.Remove(c,POS_FACEUP,REASON_COST)
-	Duel.DiscardHand(tp,Card.IsAbleToGraveAsCost,1,1,REASON_COST)
+	Duel.DiscardHand(tp,Card.IsAbleToGraveAsCost,1,1,REASON_COST+REASON_DISCARD)
 end
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()~=tp

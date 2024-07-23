@@ -49,11 +49,11 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.eqcon1(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return not aux.GoldenAllureQueenCondition(c,tp)
+	return not aux.IsCanBeQuickEffect(c,tp,95937545)
 end
 function s.eqcon2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return aux.GoldenAllureQueenCondition(c,tp)
+	return aux.IsCanBeQuickEffect(c,tp,95937545)
 end
 function s.filter(c)
 	return c:IsType(TYPE_MONSTER) and not c:IsForbidden()

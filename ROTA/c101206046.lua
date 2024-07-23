@@ -66,7 +66,7 @@ function s.thop1(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
 	local tc=g:GetFirst()
 	if tc then
-		if tc:IsAbleToHand() and (not tc:CheckEquipTarget(c) or ft<=0 or Duel.SelectOption(tp,1190,aux.Stringid(id,3))==0) then
+		if tc:IsAbleToHand() and (not tc:CheckEquipTarget(c) or ft<=0 or Duel.SelectOption(tp,1190,aux.Stringid(id,2))==0) then
 			Duel.SendtoHand(tc,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,tc)
 		else
