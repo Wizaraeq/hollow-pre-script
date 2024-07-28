@@ -25,11 +25,9 @@ function s.initial_effect(c)
 	e2:SetOperation(s.lvop)
 	c:RegisterEffect(e2)
 end
-function s.cfilter(c)
-	return c:IsFacedown() or not c:IsRace(RACE_INSECT)
-end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
+	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
+	return #g==0 or g:FilterCount(Card.IsRace,nil,RACE_INSECT)==#g
 end
 function s.costfilter(c)
 	return c:IsRace(RACE_INSECT) and c:IsDiscardable()
