@@ -53,7 +53,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.atktg(e,c)
-	return c:IsSetCard(0x2be) and not c:IsStatus(STATUS_SUMMON_TURN+STATUS_SPSUMMON_TURN)
+	return c:IsSetCard(0x1b7) and not c:IsStatus(STATUS_SUMMON_TURN+STATUS_SPSUMMON_TURN)
 end
 function s.atkval(e,c)
 	return c:GetBaseDefense()
@@ -68,7 +68,7 @@ function s.fdtg(e,c)
 	return c:IsStatus(STATUS_SPSUMMON_TURN)
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x2be) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+	return c:IsSetCard(0x1b7) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end

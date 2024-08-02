@@ -13,6 +13,7 @@ function s.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetCountLimit(1,id)
+	e2:SetCost(s.atkcost)
 	e2:SetTarget(s.atktg)
 	e2:SetOperation(s.atkop)
 	c:RegisterEffect(e2)
@@ -59,24 +60,41 @@ function s.addcount(e,tp,eg,ep,ev,re,r,rp)
 		tc=eg:GetNext()
 	end
 end
-function s.cfilter(c)
-	return c:IsFaceup() and c:IsType(TYPE_TOKEN)
+function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	e:SetLabel(1)
+	return true
 end
-function s.filter(c,tp)
-	return c:IsFaceup() and c:IsAttack(0) and Duel.CheckReleaseGroupEx(tp,s.cfilter,1,REASON_COST,true,c,c)
+function s.costfilter(c,tp)
+	return c:IsFaceup() and c:IsType(TYPE_TOKEN) and Duel.IsExistingTarget(s.matfilter1,tp,LOCATION_MZONE,0,1,c,tp,Group.FromCards(c))
+end
+function s.matfilter1(c,tp,g)
+	local sg=g:Clone()
+	sg:AddCard(c)
+	return c:IsFaceup() and c:IsAttack(0) 
+end
+function s.fselect(g,tp)
+	return Duel.IsExistingTarget(s.matfilter1,tp,LOCATION_MZONE,0,1,g,tp,g)
+		and Duel.CheckReleaseGroup(tp,aux.IsInGroup,#g,nil,g)
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end
-	if chk==0 then return e:IsCostChecked()
-		and Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local tc=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
-	local sg=Duel.SelectReleaseGroupEx(tp,s.cfilter,1,99,REASON_COST,true,tc,tc)
+	local g=e:GetLabelObject()
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.matfilter1(chkc,tp,g) end
+	if chk==0 then
+		if e:GetLabel()~=1 then return false end
+		return Duel.CheckReleaseGroup(tp,s.costfilter,1,nil,tp)
+	end
+	local rg=Duel.GetReleaseGroup(tp):Filter(s.costfilter,nil,tp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+	local sg=rg:SelectSubGroup(tp,s.fselect,false,1,rg:GetCount(),tp)
+	sg:KeepAlive()
+	e:SetLabelObject(sg)
+	aux.UseExtraReleaseCount(sg,tp)
 	Duel.Release(sg,REASON_COST)
-	e:SetLabel(sg:GetCount())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	Duel.SelectTarget(tp,s.matfilter1,tp,LOCATION_MZONE,0,1,1,nil,tp,sg)
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
-	local ct=e:GetLabel()
+	local ct=e:GetLabelObject():GetCount()
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and tc:IsFaceup() then

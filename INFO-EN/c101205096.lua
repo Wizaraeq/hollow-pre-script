@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.spfilter(c,e,tp,f1,f2)
-	if not c:IsSetCard(0x2be) then return false end
+	if not c:IsSetCard(0x1b7) then return false end
 	return (f1 and c:IsCanBeSpecialSummoned(e,0,tp,false,false))
 		or (f2 and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE,1-tp))
 end
@@ -69,7 +69,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.thfilter(c,e)
-	return c:IsFaceup() and c:IsSetCard(0x2be) and c:IsAbleToHand() and c:IsCanBeEffectTarget(e)
+	return c:IsFaceup() and c:IsSetCard(0x1b7) and c:IsAbleToHand() and c:IsCanBeEffectTarget(e)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_ONFIELD) and s.thfilter(chkc,e) end

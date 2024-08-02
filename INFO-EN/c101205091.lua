@@ -40,7 +40,7 @@ function s.effcon(e,tp,eg,ep,ev,re,r,rp)
 	return (Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2)
 end
 function s.desfilter(c)
-	return c:IsFaceup() and not c:IsSetCard(0x2be)
+	return c:IsFaceup() and not c:IsSetCard(0x1b7)
 end
 function s.effstg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -78,7 +78,7 @@ function s.selfspop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x2be) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
+	return c:IsSetCard(0x1b7) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end

@@ -46,6 +46,7 @@ function s.eftg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return b1 or b2 end
 end
 function s.efop(e,tp,eg,ep,ev,re,r,rp)
+	local breakeffect=false
 	local b1=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE,0,1,nil)
 	if b1 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
@@ -54,12 +55,14 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SendtoHand(g1,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,g1)
 		end
+		breakeffect=true
 	end
 	local b2=Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil)
 	if b2 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 		local g2=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil)
 		if g2:GetCount()>0 then
+			if breakeffect then Duel.BreakEffect() end
 			local opt=Duel.SelectOption(tp,aux.Stringid(id,3),aux.Stringid(id,4))
 			if opt==0 then
 				Duel.SendtoDeck(g2,nil,SEQ_DECKTOP,REASON_EFFECT)
