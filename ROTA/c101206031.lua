@@ -71,7 +71,7 @@ function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	return bit.band(r,REASON_EFFECT+REASON_BATTLE)~=0
 end
 function s.desthfilter(c)
-	return c:IsSetCard(0x19e) and c:IsType(TYPE_TRAP) and c:IsAbleToHand()
+	return c:IsSetCard(0x19e) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
 end
 function s.desthtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.desthfilter,tp,LOCATION_DECK,0,1,nil) end

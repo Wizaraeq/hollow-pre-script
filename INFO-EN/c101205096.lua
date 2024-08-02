@@ -64,7 +64,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		local pc=g:Select(tp,1,1,nil):GetFirst()
 		if pc then
 			Duel.BreakEffect()
-			Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
+			Duel.ChangePosition(pc,POS_FACEDOWN_DEFENSE)
 		end
 	end
 end
@@ -72,9 +72,9 @@ function s.thfilter(c,e)
 	return c:IsFaceup() and c:IsSetCard(0x1b7) and c:IsAbleToHand() and c:IsCanBeEffectTarget(e)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_ONFIELD) and s.thfilter(chkc,e) end
-	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_ONFIELD,0,1,nil,e) end
-	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_ONFIELD,0,nil,e)
+	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_MZONE) and s.thfilter(chkc,e) end
+	if chk==0 then return Duel.IsExistingTarget(s.thfilter,tp,LOCATION_MZONE,0,1,nil,e) end
+	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_MZONE,0,nil,e)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local tg=g:Select(tp,1,#g,nil)
 	Duel.SetTargetCard(tg)
