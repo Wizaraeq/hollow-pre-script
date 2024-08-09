@@ -84,7 +84,6 @@ function s.pfilter(c,tp)
 end
 function s.gcheck2(g,tp)
 	return g:GetCount()<=Duel.GetLocationCount(tp,LOCATION_SZONE)
-		and aux.dncheck(g)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -98,16 +97,18 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.BreakEffect()
 			local rg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,0,nil)
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-			local sg=rg:SelectSubGroup(tp,s.gcheck1,true,1,2,tp)
+			local sg=rg:SelectSubGroup(tp,s.gcheck1,false,1,2,tp)
 			local ct=Duel.Destroy(sg,REASON_EFFECT)
 			if ct>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 				if ct>2 then ct=2 end
 				local dg=Duel.GetMatchingGroup(s.pfilter,tp,LOCATION_DECK,0,nil,tp)
-				local pg=dg:SelectSubGroup(tp,s.gcheck2,true,1,ct,tp)
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+				local pg=dg:SelectSubGroup(tp,s.gcheck2,false,1,ct,tp)
 				for tc in aux.Next(pg) do
 					Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
 				end
 			end
 		end
 	end
+
 end

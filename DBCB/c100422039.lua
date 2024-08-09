@@ -24,6 +24,7 @@ function s.initial_effect(c)
 	e3:SetCategory(CATEGORY_ATKCHANGE)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1)
 	e3:SetCondition(s.atkcon)
@@ -39,7 +40,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()~=e:GetHandler():GetControler()
+	local tp=e:GetHandlerPlayer()
+	return Duel.GetTurnPlayer()==1-tp
 end
 function s.rmtarget(e,c)
 	return c:IsLocation(LOCATION_MZONE) and not c:IsType(TYPE_SPELL+TYPE_TRAP)

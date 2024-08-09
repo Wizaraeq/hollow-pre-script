@@ -20,6 +20,7 @@ function s.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_NEGATE)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_CHAINING)
 	e3:SetRange(LOCATION_MZONE)
@@ -37,15 +38,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	local atk=e:GetHandler():GetAttack()
-	local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
+	local loc,atk=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_ATTACK)
 	return re:IsActiveType(TYPE_MONSTER) and Duel.IsChainNegatable(ev)
 		and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
 		and (LOCATION_ONFIELD)&loc~=0
-		and re:GetHandler():GetAttack()<atk
+		and e:GetHandler():GetAttack()>atk
 end
 function s.costfilter(c)
-	return c:IsSetCard(0x2c1) and c:IsAbleToDeckAsCost()
+	return c:IsFaceup() and c:IsSetCard(0x2c1) and c:IsAbleToDeckAsCost()
 		and bit.band(c:GetType(),TYPE_SPELL+TYPE_CONTINUOUS)==TYPE_SPELL+TYPE_CONTINUOUS
 end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)

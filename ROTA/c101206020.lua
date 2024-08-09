@@ -33,7 +33,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.spfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x103d) and not c:IsCode(id)
+	return c:IsFaceup() and c:IsSetCard(0x3d) and not c:IsCode(id)
 end
 function s.spcon(e,c)
 	if c==nil then return true end
@@ -59,7 +59,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.effcon(e,tp,eg,ep,ev,re,r,rp)
-	return bit.band(r,REASON_SYNCHRO)~=0 and e:GetHandler():GetReasonCard():IsSetCard(0x103d)
+	return bit.band(r,REASON_SYNCHRO)~=0 and e:GetHandler():GetReasonCard():IsSetCard(0x3d)
 end
 function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

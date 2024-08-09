@@ -74,9 +74,8 @@ function s.spselftg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.spselfop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then 
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP) 
-	end
+	if not c:IsRelateToEffect(e) or not aux.NecroValleyFilter()(c) then return end
+	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 end
 function s.spbeortunercon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsContains(e:GetHandler())

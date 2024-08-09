@@ -3,6 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_TOEXTRA)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
@@ -41,11 +42,11 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 		if Duel.IsExistingMatchingCard(s.exfilter,tp,LOCATION_HAND,0,1,nil)
 			and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-			Duel.BreakEffect()
-			Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,3))
-			local eg=Duel.SelectMatchingCard(tp,s.exfilter,tp,LOCATION_HAND,0,1,1,nil)
-			if eg:GetCount()>0 then
-				Duel.SendtoExtraP(eg,nil,REASON_EFFECT)
+			local teg=Duel.SelectMatchingCard(tp,s.exfilter,tp,LOCATION_HAND,0,1,1,nil)
+			if teg:GetCount()>0 then
+				Duel.ShuffleHand(tp)
+				Duel.BreakEffect()
+				Duel.SendtoExtraP(teg,nil,REASON_EFFECT)
 			end
 		end
 	end
@@ -76,13 +77,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(100,race)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		if e:GetLabel()==100 then
-			return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		else
-			return false
-		end
-	end
+	if chk==0 then return e:GetLabel()==100 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)

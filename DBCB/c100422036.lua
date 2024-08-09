@@ -18,7 +18,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetCountLimit(1,id+o)
-	e2:SetTarget(s.spcon)
+	e2:SetCondition(s.spcon)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
@@ -34,13 +34,13 @@ function s.gcheck(g,tp)
 		and g:IsExists(s.thfiter,1,nil,g)
 end
 function s.thfiter(c,g)
-	return c:IsAbleToHand() and g:IsExists(s.tgfiter,1,c,g,c,c:GetRace())
+	return c:IsAbleToHand() and g:IsExists(s.rmfiter,1,c,g,c)
 end
-function s.tgfiter(c,g,tc,race1)
-	return c:IsAbleToGrave() and g:IsExists(s.rmfiter,1,Group.FromCards(c,tc),race1,c:GetRace()) and not c:IsRace(race1)
+function s.rmfiter(c,g,tc)
+	return c:IsAbleToRemove() and g:IsExists(s.tgfiter,1,Group.FromCards(c,tc))
 end
-function s.rmfiter(c,race1,race2)
-	return c:IsAbleToRemove() and not (c:IsRace(race1) or c:IsRace(race2))
+function s.tgfiter(c)
+	return c:IsAbleToGrave()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.hgrfilter,tp,LOCATION_DECK,0,nil)
@@ -56,14 +56,14 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if sg:GetCount()>2 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g1=sg:FilterSelect(tp,s.thfiter,1,1,nil,sg)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local g2=sg:FilterSelect(tp,s.tgfiter,1,1,g1,sg,g1:GetFirst())
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local g3=sg:FilterSelect(tp,s.rmfiter,1,1,g1+g2)
+		local g2=sg:FilterSelect(tp,s.rmfiter,1,1,g1,sg,g1:GetFirst())
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+		local g3=sg:FilterSelect(tp,s.tgfiter,1,1,g1+g2)
 		Duel.SendtoHand(g1,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g1)
-		Duel.SendtoGrave(g2,REASON_EFFECT)
-		Duel.Remove(g3,POS_FACEUP,REASON_EFFECT)
+		Duel.Remove(g2,POS_FACEUP,REASON_EFFECT)
+		Duel.SendtoGrave(g3,REASON_EFFECT)
 	end
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -91,10 +91,7 @@ function s.spgcheck(g,tp)
 	return g:FilterCount(Card.IsLocation,nil,LOCATION_DECK)==1
 		and g:FilterCount(Card.IsLocation,nil,LOCATION_GRAVE)==1
 		and g:FilterCount(Card.IsLocation,nil,LOCATION_REMOVED)==1
-		and not g:IsExists(s.nracefiter,1,nil,g)
-end
-function s.nracefiter(c,g)
-	return g:IsExists(Card.IsRace,1,c,c:GetRace())
+		and g:GetClassCount(Card.GetRace)==#g
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_REMOVED,0,nil,e,tp)
@@ -104,12 +101,11 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,3,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_REMOVED)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_REMOVED,0,nil,e,tp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=2 then return end
-	if Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=2 or Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
+	local g=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_REMOVED,0,nil,e,tp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:SelectSubGroup(tp,s.spgcheck,false,3,3,tp)
-	if sg:GetCount()>0 then
+	if sg:GetCount()>2 then
 		Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
