@@ -47,7 +47,7 @@ end
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetCount()
 	for tc in aux.Next(eg) do
-		if tc:IsPreviousLocation(LOCATION_DECK+LOCATION_HAND)
+		if tc:IsPreviousLocation(LOCATION_DECK+LOCATION_HAND) and not tc:IsCode(id)
 			and tc:IsType(TYPE_MONSTER) then
 			Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
 			Duel.RegisterFlagEffect(1-tp,id,RESET_PHASE+PHASE_END,0,1)
