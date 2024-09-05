@@ -45,7 +45,6 @@ function s.initial_effect(c)
 	end
 end
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=eg:GetCount()
 	for tc in aux.Next(eg) do
 		if tc:IsPreviousLocation(LOCATION_DECK+LOCATION_HAND) and not tc:IsCode(id)
 			and tc:IsType(TYPE_MONSTER) then

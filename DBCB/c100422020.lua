@@ -1,4 +1,4 @@
---Ｍ∀ＬＩＣＥ＜Ｑ＞ＨＥＡＲＴＳ ＯＦ ＣＲＹＰＴＥＲ
+--M∀LICE＜Q＞HEARTS OF CRYPTER
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--link summon
@@ -10,6 +10,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_TODECK+CATEGORY_REMOVE)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
@@ -46,7 +47,7 @@ function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,dg,1,0,0)
 	local lg=e:GetHandler():GetLinkedGroup()
 	if lg and lg:FilterCount(Card.IsType,nil,TYPE_MONSTER)>0 then
-		e:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_INACTIVATE+EFFECT_FLAG_CAN_FORBIDDEN)
+		e:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_INACTIVATE+EFFECT_FLAG_CAN_FORBIDDEN)
 	else
 		e:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	end
@@ -55,7 +56,6 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0
 		and tc:IsLocation(LOCATION_DECK+LOCATION_EXTRA) then
-		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 		local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil):Select(tp,1,1,nil)
 		if #g>0 then

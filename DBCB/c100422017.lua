@@ -1,4 +1,4 @@
---Ｍ∀ＬＩＣＥ＜Ｐ＞Ｄｏｒｍｏｕｓｅ
+--M∀LICE＜P＞Dormouse
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--remove
@@ -8,10 +8,10 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
-	e1:SetTarget(s.drtg)
-	e1:SetOperation(s.drop)
+	e1:SetTarget(s.rmtg)
+	e1:SetOperation(s.rmop)
 	c:RegisterEffect(e1)
-	--bp remove
+	--indestructable
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
@@ -22,7 +22,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--special summon
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_REMOVE)
@@ -36,11 +36,11 @@ end
 function s.rmfilter(c)
 	return c:IsSetCard(0x2c2) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemove()
 end
-function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_DECK)
 end
-function s.drop(e,tp,eg,ep,ev,re,r,rp)
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectMatchingCard(tp,s.rmfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if g:GetCount()>0 then

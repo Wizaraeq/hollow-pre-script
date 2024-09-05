@@ -47,7 +47,6 @@ function s.initial_effect(c)
 	end
 end
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=eg:GetCount()
 	for tc in aux.Next(eg) do
 		Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
 		Duel.RegisterFlagEffect(1-tp,id,RESET_PHASE+PHASE_END,0,1)
