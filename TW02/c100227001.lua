@@ -36,10 +36,11 @@ end
 function s.synfilter(c,g,e,tp)
 	local lv=g:GetSum(Card.GetLevel)
 	return c:IsSetCard(0x35) and c:IsLevel(lv) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_SYNCHRO,tp,false,false) and c:IsType(TYPE_SYNCHRO)
+		and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
 function s.syntg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.dfilter,tp,LOCATION_HAND,0,nil)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and g:CheckSubGroup(s.fselect,2,99,e,tp) end
+	if chk==0 then return g:CheckSubGroup(s.fselect,2,99,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,tp,LOCATION_HAND)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
@@ -47,6 +48,7 @@ function s.synop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.dfilter,tp,LOCATION_HAND,0,nil)
 	if not g:CheckSubGroup(s.fselect,2,99,e,tp) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
+	Duel.SetSelectedCard(e:GetHandler())
 	local sg=g:SelectSubGroup(tp,s.fselect,false,2,99,e,tp)
 	if sg and sg:GetCount()>=2 then
 		Duel.SendtoGrave(sg,REASON_EFFECT+REASON_DISCARD)
@@ -55,6 +57,7 @@ function s.synop(e,tp,eg,ep,ev,re,r,rp)
 		if not sc then return end
 		sc:SetMaterial(nil)
 		Duel.SpecialSummon(sc,SUMMON_TYPE_SYNCHRO,tp,tp,false,false,POS_FACEUP)
+		sc:CompleteProcedure()
 	end
 end
 function s.cfilter(c,tp)
