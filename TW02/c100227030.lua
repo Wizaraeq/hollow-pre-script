@@ -1,4 +1,5 @@
 --ジュラック・ヴォルケーノ
+--ジュラック・ヴォルケーノ
 local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.AddCodeList(c,17548456)
@@ -122,14 +123,14 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-function s.repfilter(c)
-	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and c:IsSetCard(0x22) and c:IsReason(REASON_EFFECT) and not c:IsReason(REASON_REPLACE)
+function s.repfilter(c,tp)
+	return c:IsFaceup() and c:IsControler(tp) and c:IsType(TYPE_MONSTER) and c:IsSetCard(0x22) and c:IsReason(REASON_EFFECT) and not c:IsReason(REASON_REPLACE)
 end
 function s.rmfilter(c)
 	return c:IsRace(RACE_DINOSAUR) and c:IsAbleToRemove()
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return eg:IsExists(s.repfilter,1,nil)
+	if chk==0 then return eg:IsExists(s.repfilter,1,nil,tp)
 		and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	if Duel.SelectEffectYesNo(tp,e:GetHandler(),96) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
@@ -140,5 +141,5 @@ function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	return false
 end
 function s.repval(e,c)
-	return s.repfilter(c)
+	return s.repfilter(c,e:GetHandlerPlayer())
 end

@@ -1,5 +1,4 @@
 --魔轟神獣ベヒルモス
---魔轟神獣ベヒルモス
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--synchro summon
@@ -31,10 +30,10 @@ function s.dfilter(c,g,e,tp)
 	return c:IsSetCard(0x35) and c:IsType(TYPE_MONSTER) and c:IsDiscardable(REASON_EFFECT+REASON_DISCARD)
 end
 function s.fselect(g,e,tp)
-	return g:IsContains(e:GetHandler()) and Duel.IsExistingMatchingCard(s.synfilter,tp,LOCATION_EXTRA,0,1,nil,g,e,tp)
+	local lv=g:GetSum(Card.GetOriginalLevel)
+	return g:IsContains(e:GetHandler()) and Duel.IsExistingMatchingCard(s.synfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,lv)
 end
-function s.synfilter(c,g,e,tp)
-	local lv=g:GetSum(Card.GetLevel)
+function s.synfilter(c,e,tp,lv)
 	return c:IsSetCard(0x35) and c:IsLevel(lv) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_SYNCHRO,tp,false,false) and c:IsType(TYPE_SYNCHRO)
 		and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 end
@@ -46,14 +45,14 @@ function s.syntg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.synop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.dfilter,tp,LOCATION_HAND,0,nil)
-	if not g:CheckSubGroup(s.fselect,2,99,e,tp) then return end
+	if not g:CheckSubGroup(s.fselect,2,99,e,tp) or not aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_SMATERIAL) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 	Duel.SetSelectedCard(e:GetHandler())
 	local sg=g:SelectSubGroup(tp,s.fselect,false,2,99,e,tp)
 	if sg and sg:GetCount()>=2 then
+		local lv=sg:GetSum(Card.GetOriginalLevel)
 		Duel.SendtoGrave(sg,REASON_EFFECT+REASON_DISCARD)
-		local dg=Duel.GetOperatedGroup()
-		local sc=Duel.SelectMatchingCard(tp,s.synfilter,tp,LOCATION_EXTRA,0,1,1,nil,dg,e,tp):GetFirst()
+		local sc=Duel.SelectMatchingCard(tp,s.synfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,lv):GetFirst()
 		if not sc then return end
 		sc:SetMaterial(nil)
 		Duel.SpecialSummon(sc,SUMMON_TYPE_SYNCHRO,tp,tp,false,false,POS_FACEUP)
