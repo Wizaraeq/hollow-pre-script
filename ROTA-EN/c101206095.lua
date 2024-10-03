@@ -36,6 +36,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
+	if not tc:IsRelateToEffect(e) then return end
 	local p=tc:GetOwner()
 	local a=tc:IsCanChangePosition()
 	local b=tc:IsAbleToGrave() and Duel.IsPlayerCanDraw(p,2)
