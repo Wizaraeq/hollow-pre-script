@@ -26,42 +26,18 @@ function s.initial_effect(c)
 	e3:SetTarget(s.drtg)
 	e3:SetOperation(s.drop)
 	c:RegisterEffect(e3)
-	--to grave
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e0:SetCode(EVENT_TO_GRAVE)
-	e0:SetCondition(s.regcon)
-	e0:SetOperation(s.regop)
-	c:RegisterEffect(e0)
 	--place
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e4:SetCode(EVENT_PHASE+PHASE_END)
-	e4:SetRange(LOCATION_GRAVE)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e4:SetCode(EVENT_TO_GRAVE)
 	e4:SetCountLimit(1,id+o)
-	e4:SetCondition(s.setcon)
-	e4:SetTarget(s.settg)
-	e4:SetOperation(s.setop)
+	e4:SetCondition(s.regcon)
+	e4:SetOperation(s.regop)
 	c:RegisterEffect(e4)
-	if not s.global_check then
-		s.global_check=true
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_SUMMON_SUCCESS)
-		ge1:SetOperation(s.checkop)
-		Duel.RegisterEffect(ge1,0)
-	end
-end
-function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=eg:GetFirst()
-	while tc do
-		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD-RESET_TEMP_REMOVE+RESET_PHASE+PHASE_END,0,1)
-		tc=eg:GetNext()
-	end
 end
 function s.racetg(e,c)
-	return c:GetFlagEffect(id)==0
+	return not c:IsStatus(STATUS_SUMMON_TURN+STATUS_FLIP_SUMMON_TURN+STATUS_SPSUMMON_TURN)
 end
 function s.tdfilter(c)
 	return c:IsFaceupEx() and c:IsRace(RACE_INSECT) and c:IsAbleToDeck()
@@ -93,10 +69,16 @@ function s.regcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
-end
-function s.setcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetFlagEffect(id)>0
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,2))
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_PHASE+PHASE_END)
+	e1:SetRange(LOCATION_GRAVE)
+	e1:SetCountLimit(1,id+o)
+	e1:SetTarget(s.settg)
+	e1:SetOperation(s.setop)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+	c:RegisterEffect(e1)
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 end

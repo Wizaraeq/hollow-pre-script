@@ -8,6 +8,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_FLIP+EFFECT_TYPE_TRIGGER_F)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCountLimit(1,id)
+	e1:SetCondition(aux.MimighoulFlipCondition)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
@@ -31,21 +32,19 @@ function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x1b7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	if (Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2) then
-		if Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
-			and Duel.IsExistingMatchingCard(s.spfilter,tp,0,LOCATION_DECK,1,nil,e,1-tp)
-			and Duel.SelectYesNo(1-tp,aux.Stringid(id,2)) then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local g=Duel.SelectMatchingCard(1-tp,s.spfilter,tp,0,LOCATION_DECK,1,1,nil,e,1-tp)
-			if g:GetCount()>0 then
-				Duel.SpecialSummon(g,0,1-tp,1-tp,false,false,POS_FACEUP)
-			end
+	if Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,0,LOCATION_DECK,1,nil,e,1-tp)
+		and Duel.SelectYesNo(1-tp,aux.Stringid(id,2)) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local g=Duel.SelectMatchingCard(1-tp,s.spfilter,tp,0,LOCATION_DECK,1,1,nil,e,1-tp)
+		if g:GetCount()>0 then
+			Duel.SpecialSummon(g,0,1-tp,1-tp,false,false,POS_FACEUP)
 		end
-		local c=e:GetHandler()
-		if c:IsRelateToEffect(e) then
-			Duel.BreakEffect()
-			Duel.GetControl(c,1-tp)
-		end
+	end
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.BreakEffect()
+		Duel.GetControl(c,1-tp)
 	end
 end
 function s.sspfilter(c,tp,e)
