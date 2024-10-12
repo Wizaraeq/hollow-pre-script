@@ -61,15 +61,15 @@ end
 function s.splimit(e,c)
 	return not c:IsAttribute(ATTRIBUTE_WATER) and c:IsLocation(LOCATION_EXTRA)
 end
-function s.cfilter2(c,se)
+function s.cfilter2(c,tp,se)
 	return c:IsReason(REASON_BATTLE+REASON_EFFECT)
-		and c:IsPreviousPosition(POS_FACEUP)
+		and c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousControler(tp)
 		and bit.band(c:GetPreviousAttributeOnField(),ATTRIBUTE_WATER)~=0
 		and c:IsPreviousLocation(LOCATION_MZONE) and (se==nil or c:GetReasonEffect()~=se)
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local se=e:GetLabelObject():GetLabelObject()
-	return eg:IsExists(s.cfilter2,1,e:GetHandler(),se)
+	return eg:IsExists(s.cfilter2,1,e:GetHandler(),tp,se)
 end
 function s.thfilter(c)
 	return c:IsFaceupEx() and c:IsSetCard(0x74) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
