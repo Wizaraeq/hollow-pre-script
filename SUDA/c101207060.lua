@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
-	--
+	--set
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,2))
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
@@ -59,7 +59,7 @@ function s.chk(e,tp,eg,ep,ev,re,r,rp)
 			if s.chkfilter(tc,p) then
 				Duel.RegisterFlagEffect(p,id,RESET_PHASE+PHASE_END,0,1)
 			end
-			tc=eg:GetNext() 
+			tc=eg:GetNext()
 		end
 	end
 end

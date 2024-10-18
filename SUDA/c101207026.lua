@@ -63,5 +63,6 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.BreakEffect()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local sg=g:Select(tp,1,1,nil)
+	Duel.HintSelection(sg)
 	Duel.SendtoGrave(sg,REASON_EFFECT)
 end

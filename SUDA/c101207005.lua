@@ -55,28 +55,27 @@ function s.setfilter(c)
 	return c:IsType(TYPE_SPELL) and c:IsSSetable() and c.toss_coin
 end
 function s.desfilter(c)
-	return c:GetSequence()<5
+	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:GetSequence()<5
 end
 function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local res=0
+	local res=-1
 	if c:IsHasEffect(73206827) then
-		local off=1
-		local ops={}
-		local opval={}
-		if Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) then
-			ops[off]=aux.Stringid(id,2)
-			opval[off-1]=1
-			off=off+1
+		local b1=Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil)
+		local b2=Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_SZONE,LOCATION_SZONE,1,nil)
+		if b1 and not b2 then
+			Duel.Hint(HINT_OPSELECTED,1-tp,60)
+			res=1
 		end
-		if Duel.IsExistingMatchingCard(s.desfilter,tp,LOCATION_SZONE,LOCATION_SZONE,1,nil) then
-			ops[off]=aux.Stringid(id,3)
-			opval[off-1]=0
-			off=off+1
+		if b2 and not b1 then
+			Duel.Hint(HINT_OPSELECTED,1-tp,61)
+			res=0
 		end
-		if off==1 then return end
-		local op=Duel.SelectOption(tp,table.unpack(ops))
-		res=opval[op]
+		if b1 and b2 then
+			res=aux.SelectFromOptions(tp,
+				{b1,60},
+				{b2,61})
+		end
 	else res=Duel.TossCoin(tp,1) end
 	if res==1 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
@@ -84,7 +83,7 @@ function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 		if g:GetCount()>0 then
 			Duel.SSet(tp,g:GetFirst())
 		end
-	else
+	elseif res==0 then
 		local sg=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_SZONE,LOCATION_SZONE,nil)
 		Duel.Destroy(sg,REASON_EFFECT)
 	end

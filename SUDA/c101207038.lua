@@ -4,7 +4,7 @@ function s.initial_effect(c)
 	--fusion summon
 	aux.AddFusionProcFunRep(c,s.matfilter,5,true)
 	c:EnableReviveLimit()
-	aux.AddContactFusionProcedure(c,s.cfilter,LOCATION_MZONE+LOCATION_GRAVE,0,s.sprop(c))
+	aux.AddContactFusionProcedure(c,s.cfilter,LOCATION_MZONE+LOCATION_GRAVE,0,aux.tdcfop(c)):SetValue(SUMMON_VALUE_SELF)
 	--spsummon condition
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
@@ -12,9 +12,9 @@ function s.initial_effect(c)
 	e0:SetCode(EFFECT_SPSUMMON_CONDITION)
 	e0:SetValue(s.splimit)
 	c:RegisterEffect(e0)
-	--
+	--twice battle phase
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,1))
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -23,7 +23,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--special summon
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_CHAINING)
@@ -44,15 +44,8 @@ end
 function s.cfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsAbleToDeckOrExtraAsCost()
 end
-function s.sprop(c)
-	return  function(g)
-				Duel.SendtoDeck(g,nil,2,REASON_COST)
-				--spsummon condition
-				c:RegisterFlagEffect(id,RESET_EVENT+0xff0000,0,0)
-			end
-end
 function s.btcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetFlagEffect(id)~=0
+	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SPECIAL+SUMMON_VALUE_SELF
 end
 function s.btop(e,tp,eg,ep,ev,re,r,rp)
 	local e1=Effect.CreateEffect(e:GetHandler())
@@ -78,11 +71,9 @@ end
 function s.spfilter(c,e,tp)
 	if not c:IsSetCard(0x1019) or not c:IsType(TYPE_MONSTER) then return false end
 	if Duel.GetTurnPlayer()==1-tp then
-		return c:IsType(TYPE_FUSION) and c:IsLevelBelow(11)
-			and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
+		return c:IsLevelBelow(11) and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 	else
-		return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-			and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 	end
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -96,11 +87,14 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetTurnPlayer()==1-tp then loc=LOCATION_EXTRA end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,loc,0,1,1,nil,e,tp)
-	if g:GetCount()>0 then
+	local tc=g:GetFirst()
+	if tc then
 		if loc==LOCATION_EXTRA then
-			Duel.SpecialSummon(g,0,tp,tp,true,false,POS_FACEUP)
+			Duel.SpecialSummon(tc,0,tp,tp,true,false,POS_FACEUP)
 		else
-			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+			Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
+			tc:RegisterFlagEffect(tc:GetOriginalCode(),RESET_EVENT+RESETS_STANDARD+RESET_DISABLE,0,0)
+			Duel.SpecialSummonComplete()
 		end
 	end
 end

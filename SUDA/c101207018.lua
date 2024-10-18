@@ -42,7 +42,14 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 		and Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,e:GetHandler(),tp,e:GetHandler()) end
 	Duel.Release(e:GetHandler(),REASON_COST)
 	local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil,tp,e:GetHandler())
-	Duel.SendtoDeck(g,nil,2,REASON_COST)
+	local gc=g:GetFirst()
+	if gc:IsLocation(LOCATION_HAND) then
+		Duel.ConfirmCards(1-tp,gc)
+	end
+	if gc:IsLocation(LOCATION_MZONE) then
+		Duel.HintSelection(g)
+	end
+	Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST)
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x1019) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

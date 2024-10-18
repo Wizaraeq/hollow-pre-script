@@ -25,12 +25,6 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 s.toss_coin=true
-function s.thfilter1(c)
-	return not c:IsCode(11819473) and c.toss_coin and c:IsAbleToHand()
-end
-function s.thfilter2(c,p)
-	return c:IsAbleToHand(p)
-end
 function s.spfilter1(c,e,tp)
 	return c:IsSetCard(0x5) and c:IsLevelBelow(4) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
@@ -44,35 +38,36 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_COIN,nil,0,tp,1)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local res=0
+	local res=-1
 	if Duel.IsEnvironment(73206827,tp,LOCATION_FZONE) then
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-		local off=1
-		local ops={}
-		local opval={}
-		if Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_DECK,0,1,nil,e,tp) then
-			ops[off]=aux.Stringid(id,2)
-			opval[off-1]=1
-			off=off+1
+		local b1=Duel.IsExistingMatchingCard(s.spfilter1,tp,LOCATION_DECK,0,1,nil,e,tp)
+		local b2=Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.spfilter2),tp,LOCATION_GRAVE,0,1,nil,e,tp)
+		if b1 and not b2 then
+			Duel.Hint(HINT_OPSELECTED,1-tp,60)
+			res=1
 		end
-		if Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.spfilter2),tp,LOCATION_GRAVE,0,1,nil,e,tp) then
-			ops[off]=aux.Stringid(id,3)
-			opval[off-1]=0
-			off=off+1
+		if b2 and not b1 then
+			Duel.Hint(HINT_OPSELECTED,1-tp,61)
+			res=0
 		end
-		if off==1 then return end
-		local op=Duel.SelectOption(tp,table.unpack(ops))
-		res=opval[op]
+		if b1 and b2 then
+			res=aux.SelectFromOptions(tp,
+				{b1,60},
+				{b2,61})
+		end
 	else
 		res=Duel.TossCoin(tp,1)
 	end
 	if res==1 then
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,s.spfilter1,tp,LOCATION_DECK,0,1,1,nil,e,tp)
 		if g:GetCount()>0 then
 			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 		end
-	else
+	elseif res==0 then
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter2),tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
 		if g:GetCount()>0 then

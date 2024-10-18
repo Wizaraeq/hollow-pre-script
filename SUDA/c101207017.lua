@@ -37,15 +37,16 @@ function s.initial_effect(c)
 	e3:SetOperation(s.spop2)
 	c:RegisterEffect(e3)
 end
-function s.costfilter(c,ec,e,tp)
+function s.costfilter(c,e,tp)
 	return c:IsSetCard(0x1019) and c:IsType(TYPE_MONSTER) and not c:IsPublic()
 		and c:IsCanBeSpecialSummoned(e,SUMMON_VALUE_GLADIATOR,tp,false,false)
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_HAND,0,1,c,c,e,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_HAND,0,1,c,e,tp)
+		and not c:IsPublic() end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
-	local sc=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_HAND,0,1,1,c,c,e,tp):GetFirst()
+	local sc=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_HAND,0,1,1,c,e,tp):GetFirst()
 	Duel.ConfirmCards(1-tp,sc)
 	Duel.ShuffleHand(tp)
 	sc:CreateEffectRelation(e)
@@ -57,11 +58,14 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,2,tp,LOCATION_HAND)
 end
+function s.spopfilter(c,e,tp)
+	return c:IsRelateToEffect(e) and c:IsCanBeSpecialSummoned(e,SUMMON_VALUE_GLADIATOR,tp,false,false)
+end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local sc=e:GetLabelObject()
 	local g=Group.FromCards(c,sc)
-	local fg=g:Filter(Card.IsRelateToEffect,nil,e)
+	local fg=g:Filter(s.spopfilter,nil,e,tp)
 	if fg:GetCount()~=2 then return end
 	if Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
 	Duel.SpecialSummon(fg,SUMMON_VALUE_GLADIATOR,tp,tp,false,false,POS_FACEUP)

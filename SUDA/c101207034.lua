@@ -51,28 +51,24 @@ function s.thfilter(c)
 end
 function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local res=0
+	local res=-1
 	if c:IsHasEffect(73206827) then
-		local off=1
-		local ops={}
-		local opval={}
-		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK+LOCATION_HAND,0,1,nil,e,tp) then
-			ops[off]=aux.Stringid(id,2)
-			opval[off-1]=1
-			off=off+1
+		local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK+LOCATION_HAND,0,1,nil,e,tp)
+		local b2=Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil)
+		if b1 and not b2 then
+			Duel.Hint(HINT_OPSELECTED,1-tp,60)
+			res=1
 		end
-		if Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) then
-			ops[off]=aux.Stringid(id,3)
-			opval[off-1]=0
-			off=off+1
+		if b2 and not b1 then
+			Duel.Hint(HINT_OPSELECTED,1-tp,61)
+			res=0
 		end
-		if off==1 then return end
-		local op=Duel.SelectOption(tp,table.unpack(ops))
-		res=opval[op]
-	else
-		res=Duel.TossCoin(tp,1)
-	end
+		if b1 and b2 then
+			res=aux.SelectFromOptions(tp,
+				{b1,60},
+				{b2,61})
+		end
+	else res=Duel.TossCoin(tp,1) end
 	if res==1 then
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
@@ -80,7 +76,7 @@ function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 		if g:GetCount()>0 then
 			Duel.SpecialSummon(g,0,tp,tp,true,false,POS_FACEUP)
 		end
-	else
+	elseif res==0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if g:GetCount()>0 then
