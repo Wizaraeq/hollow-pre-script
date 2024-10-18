@@ -1,5 +1,4 @@
 --魔轟神ガミュジン
---魔轟神ガミュジン
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--synchro summon
@@ -74,7 +73,8 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local ct=Duel.GetMatchingGroupCount(s.drfilter,tp,LOCATION_MZONE,0,nil)
 	if ct==0 then return end
 	local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
-	Duel.Draw(p,ct,REASON_EFFECT)
-	Duel.BreakEffect()
-	Duel.DiscardHand(p,nil,1,1,REASON_EFFECT+REASON_DISCARD)
+	if Duel.Draw(p,ct,REASON_EFFECT)>0 then
+		Duel.BreakEffect()
+		Duel.DiscardHand(p,nil,1,1,REASON_EFFECT+REASON_DISCARD)
+	end
 end
