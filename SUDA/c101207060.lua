@@ -50,7 +50,7 @@ function s.initial_effect(c)
 	end
 end
 function s.chkfilter(c,tp)
-	return c:GetOwner()==tp and c:IsSummonLocation(LOCATION_DECK)
+	return c:GetOwner()==tp and c:IsSummonLocation(LOCATION_DECK) and c:IsSetCard(0x1019)
 end
 function s.chk(e,tp,eg,ep,ev,re,r,rp)
 	for p=0,1 do

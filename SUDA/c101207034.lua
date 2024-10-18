@@ -76,7 +76,7 @@ function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 		if g:GetCount()>0 then
 			Duel.SpecialSummon(g,0,tp,tp,true,false,POS_FACEUP)
 		end
-	elseif res==0 then
+	else
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if g:GetCount()>0 then

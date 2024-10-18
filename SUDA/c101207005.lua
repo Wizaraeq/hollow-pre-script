@@ -55,7 +55,7 @@ function s.setfilter(c)
 	return c:IsType(TYPE_SPELL) and c:IsSSetable() and c.toss_coin
 end
 function s.desfilter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:GetSequence()<5
+	return c:GetSequence()<5
 end
 function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -83,7 +83,7 @@ function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 		if g:GetCount()>0 then
 			Duel.SSet(tp,g:GetFirst())
 		end
-	elseif res==0 then
+	else
 		local sg=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_SZONE,LOCATION_SZONE,nil)
 		Duel.Destroy(sg,REASON_EFFECT)
 	end

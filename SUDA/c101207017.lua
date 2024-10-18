@@ -62,6 +62,7 @@ function s.spopfilter(c,e,tp)
 	return c:IsRelateToEffect(e) and c:IsCanBeSpecialSummoned(e,SUMMON_VALUE_GLADIATOR,tp,false,false)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=1 then return end
 	local c=e:GetHandler()
 	local sc=e:GetLabelObject()
 	local g=Group.FromCards(c,sc)
