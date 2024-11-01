@@ -70,7 +70,7 @@ function s.cfilter2(c)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ct=Duel.GetMatchingGroupCount(s.cfilter2,tp,LOCATION_MZONE,0,nil)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() end
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and chkc:IsAbleToGrave() end
 	if chk==0 then return ct>0 and Duel.CheckRemoveOverlayCard(tp,1,0,3,REASON_EFFECT)
 		and Duel.IsExistingTarget(Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)

@@ -74,7 +74,7 @@ function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk)
 		me:SetValue(s.fuslimit)
 		Duel.RegisterEffect(me,tp)
 		local chkf=tp
-		local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsOnField,nil)
+		local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsOnField,nil):Filter(s.filter2,nil,e)
 		local res=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
 		if not res then
 			local ce=Duel.GetChainMaterial(tp)
@@ -113,17 +113,20 @@ function s.fsop(e,tp,eg,ep,ev,re,r,rp)
 	if sg1:GetCount()>0 or (sg2~=nil and sg2:GetCount()>0) then
 		local sg=sg1:Clone()
 		if sg2 then sg:Merge(sg2) end
+		::cancel::
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local tg=sg:Select(tp,1,1,nil)
 		local tc=tg:GetFirst()
 		if sg1:IsContains(tc) and (sg2==nil or not sg2:IsContains(tc) or ce and not Duel.SelectYesNo(tp,ce:GetDescription())) then
 			local mat1=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
+			if #mat1==0 then goto cancel end
 			tc:SetMaterial(mat1)
 			Duel.SendtoGrave(mat1,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 			Duel.BreakEffect()
 			Duel.SpecialSummon(tc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
 		elseif ce~=nil then
 			local mat2=Duel.SelectFusionMaterial(tp,tc,mg3,nil,chkf)
+			if #mat2==0 then goto cancel end
 			local fop=ce:GetOperation()
 			fop(ce,e,tp,tc,mat2)
 		end

@@ -105,8 +105,11 @@ end
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetAttacker()
 	if tc:IsControler(1-tp) then tc=Duel.GetAttackTarget() end
-	e:SetLabelObject(tc)
-	return tc and tc:IsControler(tp) and tc:IsSetCard(0xff)
+	if tc and tc:IsControler(tp) and tc:IsSetCard(0xff) then
+		e:SetLabelObject(tc)
+		return true
+	end
+	return false
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToRemove() end

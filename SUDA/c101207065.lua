@@ -35,20 +35,23 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if not tc:IsRelateToEffect(e) or not tc:IsFaceup() then return end
+	if not tc:IsRelateToEffect(e) or not tc:IsFaceup() or not tc:IsType(TYPE_MONSTER) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil,tc:GetOriginalRace())
 	if g:GetCount()>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
 		local rc=g:GetFirst()
-		if Duel.IsExistingMatchingCard(s.hdfilter,tp,LOCATION_HAND,0,1,nil,e,tp,rc:GetOriginalRace()) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+		if Duel.IsExistingMatchingCard(s.hdfilter,tp,LOCATION_HAND,0,1,nil,e,tp,rc:GetOriginalRace())
+			and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+			::cancel::
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
-			local dg=Duel.SelectMatchingCard(tp,s.hdfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp,rc:GetOriginalRace())
+			local dg=Duel.SelectMatchingCard(tp,s.hdfilter,tp,LOCATION_HAND,0,0,1,nil,e,tp,rc:GetOriginalRace())
 			local sg=nil
 			if dg:GetCount()>0 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-				sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,1,1,dg,e,tp,rc:GetOriginalRace())
+				sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,0,1,dg,e,tp,rc:GetOriginalRace())
+				if #sg==0 then goto cancel end
 			end
 			Duel.ShuffleHand(tp)
 			if dg:GetCount()>0 then

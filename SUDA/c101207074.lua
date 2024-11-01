@@ -51,27 +51,19 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 	if rg and rg:FilterCount(s.ovfilter,nil,tp)>0 then
-		Duel.BreakEffect()
 		local tc=rg:FilterSelect(tp,s.ovfilter,1,1,nil,tp):GetFirst()
 		if Duel.SendtoHand(tc,nil,REASON_EFFECT)~=0 and tc:IsLocation(LOCATION_HAND) then
 			Duel.ConfirmCards(1-tp,tc)
 			Duel.ShuffleHand(tp)
 			if Duel.NegateActivation(ev) then
 				Duel.BreakEffect()
-				local res=0
 				if tc:IsType(TYPE_MONSTER) and Duel.IsExistingMatchingCard(Card.IsAbleToDeck,tp,LOCATION_HAND,0,1,nil) then
 					local sg=Duel.SelectMatchingCard(tp,Card.IsAbleToDeck,tp,LOCATION_HAND,0,1,1,nil)
 					Duel.SendtoDeck(sg,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
-					res=1
 				end
 				if tc:IsType(TYPE_SPELL) and Duel.IsExistingMatchingCard(s.atkfilter,tp,LOCATION_MZONE,0,1,nil,e) then
 					local g=Duel.GetMatchingGroup(s.atkfilter,tp,LOCATION_MZONE,0,nil,e)
 					if g:GetCount()>0 then
-						if res==1 then
-							Duel.BreakEffect()
-						else
-							res=1
-						end
 						for ac in aux.Next(g) do
 							local e1=Effect.CreateEffect(c)
 							e1:SetType(EFFECT_TYPE_SINGLE)
@@ -87,9 +79,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 					and (tc:IsType(TYPE_FIELD) or Duel.GetLocationCount(tp,LOCATION_SZONE)>0)
 					and tc:IsSSetable(true)
 					and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-					if res==1 then
-						Duel.BreakEffect()
-					end
 					Duel.SSet(tp,tc)
 				end
 			end

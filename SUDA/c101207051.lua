@@ -34,9 +34,20 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	local b2=Duel.GetFlagEffect(tp,id+o)==0 and Duel.IsExistingMatchingCard(s.thfilter2,tp,LOCATION_DECK,0,1,nil)
 	if chk==0 then return b1 or b2 end
-	local op=aux.SelectFromOptions(tp,
-		{b1,aux.Stringid(id,1)},
-		{b2,aux.Stringid(id,2)})
+	local op=0
+	if b1 and not b2 then
+		Duel.Hint(HINT_OPSELECTED,1-tp,aux.Stringid(id,1))
+		op=1
+	end
+	if b2 and not b1 then
+		Duel.Hint(HINT_OPSELECTED,1-tp,aux.Stringid(id,2))
+		op=2
+	end
+	if b1 and b2 then
+		op=aux.SelectFromOptions(tp,
+			{b1,aux.Stringid(id,1)},
+			{b2,aux.Stringid(id,2)})
+	end
 	Duel.RegisterFlagEffect(tp,id+(op-1)*o,RESET_PHASE+PHASE_END,0,1)
 	if op==1 then
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
@@ -65,11 +76,13 @@ function s.fsop(e,tp,eg,ep,ev,re,r,rp)
 	if sg1:GetCount()>0 or (sg2~=nil and sg2:GetCount()>0) then
 		local sg=sg1:Clone()
 		if sg2 then sg:Merge(sg2) end
+		::cancel::
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local tg=sg:Select(tp,1,1,nil)
 		local tc=tg:GetFirst()
 		if sg1:IsContains(tc) and (sg2==nil or not sg2:IsContains(tc) or (ce and not Duel.SelectYesNo(tp,ce:GetDescription()))) then
 			local mat=Duel.SelectFusionMaterial(tp,tc,mg,nil,chkf)
+			if #mat==0 then goto cancel end
 			tc:SetMaterial(mat)
 			if mat:IsExists(Card.IsFacedown,1,nil) then
 				local cg=mat:Filter(Card.IsFacedown,nil)
@@ -84,6 +97,7 @@ function s.fsop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SpecialSummon(tc,SUMMON_VALUE_DARK_FUSION,tp,tp,false,false,POS_FACEUP)
 		elseif ce~=nil then
 			local mat2=Duel.SelectFusionMaterial(tp,tc,mg3,nil,chkf)
+			if #mat2==0 then goto cancel end
 			local fop=ce:GetOperation()
 			fop(ce,e,tp,tc,mat2,SUMMON_VALUE_DARK_FUSION)
 		end

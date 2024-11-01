@@ -1,10 +1,13 @@
---ＡＲＧ☆Ｓ－紫電のテュデル
+--ARG☆S－紫電のデュデル
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
+	e1:SetHintTiming(TIMING_DAMAGE_STEP)
+	e1:SetCondition(aux.dscon)
 	c:RegisterEffect(e1)
 	--up atk
 	local e2=Effect.CreateEffect(c)

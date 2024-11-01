@@ -40,9 +40,12 @@ function s.xyzfilter(c)
 	return c:IsFaceup() and c:IsRank(3)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<6 then return end
-	Duel.ConfirmDecktop(tp,6)
-	local g=Duel.GetDecktopGroup(tp,6)
+	local dc=Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)
+	if dc==0 then return end
+	if dc>6 then dc=6 end
+	Duel.ConfirmDecktop(tp,dc)
+	local g=Duel.GetDecktopGroup(tp,dc)
+	local sd=true
 	if g:IsExists(s.thfilter,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local sg=g:FilterSelect(tp,s.thfilter,1,1,nil)
@@ -50,22 +53,37 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SendtoHand(sg,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,sg)
 		Duel.ShuffleHand(tp)
-		Duel.SortDecktop(tp,tp,5)
-	else Duel.SortDecktop(tp,tp,6) end
-	local rg=Group.CreateGroup()
-	local xg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_MZONE,0,nil)
-	if xg:GetCount()<1 then return end
-	for tc in aux.Next(xg) do
-		local hg=tc:GetOverlayGroup()
-		if hg:GetCount()>0 then
-			rg:Merge(hg)
+		if dc>1 then
+			Duel.SortDecktop(tp,tp,dc-1)
+		else
+			sd=false
 		end
-	end
-	if rg:FilterCount(Card.IsAbleToHand,nil)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
-		Duel.BreakEffect()
-		local thg=rg:FilterSelect(tp,Card.IsAbleToHand,1,1,nil)
-		Duel.SendtoHand(thg,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,thg)
+	else Duel.SortDecktop(tp,tp,dc) end
+	if sd then
+		local rg=Group.CreateGroup()
+		local xg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_MZONE,0,nil)
+		if xg:GetCount()<1 then return end
+		for tc in aux.Next(xg) do
+			local hg=tc:GetOverlayGroup()
+			if hg:GetCount()>0 then
+				rg:Merge(hg)
+			end
+		end
+		if rg:FilterCount(Card.IsAbleToHand,nil)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
+			Duel.BreakEffect()
+			local thg=rg:FilterSelect(tp,Card.IsAbleToHand,1,1,nil)
+			Duel.SendtoHand(thg,nil,REASON_EFFECT)
+			local sg=thg:Filter(Card.IsControler,nil,tp)
+			if sg:GetCount()>0 then
+				Duel.ConfirmCards(1-tp,sg)
+				Duel.ShuffleHand(tp)
+			end
+			local og=thg:Filter(Card.IsControler,nil,1-tp)
+			if og:GetCount()>0 then
+				Duel.ConfirmCards(tp,og)
+				Duel.ShuffleHand(1-tp)
+			end
+		end
 	end
 end
 function s.ovcon(e,tp,eg,ep,ev,re,r,rp)

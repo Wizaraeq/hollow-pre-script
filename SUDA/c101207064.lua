@@ -26,15 +26,14 @@ function s.initial_effect(c)
 	e2:SetOperation(s.activate(ATTRIBUTE_WATER))
 	c:RegisterEffect(e2)
 end
-function s.spfilter(c,e,tp,att,rp)
+function s.spfilter(c,e,tp,att)
 	if att and not c:IsAttribute(ATTRIBUTE_WATER) then return false end
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE,c:GetOwner())
-		and Duel.IsExistingMatchingCard(s.desfilter,c:GetOwner(),LOCATION_MZONE,0,1,nil,c:GetOwner(),att,rp)
+		and Duel.IsExistingMatchingCard(s.desfilter,c:GetOwner(),LOCATION_MZONE,0,1,nil,c:GetOwner(),att,tp)
 end
-function s.desfilter(c,tp,att,rp)
+function s.desfilter(c,p,att,rp)
 	if not att and not c:IsAttribute(ATTRIBUTE_WATER) then return false end
-	return c:IsFaceup()
-		and Duel.GetMZoneCount(tp,c,rp)>0
+	return c:IsFaceup() and Duel.GetMZoneCount(p,c,rp)>0
 end
 function s.target(att)
 	return function(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -42,6 +41,9 @@ function s.target(att)
 			if chk==0 then return Duel.IsExistingTarget(s.spfilter,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,nil,e,tp,att) end
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local g=Duel.SelectTarget(tp,s.spfilter,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,1,nil,e,tp,att)
+			local gc=g:GetFirst()
+			local dg=Duel.GetFieldGroup(gc:GetOwner(),LOCATION_MZONE,0)
+			Duel.SetOperationInfo(0,CATEGORY_DESTROY,dg,1,0,0)
 			Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 		end
 end

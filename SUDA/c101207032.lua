@@ -1,4 +1,4 @@
---Ｅ－ＨＥＲＯ インフェルノ・ウィング－ヘルバック・ファイア
+--E-HERO インフェルノ・ウィング－ヘルバック・ファイア
 local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.AddCodeList(c,94820406,21844576,58932615)
@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetCategory(CATEGORY_DAMAGE)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e3:SetCode(EVENT_BATTLE_DESTROYING)
+	e3:SetCode(EVENT_BATTLE_DESTROYED)
 	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1,id+o)
@@ -56,10 +56,19 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
+function s.damfilter(c,tp)
+	if not c:IsPreviousControler(1-tp) then return false end
+	local bc=c:GetReasonCard()
+	if not bc then return false end
+	if bc:IsRelateToBattle() then
+		return bc:IsFaceup() and bc:IsLocation(LOCATION_MZONE) and bc:IsControler(tp) and bc:IsType(TYPE_MONSTER) and bc:IsSetCard(0x8)
+	else
+		return bc:GetPreviousPosition()&POS_FACEUP>0 and bc:GetPreviousLocation()&LOCATION_MZONE==LOCATION_MZONE and bc:IsPreviousControler(tp)
+			and bc:GetPreviousTypeOnField()&TYPE_MONSTER==TYPE_MONSTER and bc:IsPreviousSetCard(0x8)
+	end
+end
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
-	local rc=eg:GetFirst()
-	return rc:IsRelateToBattle() and rc:IsStatus(STATUS_OPPO_BATTLE) and rc:IsControler(tp)
-		and rc:IsFaceup() and rc:IsSetCard(0x8)
+	return eg:IsExists(s.damfilter,1,nil,tp)
 end
 function s.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

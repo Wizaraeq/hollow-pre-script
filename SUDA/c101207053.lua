@@ -9,6 +9,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--standby disable
 	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_COIN)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e2:SetCode(EVENT_PHASE+PHASE_STANDBY)
@@ -55,7 +56,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local coin=Duel.TossCoin(tp,1)
 	if coin==0 then
-		c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_STANDBY,0,3,0,aux.Stringid(id,3))
+		c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_STANDBY,EFFECT_FLAG_CLIENT_HINT,3,0,aux.Stringid(id,3))
 	end
 end
 function s.upcon(e,c)
@@ -81,12 +82,13 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		return
 	end
 	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
-	if g:GetClassCount(Card.GetCode)<2 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local tg=g:SelectSubGroup(tp,aux.dncheck,false,2,2)
-	Duel.SendtoHand(tg,nil,REASON_EFFECT)
-	Duel.ConfirmCards(1-tp,tg)
-	Duel.ShuffleHand(tp)
+	if g:GetClassCount(Card.GetCode)>=2 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+		local tg=g:SelectSubGroup(tp,aux.dncheck,false,2,2)
+		Duel.SendtoHand(tg,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,tg)
+		Duel.ShuffleHand(tp)
+	end
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)

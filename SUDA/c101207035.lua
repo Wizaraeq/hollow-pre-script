@@ -1,4 +1,4 @@
---蛇眼の原罪竜
+--蛇眼の原罪龍
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--fusion material
@@ -21,7 +21,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.hsptg)
 	e1:SetOperation(s.hspop)
 	c:RegisterEffect(e1)
-	--draw and destory
+	--place
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
@@ -73,8 +73,7 @@ function s.mvfilter(c,tp)
 		if not c:IsAbleToChangeControler() then return false end
 		r=LOCATION_REASON_CONTROL
 	end
-	return c:IsFaceup()
-		and Duel.GetLocationCount(c:GetOwner(),LOCATION_SZONE,tp,r)>0
+	return c:IsFaceup() and Duel.GetLocationCount(c:GetOwner(),LOCATION_SZONE,tp,r)>0
 end
 function s.mvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.mvfilter(chkc,tp) end

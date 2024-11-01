@@ -47,14 +47,14 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
 	local tc=g:GetFirst()
-	if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP) then
+	if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0 then
 		Duel.AdjustAll()
 		if not tc:IsLocation(LOCATION_MZONE) then return end
 		local etg=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_EXTRA,0,nil,tc)
 		if etg:GetCount()>0 then
-			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local sg=etg:Select(tp,1,1,nil)
+			Duel.BreakEffect()
 			Duel.SynchroSummon(tp,sg:GetFirst(),tc)
 		end
 	end
@@ -77,7 +77,7 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_MZONE,0,1,1,nil,tp)
 	if #g>0 then
 		Duel.HintSelection(g)
-		if Duel.Destroy(g,REASON_EFFECT)~=0
+		if Duel.Destroy(g,REASON_EFFECT)~=0 and Duel.GetMatchingGroupCount(s.spfilter2,tp,LOCATION_DECK,0,nil,e,tp)>1
 			and not Duel.IsPlayerAffectedByEffect(tp,59822133)
 			and Duel.GetLocationCount(tp,LOCATION_MZONE)>1 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)

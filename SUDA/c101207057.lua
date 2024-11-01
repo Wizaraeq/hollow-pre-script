@@ -24,13 +24,11 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 end
-function s.cfilter(c,re,tp)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP)
-		and c:IsReason(REASON_EFFECT)
-		and (not c:IsPreviousLocation(LOCATION_ONFIELD) or bit.band(c:GetPreviousTypeOnField(),TYPE_SPELL+TYPE_TRAP)~=0)
+function s.cfilter(c)
+	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsReason(REASON_EFFECT)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.cfilter,1,nil,re,tp)
+	return eg:IsExists(s.cfilter,1,nil)
 end
 function s.setfilter(c,tp,ex)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
@@ -58,11 +56,12 @@ function s.rmfilter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToRemoveAsCost()
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost()
-		and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_GRAVE,0,2,e:GetHandler()) end
+	local c=e:GetHandler()
+	if chk==0 then return c:IsAbleToRemoveAsCost()
+		and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_GRAVE,0,2,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.rmfilter,tp,LOCATION_GRAVE,0,2,2,e:GetHandler())
-	g:AddCard(e:GetHandler())
+	local g=Duel.SelectMatchingCard(tp,s.rmfilter,tp,LOCATION_GRAVE,0,2,2,c)
+	g:AddCard(c)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function s.spfilter(c,e,tp)

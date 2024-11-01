@@ -39,7 +39,7 @@ function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local res1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND,0,1,nil,e,tp)
 	local chkf=tp
-	local mg1=Duel.GetFusionMaterial(tp)
+	local mg1=Duel.GetFusionMaterial(tp):Filter(aux.NOT(Card.IsImmuneToEffect),nil,e)
 	local res2=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,chkf)
 	if not res2 then
 		local ce=Duel.GetChainMaterial(tp)
@@ -51,9 +51,20 @@ function s.fstg(e,tp,eg,ep,ev,re,r,rp,chk)
 		end
 	end
 	if chk==0 then return res1 or res2 end
-	local op=aux.SelectFromOptions(tp,
-		{res1,aux.Stringid(id,2),1},
-		{res2,aux.Stringid(id,3),2})
+	local op=0
+	if res1 and not res2 then
+		Duel.Hint(HINT_OPSELECTED,1-tp,aux.Stringid(id,2))
+		op=1
+	end
+	if res2 and not res1 then
+		Duel.Hint(HINT_OPSELECTED,1-tp,aux.Stringid(id,3))
+		op=2
+	end
+	if res1 and res2 then
+		op=aux.SelectFromOptions(tp,
+			{res1,aux.Stringid(id,2),1},
+			{res2,aux.Stringid(id,3),2})
+	end
 	e:SetLabel(op)
 	if op==1 then
 		e:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -117,5 +128,5 @@ function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then Duel.SSet(tp,c) end
+	if c:IsRelateToEffect(e) and aux.NecroValleyFilter()(c) then Duel.SSet(tp,c) end
 end

@@ -69,12 +69,14 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(500)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
 		c:RegisterEffect(e1)
-		if e:GetLabel()==100 then
-			Duel.BreakEffect()
-			Duel.Damage(1-tp,1000,REASON_EFFECT)
-		elseif e:GetLabel()==200 and Duel.IsPlayerCanDiscardDeck(tp,1) and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-			Duel.BreakEffect()
-			Duel.DiscardDeck(tp,1,REASON_EFFECT)
+		if not c:IsHasEffect(EFFECT_REVERSE_UPDATE) then
+			if e:GetLabel()==100 then
+				Duel.BreakEffect()
+				Duel.Damage(1-tp,1000,REASON_EFFECT)
+			elseif e:GetLabel()==200 and Duel.IsPlayerCanDiscardDeck(tp,1) and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+				Duel.BreakEffect()
+				Duel.DiscardDeck(tp,1,REASON_EFFECT)
+			end
 		end
 	end
 end
