@@ -1,5 +1,6 @@
 --葬角のカルノヴルス
 local s,id,o=GetID()
+---@param c Card
 function s.initial_effect(c)
 	--Synchro summon
 	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)

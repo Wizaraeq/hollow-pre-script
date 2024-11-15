@@ -1,5 +1,6 @@
 --ジェムナイト・ディスパージョン
 local s,id,o=GetID()
+---@param c Card
 function s.initial_effect(c)
 	aux.AddCodeList(c,1264319)
 	--Activate 1

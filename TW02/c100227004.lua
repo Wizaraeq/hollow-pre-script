@@ -1,5 +1,6 @@
 --魔轟神界の復活
 local s,id,o=GetID()
+---@param c Card
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -94,9 +95,20 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local b1=Duel.IsPlayerCanDraw(tp,1)
 	local b2=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp)
 	if chk==0 then return b1 or b2 end
-	local op=aux.SelectFromOptions(tp,
+	local op=0
+	if b1 and not b2 then
+		Duel.Hint(HINT_OPSELECTED,1-tp,aux.Stringid(id,3))
+		op=1
+	end
+	if b2 and not b1 then
+		Duel.Hint(HINT_OPSELECTED,1-tp,aux.Stringid(id,4))
+		op=2
+	end
+	if b1 and b2 then
+		op=aux.SelectFromOptions(tp,
 			{b1,aux.Stringid(id,3)},
 			{b2,aux.Stringid(id,4)})
+	end
 	e:SetLabel(op)
 	if op==1 then
 		e:SetCategory(CATEGORY_DRAW)

@@ -8,6 +8,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(0,TIMING_MAIN_END)
 	e1:SetCountLimit(1,id)
 	e1:SetCondition(s.condition)
 	e1:SetTarget(s.target)
@@ -29,7 +30,7 @@ function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase()
 	return ph==PHASE_MAIN1 or ph==PHASE_MAIN2
 end
-function s.rfilter(c,e,tp)
+function s.rfilter(c)
 	return c:IsFaceupEx() and c:IsSetCard(0xb4)
 end
 function s.mfilter(c)

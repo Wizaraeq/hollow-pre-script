@@ -16,7 +16,6 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
 	e2:SetCode(EFFECT_RITUAL_LEVEL)
 	e2:SetValue(s.rlevel)
-	e2:SetRange(LOCATION_MZONE)
 	c:RegisterEffect(e2)
 	--tohand
 	local e3=Effect.CreateEffect(c)
@@ -49,7 +48,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.rlevel(e,c)
-	local lv=aux.GetCappedLevel(e:GetHandler())
+	local ec=e:GetHandler()
+	local lv=aux.GetCappedLevel(ec)
+	if not ec:IsLocation(LOCATION_MZONE) then return lv end
 	if c:IsSetCard(0xb4) then
 		local clv=c:GetLevel()
 		return (lv<<16)+clv
@@ -69,7 +70,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_REMOVED,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local tg=g:SelectSubGroup(tp,aux.dncheck,false,1,g:GetCount())
-	if tg:GetCount()>0 then
+	if tg and tg:GetCount()>0 then
 		Duel.SendtoHand(tg,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,tg)
 	end

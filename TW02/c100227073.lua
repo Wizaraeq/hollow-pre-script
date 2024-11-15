@@ -32,7 +32,6 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
 	e4:SetCode(EFFECT_RITUAL_LEVEL)
 	e4:SetValue(s.rlevel)
-	e4:SetRange(LOCATION_MZONE)
 	c:RegisterEffect(e4)
 end
 function s.cfilter(c)
@@ -69,7 +68,9 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.rlevel(e,c)
-	local lv=aux.GetCappedLevel(e:GetHandler())
+	local ec=e:GetHandler()
+	local lv=aux.GetCappedLevel(ec)
+	if not ec:IsLocation(LOCATION_MZONE) then return lv end
 	if c:IsSetCard(0xb4) then
 		local clv=c:GetLevel()
 		return (lv<<16)+clv

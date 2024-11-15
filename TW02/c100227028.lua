@@ -1,5 +1,6 @@
 --ジュラック・スティゴ
 local s,id,o=GetID()
+---@param c Card
 function s.initial_effect(c)
 	aux.AddCodeList(c,id)
 	--special summon
@@ -18,7 +19,6 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_BATTLE_DESTROYED)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
