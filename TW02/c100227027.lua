@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	--draw
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_DRAW+CATEGORY_HANDES)
+	e2:SetCategory(CATEGORY_DRAW|CATEGORY_HANDES)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,id+o)
@@ -57,15 +57,16 @@ function s.dhfilter(c)
 	return c:IsSetCard(0x22) and c:IsDiscardable()
 end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.dhfilter,tp,LOCATION_HAND,0,1,nil)
-		and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,2,nil)
-		and Duel.IsPlayerCanDraw(tp,2) end
+	if chk==0 then
+		local g=Duel.GetFieldGroup(tp,LOCATION_HAND,0)
+		return Duel.IsPlayerCanDraw(tp,2) and g:CheckSubGroup(s.gselect,2,2)
+	end
 	Duel.SetTargetPlayer(tp)
 	Duel.SetTargetParam(2)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,2)
 end
 function s.gselect(g)
-	return g:IsExists(Card.IsSetCard,1,nil,0x22) and g:FilterCount(Card.IsDiscardable,nil)==2
+	return g:IsExists(Card.IsSetCard,1,nil,0x22) and g:FilterCount(Card.IsDiscardable,nil,REASON_EFFECT)==2
 end
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
@@ -73,7 +74,7 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>=2 and g:CheckSubGroup(s.gselect,2,2) then
 		Duel.Hint(HINT_SELECTMSG,p,HINTMSG_DISCARD)
 		local g1=g:SelectSubGroup(tp,s.gselect,false,2,2)
-		if g1 and g1:GetCount()>0 and Duel.SendtoGrave(g1,REASON_DISCARD+REASON_EFFECT)~=0 then
+		if g1 and g1:GetCount()==2 and Duel.SendtoGrave(g1,REASON_DISCARD+REASON_EFFECT)~=0 then
 			Duel.BreakEffect()
 			Duel.Draw(p,d,REASON_EFFECT)
 		end
