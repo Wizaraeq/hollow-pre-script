@@ -57,7 +57,7 @@ function s.mtfilter(c,e)
 	return c:IsRelateToEffect(e) and c:IsCanOverlay()
 end
 function s.rmfilter(c,xg)
-	return c:IsType(TYPE_MONSTER) and xg:IsExists(Card.IsAttribute,1,nil,c:GetAttribute()) and c:IsAbleToRemove() and c:IsFaceup()
+	return c:IsType(TYPE_MONSTER) and xg:IsExists(Card.IsAttribute,1,nil,c:GetAttribute()) and c:IsAbleToRemove() and c:IsFaceupEx()
 end
 function s.mtop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

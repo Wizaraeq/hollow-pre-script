@@ -1,4 +1,4 @@
---No-P.U.N.K.ライジング・スケール
+--No－P.U.N.K.ライジング・スケール
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--special summon
@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	--search or spsummon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_SPECIAL_SUMMON+CATEGORY_DECKDES+CATEGORY_GRAVE_SPSUMMON)
+	e2:SetCategory(CATEGORY_TOHAND|CATEGORY_SEARCH|CATEGORY_SPECIAL_SUMMON|CATEGORY_DECKDES|CATEGORY_GRAVE_SPSUMMON)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
@@ -87,9 +87,10 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.poscon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
+	local p,loc,atk=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_PLAYER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_ATTACK)
 	local rc=re:GetHandler()
-	return ep==1-tp and rc:IsOnField() and rc:IsFaceup() and rc:IsRelateToEffect(re) and re:IsActiveType(TYPE_MONSTER) and rc:IsAttackAbove(2500)
+	return p==1-tp and (LOCATION_ONFIELD)&loc~=0 and re:IsActiveType(TYPE_MONSTER) and atk>=2500
+		and rc:IsRelateToEffect(re)
 end
 function s.postg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local rc=re:GetHandler()
