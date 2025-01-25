@@ -55,7 +55,7 @@ function s.splimit(e,se,sp,st)
 	return true
 end
 function s.hspfilter1(c,tp,fc)
-	return c:IsCode(85065943)
+	return c:IsFusionCode(85065943)
 		and c:IsControler(tp) and Duel.GetLocationCountFromEx(tp,tp,c,fc)>0 and c:IsCanBeFusionMaterial(fc,SUMMON_TYPE_SPECIAL)
 end
 function s.hspfilter2(c,tp,fc)
