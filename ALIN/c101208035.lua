@@ -34,19 +34,26 @@ function s.initial_effect(c)
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCode(EVENT_CHAIN_SOLVED)
-	e4:SetCondition(s.regcon)
+	e4:SetCode(EVENT_CHAINING)
+	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e4:SetOperation(s.regop)
 	c:RegisterEffect(e4)
-	--cannot activate
 	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD)
-	e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e5:SetCode(EFFECT_CANNOT_ACTIVATE)
+	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e5:SetRange(LOCATION_MZONE)
-	e5:SetTargetRange(0,1)
-	e5:SetValue(s.aclimit)
+	e5:SetCode(EVENT_CHAIN_SOLVED)
+	e5:SetCondition(s.atkcon)
+	e5:SetOperation(s.atkop)
 	c:RegisterEffect(e5)
+	--cannot activate
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_FIELD)
+	e6:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e6:SetCode(EFFECT_CANNOT_ACTIVATE)
+	e6:SetRange(LOCATION_MZONE)
+	e6:SetTargetRange(0,1)
+	e6:SetValue(s.aclimit)
+	c:RegisterEffect(e6)
 end
 s.material_type=TYPE_SYNCHRO
 function s.splimit(e,se,sp,st)
@@ -91,13 +98,17 @@ function s.hspop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Release(sg,REASON_SPSUMMON|REASON_MATERIAL)
 	sg:DeleteGroup()
 end
-function s.regcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET+RESET_CHAIN,0,1)
+end
+function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return rp==1-tp and c:GetFlagEffect(id)~=0
 end
 function s.atkfilter(c,e)
 	return c:IsFaceup() and not c:IsImmuneToEffect(e)
 end
-function s.regop(e,tp,eg,ep,ev,re,r,rp)
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.atkfilter,tp,0,LOCATION_MZONE,nil,e)
 	if g:GetCount()>0 then

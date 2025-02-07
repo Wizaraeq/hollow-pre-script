@@ -53,22 +53,17 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=aux.SelectTargetFromFieldFirst(tp,Card.IsAbleToRemove,tp,0,loc,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
-	if g:GetFirst():IsLocation(LOCATION_ONFIELD) then
-		Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_MZONE)
-	end
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		if Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)~=0 and tc:IsPreviousLocation(LOCATION_ONFIELD)
-			and (tc:IsLocation(LOCATION_REMOVED) or tc:IsType(TYPE_TOKEN)) then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-			local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
-			if g:GetCount()>0 then
-				Duel.BreakEffect()
-				Duel.HintSelection(g)
-				Duel.SendtoHand(g,nil,REASON_EFFECT)
-			end
+	if tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)~=0 and tc:IsPreviousLocation(LOCATION_ONFIELD)
+		and (tc:IsLocation(LOCATION_REMOVED) or tc:IsType(TYPE_TOKEN)) then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+		local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
+		if g:GetCount()>0 then
+			Duel.BreakEffect()
+			Duel.HintSelection(g)
+			Duel.SendtoHand(g,nil,REASON_EFFECT)
 		end
 	end
 end

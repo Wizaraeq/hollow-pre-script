@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.thfilter(c)
-	return not c:IsCode(id) and (c:IsCode(32274490) or aux.IsCodeListed(c,32274490)) and c:IsAbleToHand()
+	return not c:IsCode(id) and aux.IsCodeOrListed(c,32274490) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end

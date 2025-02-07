@@ -14,6 +14,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_SZONE)
+	e2:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
 	e2:SetCountLimit(1,id)
 	e2:SetCost(s.cost)
 	e2:SetTarget(s.target)
@@ -70,5 +71,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SSet(tp,g)
 			Duel.ConfirmCards(1-tp,g)
 		end
+		e:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOHAND)
 	end
 end

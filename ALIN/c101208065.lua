@@ -31,7 +31,7 @@ function s.pietg(e,c)
 	return c:IsCode(36021814)
 end
 function s.tgfilter(c)
-	return (c:IsCode(32274490) or aux.IsCodeListed(c,32274490)) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
+	return aux.IsCodeOrListed(c,32274490) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
 end
 function s.spfilter(c,e,tp)
 	return c:IsCode(32274490,36021814) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
@@ -42,8 +42,8 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		and Duel.IsExistingTarget(s.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectTarget(tp,s.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()

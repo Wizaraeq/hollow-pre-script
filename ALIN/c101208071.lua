@@ -6,6 +6,8 @@ function s.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
+	e1:SetHintTiming(TIMING_DAMAGE_STEP)
 	c:RegisterEffect(e1)
 	--def up
 	local e2=Effect.CreateEffect(c)
@@ -30,7 +32,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.atkfilter(c)
-	return c:IsFaceup() and (c:IsCode(25862681) or aux.IsCodeListed(c,25862681))
+	return c:IsFaceup() and aux.IsCodeOrListed(c,25862681)
 end
 function s.val(e,c)
 	local ct=Duel.GetMatchingGroupCount(s.atkfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,nil)

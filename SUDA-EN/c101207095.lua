@@ -14,7 +14,7 @@ function s.filter(c,e,tp)
 	return c:IsRace(RACE_REPTILE)
 end
 function s.mfilter(c)
-	return c:GetLevel()>0 and c:IsRace(RACE_REPTILE) and c:IsReleasable()
+	return c:GetLevel()>0 and c:IsRace(RACE_REPTILE) and c:IsReleasable(REASON_EFFECT|REASON_MATERIAL|REASON_RITUAL)
 end
 function s.gfilter(g)
 	return g:GetCount()<3

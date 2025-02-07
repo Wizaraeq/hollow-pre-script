@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetHintTiming(0,TIMING_BATTLE_START+TIMING_BATTLE_END)
+	e2:SetHintTiming(TIMING_BATTLE_START+TIMING_BATTLE_END)
 	e2:SetCountLimit(1,id+o)
 	e2:SetCondition(s.descon)
 	e2:SetTarget(s.destg)
@@ -37,7 +37,10 @@ function s.mvcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.mvfilter(c,tp)
 	local r=LOCATION_REASON_TOFIELD
-	if not c:IsControler(c:GetOwner()) then r=LOCATION_REASON_CONTROL end
+	if not c:IsControler(c:GetOwner()) then
+		if not c:IsAbleToChangeControler() then return false end
+		r=LOCATION_REASON_CONTROL
+	end
 	return (c:IsLocation(LOCATION_MZONE) or c:IsType(TYPE_MONSTER) and not c:IsForbidden() and c:CheckUniqueOnField(c:GetOwner()))
 		and c:IsFaceupEx() and Duel.GetLocationCount(c:GetOwner(),LOCATION_SZONE,tp,r)>0
 end

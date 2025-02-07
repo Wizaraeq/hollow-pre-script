@@ -57,11 +57,11 @@ end
 function s.lvcon(e,tp,eg,ep,ev,re,r,rp)
 	return tp==ep
 end
-function s.lvfilter(c)
-	return c:IsFaceup() and c:IsLevelAbove(1)
+function s.lvfilter(c,lv)
+	return c:IsFaceup() and c:IsLevelAbove(1) and (not lv or not c:IsLevel(lv))
 end
 function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.lvfilter(chkc) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.lvfilter(chkc,e:GetLabel()) end
 	if chk==0 then return Duel.IsExistingTarget(s.lvfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local g=Duel.SelectTarget(tp,s.lvfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)

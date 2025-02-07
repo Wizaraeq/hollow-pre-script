@@ -8,7 +8,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetRange(LOCATION_PZONE)
 	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CAN_FORBIDDEN)
 	e1:SetTargetRange(1,0)
 	e1:SetTarget(s.splimit)
 	c:RegisterEffect(e1)
@@ -60,7 +60,7 @@ function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if ev<1 then return false end
 	local te,p=Duel.GetChainInfo(ev-1,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)
-	return rp==1-tp and te and te:GetHandler():IsSetCard(0x1c0) and te:IsActiveType(TYPE_SPELL)
+	return rp==1-tp and p==tp and te and te:GetHandler():IsSetCard(0x1c0) and te:IsActiveType(TYPE_SPELL)
 		and Duel.GetFlagEffect(tp,id)==0
 		and Duel.IsChainDisablable(ev) and not Duel.IsChainDisabled(ev)
 end

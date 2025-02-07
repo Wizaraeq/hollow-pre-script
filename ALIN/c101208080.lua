@@ -17,12 +17,17 @@ function s.cfilter(c,tp)
 		and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,nil,c)
 end
 function s.rmfilter(c,ec)
-	return c:IsAbleToRemove() and c:IsType(TYPE_MONSTER)
+	local eq=false
+	if c:IsAllTypes(TYPE_LINK+TYPE_MONSTER) then
+		eq=ec:IsAllTypes(TYPE_LINK+TYPE_MONSTER) and c:GetLink()==ec:GetLink()
+	elseif c:IsAllTypes(TYPE_XYZ+TYPE_MONSTER) then
+		eq=ec:IsAllTypes(TYPE_XYZ+TYPE_MONSTER) and c:GetOriginalRank()==ec:GetOriginalRank()
+	else
+		eq=c:GetOriginalLevel()==ec:GetOriginalLevel()
+	end
+	return eq and c:IsAbleToRemove() and c:IsType(TYPE_MONSTER)
 		and c:GetOriginalRace()&ec:GetOriginalRace()~=0
 		and c:GetOriginalAttribute()&ec:GetOriginalAttribute()~=0
-		and (c:GetLink()==ec:GetLink() and c:IsAllTypes(TYPE_LINK+TYPE_MONSTER) and ec:IsAllTypes(TYPE_LINK+TYPE_MONSTER)
-		or c:GetOriginalRank()==ec:GetOriginalRank() and c:IsAllTypes(TYPE_XYZ+TYPE_MONSTER) and ec:IsAllTypes(TYPE_XYZ+TYPE_MONSTER)
-		or c:GetOriginalLevel()==ec:GetOriginalLevel() and not c:IsType(TYPE_LINK+TYPE_XYZ) and not ec:IsType(TYPE_LINK+TYPE_XYZ))
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and s.cfilter(chkc,tp) end

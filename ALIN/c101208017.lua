@@ -44,7 +44,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function s.spfilter(c,tp)
-	return c:IsFaceup() and c:GetBaseAttack()==2500 and c:GetBaseDefense()==2500 and c:IsAbleToRemoveAsCost() and Duel.GetMZoneCount(tp,c)>0
+	return c:IsFaceup() and c:GetBaseAttack()==2500 and c:GetBaseDefense()==2500 and c:IsAbleToRemoveAsCost()
+		and c:IsAbleToRemove(tp,POS_FACEUP,REASON_SPSUMMON) and Duel.GetMZoneCount(tp,c)>0
 end
 function s.spcon(e,c)
 	if c==nil then return true end

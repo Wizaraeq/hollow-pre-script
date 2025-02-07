@@ -93,7 +93,7 @@ function s.splimit(e,c)
 	return not c:IsType(TYPE_XYZ) and c:IsLocation(LOCATION_EXTRA)
 end
 function s.ocfilter(c)
-	return c:IsFaceup() and c:IsSummonType(SUMMON_TYPE_XYZ) and c:IsType(TYPE_MONSTER)
+	return c:IsFaceup() and c:IsSummonType(SUMMON_TYPE_XYZ) and c:IsAllTypes(TYPE_XYZ+TYPE_MONSTER)
 end
 function s.ovcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.ocfilter,1,nil)
