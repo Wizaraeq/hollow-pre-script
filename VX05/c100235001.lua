@@ -47,10 +47,10 @@ function s.ntcon(e,c,minc)
 		and Duel.IsExistingMatchingCard(s.cfilter,c:GetControler(),LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
 end
 function s.lvcfilter(c,tp)
-	return c:IsSummonPlayer(tp) and c:IsLevelAbove(1) and c:IsPosition(POS_FACEUP_ATTACK)
+	return c:IsSummonPlayer(tp) and c:IsLevelAbove(1) and c:IsPosition(POS_FACEUP_ATTACK) and c:IsLocation(LOCATION_MZONE)
 end
 function s.lvcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.lvcfilter,1,nil,1-tp)
+	return eg:IsExists(s.lvcfilter,1,nil,1-tp) and not eg:IsContains(e:GetHandler())
 end
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 	local g=eg:Filter(s.lvcfilter,nil,1-tp)
