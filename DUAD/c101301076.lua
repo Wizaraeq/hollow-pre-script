@@ -46,37 +46,14 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():GetFlagEffect(id)==0
 		and (b1 or b2 or b3 or b4 or b5 or b6) end
 	e:GetHandler():RegisterFlagEffect(id,RESET_CHAIN,0,1)
-	local op=0
-	if b1 and b2 and b3 and b4 and b5 and b6 then
-		local page=0
-		while op==0 or op==7 do
-			if page==0 then
-				op=aux.SelectFromOptions(tp,
-				{b1,aux.Stringid(id,1),1},
-				{b2,aux.Stringid(id,2),2},
-				{b3,aux.Stringid(id,3),3},
-				{true,1345,7})
-			else
-				op=aux.SelectFromOptions(tp,
-				{b4,aux.Stringid(id,4),4},
-				{b5,aux.Stringid(id,5),5},
-				{b6,aux.Stringid(id,6),6},
-				{true,1360,7})
-			end
-			if op==7 then
-				page=1-page
-			end
-		end
-	else
-		op=aux.SelectFromOptions(tp,
-			{b1,aux.Stringid(id,1),1},
-			{b2,aux.Stringid(id,2),2},
-			{b3,aux.Stringid(id,3),3},
-			{b4,aux.Stringid(id,4),4},
-			{b5,aux.Stringid(id,5),5},
-			{b6,aux.Stringid(id,6),6}
-		)
-	end
+	local op=aux.SelectFromOptions(tp,
+		{b1,aux.Stringid(id,1),1},
+		{b2,aux.Stringid(id,2),2},
+		{b3,aux.Stringid(id,3),3},
+		{b4,aux.Stringid(id,4),4},
+		{b5,aux.Stringid(id,5),5},
+		{b6,aux.Stringid(id,6),6}
+	)
 	e:SetLabel(op)
 	Duel.RegisterFlagEffect(tp,id+o*op,RESET_PHASE+PHASE_END,0,1)
 	if op==1 then
