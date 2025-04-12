@@ -34,17 +34,20 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(g,REASON_COST)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFieldGroupCount(1-tp,LOCATION_DECK,0) end
+	if chk==0 then return Duel.GetFieldGroupCount(1-tp,LOCATION_DECK,0)>0 end
 	Duel.SetTargetPlayer(tp)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
 	local g=Duel.GetDecktopGroup(1-p,1)
-	Duel.ConfirmCards(p,g)
-	local tc=g:GetFirst()
-	local opt=Duel.SelectOption(p,aux.Stringid(id,2),aux.Stringid(id,3))
-	if opt==1 then
-		Duel.MoveSequence(tc,opt)
+	if g:GetCount()>0 then
+
+		Duel.ConfirmCards(p,g)
+		local tc=g:GetFirst()
+		local opt=Duel.SelectOption(p,aux.Stringid(id,2),aux.Stringid(id,3))
+		if opt==1 then
+			Duel.MoveSequence(tc,opt)
+		end
 	end
 end
 function s.rafilter(c)
