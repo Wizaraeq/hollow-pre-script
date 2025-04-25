@@ -1,7 +1,7 @@
 --春
 local s,id,o=GetID()
 function s.initial_effect(c)
-	c:EnableCounterPermit(0x174)
+	c:EnableCounterPermit(0x6e)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -64,16 +64,16 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	e2:SetValue(dis)
 	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 	c:RegisterEffect(e2)
-	c:AddCounter(0x174,dsc)
+	c:AddCounter(0x6e,dsc)
 end
 function s.val(e,c)
-	return e:GetHandler():GetCounter(0x174)*400
+	return e:GetHandler():GetCounter(0x6e)*400
 end
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()~=tp
 end
 function s.stfilter(c,tp)
-	return c:IsCanHaveCounter(0x174) and c:IsType(TYPE_FIELD) and not c:IsForbidden() and c:CheckUniqueOnField(tp)
+	return c:IsCanHaveCounter(0x6e) and c:IsType(TYPE_FIELD) and not c:IsForbidden() and c:CheckUniqueOnField(tp)
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.stfilter,tp,LOCATION_DECK,0,1,nil,tp) end
@@ -85,8 +85,8 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		local fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
 		local ct=0
 		if fc then
-			if fc==e:GetHandler() and fc:GetCounter(0x174)>0 then
-				ct=fc:GetCounter(0x174)
+			if fc==e:GetHandler() and fc:GetCounter(0x6e)>0 then
+				ct=fc:GetCounter(0x6e)
 			end
 			Duel.SendtoGrave(fc,REASON_RULE)
 			Duel.BreakEffect()
@@ -97,8 +97,8 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetCode(EFFECT_CANNOT_TRIGGER)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1,true)
-		if ct>0 and tc:IsCanAddCounter(0x174,ct) then
-			tc:AddCounter(0x174,ct)
+		if ct>0 and tc:IsCanAddCounter(0x6e,ct) then
+			tc:AddCounter(0x6e,ct)
 		end
 	end
 end
