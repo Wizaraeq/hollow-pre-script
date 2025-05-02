@@ -35,7 +35,7 @@ function s.matfilter(c)
 end
 function s.chcon(e,tp,eg,ep,ev,re,r,rp)
 	local p,loc,atk=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_PLAYER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_ATTACK)
-	return p==1-tp and (LOCATION_ONFIELD)&loc~=0 and re:IsActiveType(TYPE_MONSTER) and atk>=2000
+	return p==1-tp and (LOCATION_ONFIELD&loc)~=0 and re:IsActiveType(TYPE_MONSTER) and atk>=2000
 end
 function s.desfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x1115) and c:IsType(TYPE_LINK)

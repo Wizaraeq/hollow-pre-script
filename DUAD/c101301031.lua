@@ -55,7 +55,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.bfilter(c)
-	return c:IsSetCard(0xdf) and (c:IsAbleToHand() or c:IsAbleToExtra())
+	return c:IsFaceup() and c:IsSetCard(0xdf) and (c:IsAbleToHand() or c:IsAbleToExtra())
 end
 function s.bstg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and chkc:IsControler(tp) and s.bfilter(chkc) and chkc~=e:GetHandler() end

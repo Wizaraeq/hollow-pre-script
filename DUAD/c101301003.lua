@@ -42,7 +42,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			res=Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)>0
 		end
 	end
-	if res and c:IsRelateToEffect(e) and c:IsPosition(POS_FACEUP_ATTACK) then
+	if res and c:IsRelateToChain() and c:IsPosition(POS_FACEUP_ATTACK) then
 		Duel.BreakEffect()
 		Duel.ChangePosition(c,POS_FACEUP_DEFENSE)
 	end

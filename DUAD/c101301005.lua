@@ -44,11 +44,13 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
-		local dg=Duel.SelectMatchingCard(tp,Card.IsDiscardable,tp,LOCATION_HAND,0,1,1,nil,REASON_EFFECT)
-		Duel.BreakEffect()
-		Duel.ShuffleHand(tp)
-		Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD)
+		if g:IsExists(Card.IsLocation,1,nil,LOCATION_HAND) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
+			local dg=Duel.SelectMatchingCard(tp,Card.IsDiscardable,tp,LOCATION_HAND,0,1,1,nil,REASON_EFFECT)
+			Duel.BreakEffect()
+			Duel.ShuffleHand(tp)
+			Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD)
+		end
 	end
 end
 function s.cfilter(c,tp)
@@ -58,11 +60,11 @@ function s.thcon2(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp) and not eg:IsContains(e:GetHandler())
 end
 function s.tgfilter(c,e)
-	return c:IsCanBeEffectTarget(e) and c:IsAbleToHand()
+	return c:IsLocation(LOCATION_GRAVE) and c:IsCanBeEffectTarget(e) and c:IsAbleToHand()
 end
 function s.thtg2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg=eg:Filter(s.cfilter,nil,tp):Filter(s.tgfilter,nil,e)
-	if chkc then return mg:IsContains(chkc) end
+	if chkc then return mg:IsContains(chkc) and s.tgfilter(chkc,e) end
 	if chk==0 then return mg:GetCount()>0 end
 	local g=mg
 	if mg:GetCount()>1 then

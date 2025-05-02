@@ -109,16 +109,18 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 			local dg=sg:Select(tp,1,1,nil)
 			Duel.ShuffleHand(tp)
 			Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD)
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetDescription(aux.Stringid(id,3))
-			e1:SetType(EFFECT_TYPE_FIELD)
-			e1:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
-			e1:SetTargetRange(LOCATION_GRAVE,0)
-			e1:SetTarget(s.mttg)
-			e1:SetValue(s.mtval)
-			e1:SetValue(1)
-			e1:SetReset(RESET_PHASE+PHASE_END)
-			Duel.RegisterEffect(e1,tp)
+			--ex material
+			local e2=Effect.CreateEffect(e:GetHandler())
+			e2:SetDescription(aux.Stringid(id,3))
+			e2:SetType(EFFECT_TYPE_FIELD)
+			e2:SetCode(EFFECT_CHAIN_MATERIAL)
+			e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+			e2:SetTargetRange(1,0)
+			e2:SetReset(RESET_PHASE+PHASE_END)
+			e2:SetTarget(s.chain_target)
+			e2:SetOperation(s.chain_operation)
+			e2:SetValue(aux.FilterBoolFunction(Card.IsSetCard,0xdf))
+			Duel.RegisterEffect(e2,tp)
 		end
 	end
 end
@@ -128,4 +130,28 @@ end
 function s.mtval(e,c)
 	if not c then return true end
 	return c:IsSetCard(0xdf)
+end
+function s.exfilter1(c,e)
+	return c:IsType(TYPE_MONSTER) and c:IsAbleToGrave() and not c:IsImmuneToEffect(e) and c:IsCanBeFusionMaterial()
+end
+function s.exfilter2(c,e)
+	return c:IsType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and c:IsAbleToRemove() and c:IsLocation(LOCATION_GRAVE)
+end
+function s.chain_target(e,te,tp)
+	local g1=Duel.GetMatchingGroup(s.exfilter1,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil,te)
+	local g2=Duel.GetMatchingGroup(s.exfilter2,tp,LOCATION_GRAVE,0,nil,te)
+	if g1 and g2 then
+	g1:Merge(g2) end
+	return g1
+end
+function s.chain_operation(e,te,tp,tc,mat,sumtype)
+	if not sumtype then sumtype=SUMMON_TYPE_FUSION end
+	tc:SetMaterial(mat)
+	local ftc1=mat:Filter(Card.IsLocation,nil,LOCATION_GRAVE)
+	local ftc2=mat:Filter(Card.IsLocation,nil,LOCATION_ONFIELD+LOCATION_HAND)
+	Duel.Remove(ftc1,POS_FACEUP,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+	Duel.SendtoGrave(ftc2,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+	Duel.BreakEffect()
+	Duel.SpecialSummon(tc,sumtype,tp,tp,false,false,POS_FACEUP)
+	e:Reset()
 end

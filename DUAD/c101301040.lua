@@ -72,7 +72,8 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToChain() and tc:IsType(TYPE_MONSTER) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)>0 then
+	if tc:IsRelateToChain() and tc:IsType(TYPE_MONSTER) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)>0
+		and tc:IsLocation(LOCATION_REMOVED) then
 		local atk=tc:GetTextAttack()
 		if atk>0 then
 			Duel.BreakEffect()

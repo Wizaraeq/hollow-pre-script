@@ -41,7 +41,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
 	local g=Duel.GetDecktopGroup(1-p,1)
 	if g:GetCount()>0 then
-
 		Duel.ConfirmCards(p,g)
 		local tc=g:GetFirst()
 		local opt=Duel.SelectOption(p,aux.Stringid(id,2),aux.Stringid(id,3))
@@ -51,17 +50,26 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.rafilter(c)
-	return c:IsFaceup() and (RACE_ALL&~c:GetRace())~=0 and (ATTRIBUTE_ALL~c:GetAttribute())~=0
+	return c:IsFaceup() and ((RACE_ALL&~c:GetRace())~=0 or (ATTRIBUTE_ALL&~c:GetAttribute())~=0)
 end
 function s.ratg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and chkc:IsFaceup() end
 	if chk==0 then return Duel.IsExistingTarget(s.rafilter,tp,LOCATION_MZONE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 	local tc=Duel.SelectTarget(tp,s.rafilter,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()
+	local race,att
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RACE)
-	local race=Duel.AnnounceRace(tp,1,RACE_ALL&~tc:GetRace())
+	if ATTRIBUTE_ALL&~tc:GetAttribute()==0 then
+		race=Duel.AnnounceRace(tp,1,RACE_ALL&~tc:GetRace())
+	else
+		race=Duel.AnnounceRace(tp,1,RACE_ALL)
+	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATTRIBUTE)
-	local att=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_ALL~tc:GetAttribute())
+	if RACE_ALL&~tc:GetRace()==0 or race==tc:GetRace() then
+		att=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_ALL&~tc:GetAttribute())
+	else
+		att=Duel.AnnounceAttribute(tp,1,ATTRIBUTE_ALL)
+	end
 	e:SetLabel(race,att)
 end
 function s.raop(e,tp,eg,ep,ev,re,r,rp)
