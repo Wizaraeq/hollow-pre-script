@@ -46,7 +46,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
 			Duel.BreakEffect()
 			Duel.SpecialSummon(sc,SUMMON_TYPE_FUSION,tp,tp,false,false,POS_FACEUP)
-			sc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+			local fid=sc:GetFieldID()
+			sc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1,fid)
 			sc:CompleteProcedure()
 			local e1=Effect.CreateEffect(e:GetHandler())
 			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
@@ -54,17 +55,24 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetCode(EVENT_PHASE+PHASE_END)
 			e1:SetCountLimit(1)
 			e1:SetLabelObject(sc)
-			e1:SetLabel(Duel.GetTurnCount())
-			e1:SetCondition(s.rmcon)
+			e1:SetLabel(Duel.GetTurnCount()+1)
+			e1:SetCondition(s.rmcon(fid))
 			e1:SetOperation(s.rmop)
 			e1:SetReset(RESET_PHASE+PHASE_END,2)
 			Duel.RegisterEffect(e1,tp)
 		end
 	end
 end
-function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
-	return tc and tc:GetFlagEffect(id)~=0 and e:GetLabel()~=Duel.GetTurnCount()
+function s.rmcon(fid)
+	return function(e,tp,eg,ep,ev,re,r,rp)
+			local tc=e:GetLabelObject()
+			if tc:GetFlagEffect(id)~=0 and tc:GetFlagEffectLabel(id)==fid then
+				return Duel.GetTurnCount()==e:GetLabel()
+			else
+				e:Reset()
+				return false
+			end
+	end
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()

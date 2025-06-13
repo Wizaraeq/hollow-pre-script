@@ -88,7 +88,7 @@ function s.splimit(e,se,sp,st)
 	if c:IsLocation(LOCATION_EXTRA) and c:IsFacedown() then
 		return st&SUMMON_TYPE_FUSION==SUMMON_TYPE_FUSION and Duel.GetFlagEffect(sp,id)==0
 	end
-	return true
+	return false
 end
 function s.desfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0xae)
