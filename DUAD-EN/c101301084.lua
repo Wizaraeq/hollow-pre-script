@@ -80,9 +80,6 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
-function s.matfilter(c,tp)
-	return c:IsReleasable() and Duel.GetMZoneCount(tp,c)>0 and c:GetLevel()>0
-end
 function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then
@@ -102,7 +99,7 @@ function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 	Auxiliary.GCheckAdditional=Auxiliary.RitualCheckAdditional(c,1,"Greater")
 	local mat=mg:SelectSubGroup(tp,Auxiliary.RitualCheck,true,1,1,tp,c,1,"Greater")
 	Auxiliary.GCheckAdditional=nil
-	if mat:GetCount()>0 then
+	if mat and mat:GetCount()>0 then
 		c:SetMaterial(mat)
 		Duel.ReleaseRitualMaterial(mat)
 		Duel.SpecialSummon(c,SUMMON_TYPE_RITUAL,tp,tp,false,true,POS_FACEUP)
