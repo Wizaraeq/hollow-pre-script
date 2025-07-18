@@ -45,7 +45,8 @@ function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 		and Duel.IsChainDisablable(ev) and not Duel.IsChainDisabled(ev)
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.SelectEffectYesNo(tp,e:GetHandler(),aux.Stringid(id,3)) then
+	if Duel.GetFlagEffect(tp,id)==0
+		and Duel.SelectEffectYesNo(tp,e:GetHandler(),aux.Stringid(id,3)) then
 		Duel.Hint(HINT_CARD,0,id)
 		Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
 		if Duel.NegateEffect(ev) then
@@ -75,7 +76,7 @@ function s.spcost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.spfilter2,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_EXTRA,0,nil,e,tp,c:IsReleasable(),c)
 	if chk==0 then return g:GetCount()>0 end
-	if g:IsExists(Card.IsLocation,1,nil,LOCATION_HAND) and not Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and g:IsExists(Card.IsLocation,1,nil,LOCATION_HAND) and (not c:IsReleasable() or not Duel.SelectYesNo(tp,aux.Stringid(id,2))) then
 		e:SetLabel(0)
 	else
 		Duel.Release(c,REASON_COST)
@@ -87,7 +88,7 @@ function s.spfilter2(c,e,tp,res,rc)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 		and (res and (not c:IsLocation(LOCATION_EXTRA)
 		and Duel.GetMZoneCount(tp,rc)>0
-		or Duel.GetLocationCountFromEx(tp,tp,rc,c)>0)
+		or c:IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,rc,c)>0)
 		or c:IsLocation(LOCATION_HAND) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0)
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -105,7 +106,7 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 		res=true
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil,e,tp,res,nil)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter2),tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil,e,tp,res,nil)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end

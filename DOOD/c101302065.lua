@@ -95,6 +95,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	elseif e:GetLabel()==2 then
+		if Duel.GetFlagEffect(tp,id+o*3)~=0 then return end
 		local e1=Effect.CreateEffect(c)
 		e1:SetDescription(aux.Stringid(id,5))
 		e1:SetType(EFFECT_TYPE_FIELD)

@@ -94,12 +94,12 @@ end
 function s.chkfilter(c,odevity)
 	return c:GetCurrentScale()%2==odevity
 end
-function s.chkcon(g,tp)
+function s.chkcon(g)
 	return g:IsExists(s.chkfilter,1,nil,1) and g:IsExists(s.chkfilter,1,nil,0)
 end
 function s.effcon(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.scfilter,tp,LOCATION_PZONE,0,nil)
-	return s.chkcon(g,tp)
+	local g=Duel.GetMatchingGroup(s.scfilter,e:GetHandlerPlayer(),LOCATION_PZONE,0,nil)
+	return s.chkcon(g)
 end
 function s.effectfilter(e,ct)
 	local p=e:GetHandler():GetControler()
