@@ -76,9 +76,9 @@ function s.cfilter2(c)
 end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local rg=Duel.GetMatchingGroup(s.rmfilter,tp,LOCATION_GRAVE,0,nil)
-	if chk==0 then return rg:CheckSubGroup(aux.gffcheck,2,2,s.cfilter1,nil,s.cfilter2,nil) end
+	if chk==0 then return rg:CheckSubGroup(aux.gffcheck,2,2,s.cfilter1,0,s.cfilter2,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=rg:SelectSubGroup(tp,aux.gffcheck,false,2,2,s.cfilter1,nil,s.cfilter2,nil)
+	local g=rg:SelectSubGroup(tp,aux.gffcheck,false,2,2,s.cfilter1,0,s.cfilter2,nil)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
