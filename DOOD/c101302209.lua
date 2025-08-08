@@ -87,8 +87,7 @@ function s.rectg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.recop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	Duel.Recover(p,d,REASON_EFFECT)
-	if rp==1-tp then
+	if Duel.Recover(p,d,REASON_EFFECT)>0 and rp==1-tp then
 		Duel.BreakEffect()
 		Duel.Recover(p,500,REASON_EFFECT)
 	end

@@ -79,7 +79,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
 	if not Duel.NegateEffect(ev) then return end
 	if Duel.IsExistingMatchingCard(s.confilter,tp,LOCATION_GRAVE,0,2,nil)
-		and rc:IsRelateToChain(ev) and rc:IsDestructable()
+		and rc:IsRelateToChain(ev) and rc:IsType(TYPE_MONSTER) and rc:IsDestructable()
 		and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
 		Duel.BreakEffect()
 		Duel.Destroy(rc,REASON_EFFECT)

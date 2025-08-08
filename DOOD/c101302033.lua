@@ -86,7 +86,9 @@ function s.rsop(e,tp,eg,ep,ev,re,r,rp)
 		else
 			mg:RemoveCard(tc)
 		end
-		if not mg:IsContains(c) then return end
+		if not mg:IsContains(c) then
+			aux.RCheckAdditional=nil
+		end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
 		Duel.SetSelectedCard(c)
 		aux.GCheckAdditional=aux.RitualCheckAdditional(tc,tc:GetLevel(),"Greater")

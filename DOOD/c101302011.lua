@@ -74,7 +74,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Overlay(sc,Group.FromCards(tc))
 		Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
 		sc:CompleteProcedure()
-		if c:IsRelateToChain() and c:IsControler(tp) then
+		if c:IsRelateToChain() and c:IsControler(tp) and c:IsFaceup() then
 			if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then
 				Duel.SendtoGrave(c,REASON_RULE)
 				return

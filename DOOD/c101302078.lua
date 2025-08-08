@@ -19,7 +19,7 @@ function s.spfilter(c,e,tp)
 		and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,nil,c:GetAttack())
 end
 function s.tgfilter(c,atk)
-	return (c:IsSetCard(0x145) or c:IsLocation(LOCATION_EXTRA))
+	return (c:IsSetCard(0x145) or c:IsLocation(LOCATION_EXTRA)) and c:IsType(TYPE_MONSTER)
 		and c:IsAttackAbove(atk) and c:IsAbleToGrave()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -33,12 +33,12 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsFaceup() and tc:IsRelateToChain() and aux.NecroValleyFilter()(tc) then
+	if tc:IsFaceup() and tc:IsRelateToChain() then
 		local atk=tc:GetAttack()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 		local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,1,nil,atk)
 		local gc=g:GetFirst()
-		if gc and Duel.SendtoGrave(gc,REASON_EFFECT)~=0 and gc:IsLocation(LOCATION_GRAVE) then
+		if gc and Duel.SendtoGrave(gc,REASON_EFFECT)~=0 and gc:IsLocation(LOCATION_GRAVE) and aux.NecroValleyFilter()(tc) then
 			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 		end
 	end

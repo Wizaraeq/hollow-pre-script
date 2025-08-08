@@ -92,7 +92,7 @@ end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if Duel.NegateEffect(ev)~=0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.IsExistingMatchingCard(s.eqfilter,tp,0,LOCATION_MZONE,1,nil,tp)
+		and Duel.IsExistingMatchingCard(s.eqfilter,tp,0,LOCATION_MZONE,1,aux.ExceptThisCard(e),tp)
 		and c:IsRelateToChain() and c:IsFaceup()
 		and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.BreakEffect()

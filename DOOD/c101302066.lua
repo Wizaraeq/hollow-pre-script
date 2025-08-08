@@ -98,6 +98,7 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetLabel()==1 then
 		local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
 		if Duel.Draw(p,2,REASON_EFFECT)==2 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 			local dg=Duel.SelectMatchingCard(p,Card.IsDiscardable,p,LOCATION_HAND,0,1,1,nil,REASON_EFFECT+REASON_DISCARD)
 			if dg:GetCount()>0 then
 				Duel.BreakEffect()

@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.indfilter)
 	e2:SetValue(1)
 	c:RegisterEffect(e2)
-	--
+	--special summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -77,11 +77,11 @@ end
 function s.indfilter(e,c)
 	return c:IsRace(RACE_PLANT)
 end
-function s.sfilter(c,tp)
+function s.sfilter(c)
 	return c:IsReason(REASON_EFFECT) and c:IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.sfilter,1,nil,tp) and not eg:IsContains(e:GetHandler())
+	return eg:IsExists(s.sfilter,1,nil) and not eg:IsContains(e:GetHandler())
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end

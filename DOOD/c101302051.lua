@@ -42,11 +42,13 @@ end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,nil)
-	aux.GCheckAdditional=aux.dncheck
-	local sg=g:SelectSubGroup(tp,aux.TRUE,false,2,2)
-	aux.GCheckAdditional=nil
-	if sg and sg:GetCount()>0 then
-		Duel.SendtoGrave(sg,REASON_EFFECT)
+	if g:CheckSubGroup(aux.dncheck,2,2) then
+		aux.GCheckAdditional=aux.dncheck
+		local sg=g:SelectSubGroup(tp,aux.TRUE,false,2,2)
+		aux.GCheckAdditional=nil
+		if sg and sg:GetCount()==2 then
+			Duel.SendtoGrave(sg,REASON_EFFECT)
+		end
 	end
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)

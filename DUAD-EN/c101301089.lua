@@ -27,7 +27,6 @@ function s.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.PayLPCost(tp,2000)
 end
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ch=Duel.GetCurrentChain()
 	local b1=Duel.GetFlagEffect(tp,id)==0
 	local b2=Duel.GetFlagEffect(tp,id+o)==0
 	local b3=Duel.GetFlagEffect(tp,id+o*2)==0

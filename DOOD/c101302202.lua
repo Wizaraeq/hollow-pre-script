@@ -75,7 +75,7 @@ function s.eaop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.actcon(e)
 	local a=Duel.GetAttacker()
-	return a~=nil and a:IsSetCard(0x10af) and a:IsControler(e:GetHandlerPlayer())
+	return a~=nil and a:IsSetCard(0x10af) and a:IsControler(e:GetHandlerPlayer()) and a:IsRelateToBattle()
 end
 function s.thfilter(c)
 	return c:IsFaceupEx() and c:IsSetCard(0xaf)

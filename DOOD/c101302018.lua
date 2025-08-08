@@ -31,12 +31,13 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCode(EVENT_CHAINING)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e3:SetCountLimit(1,id)
 	e3:SetCondition(s.negcon)
 	e3:SetTarget(s.negtg)
 	e3:SetOperation(s.negop)
 	c:RegisterEffect(e3)
-	--special summon
+	--skip phase
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,2))
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
@@ -95,7 +96,7 @@ end
 -- helper to schedule a one‑time skip effect
 -- code: EFFECT_SKIP_M1 or EFFECT_SKIP_M2
 -- next_turn: if true, skips on opponent’s *next* turn (via turncon);
---			if false, skips the upcoming phase *this* turn
+--            if false, skips the upcoming phase *this* turn
 function s.schedule_skip(c,tp,code,next_turn)
 	local phase=PHASE_MAIN1
 	if code==EFFECT_SKIP_M2 then
@@ -138,8 +139,8 @@ function s.tpop(e,tp,eg,ep,ev,re,r,rp)
 	end
 
 	-- Opponent in Main 1 →
-	--	a) schedule skip of *next* Main 1,
-	--	b) but pivot to skip M2 if they enter BP
+	--    a) schedule skip of *next* Main 1,
+	--    b) but pivot to skip M2 if they enter BP
 	if ph==PHASE_MAIN1 then
 		-- skip their *next* M1
 		local skip_m1=s.schedule_skip(c,tp,EFFECT_SKIP_M1,true)
@@ -147,13 +148,13 @@ function s.tpop(e,tp,eg,ep,ev,re,r,rp)
 		-- b) watch for BP to cancel M1 skip & schedule M2 skip
 		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		e2:SetCode(EVENT_PHASE+PHASE_BATTLE)				   -- PHASE_BATTLE is the end of BP
+		e2:SetCode(EVENT_PHASE+PHASE_BATTLE)                   -- PHASE_BATTLE is the end of BP
 		e2:SetCountLimit(1)
 		e2:SetLabelObject(skip_m1)
 		e2:SetOperation(function(ee,tp2,eg2,ep2,ev2,re2,rp2)
-			ee:GetLabelObject():Reset()						-- cancel skip‑M1
+			ee:GetLabelObject():Reset()                        -- cancel skip‑M1
 			s.schedule_skip(c,tp,EFFECT_SKIP_M2,false)
-			ee:Reset()										 -- destroy watcher
+			ee:Reset()                                         -- destroy watcher
 		end)
 		-- expires at end of their turn if no BP
 		e2:SetReset(RESET_PHASE+PHASE_END,1)

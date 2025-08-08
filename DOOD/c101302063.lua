@@ -9,7 +9,7 @@ function s.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(0,TIMING_END_PHASE)
+	e1:SetHintTiming(TIMING_DRAW_PHASE,TIMING_DRAW_PHASE+TIMING_END_PHASE)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
@@ -64,17 +64,18 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetLabel()==1 then
 		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-		Duel.Draw(p,d,REASON_EFFECT)
-		Duel.BreakEffect()
-		if Duel.IsExistingMatchingCard(s.cfilter,p,LOCATION_HAND,0,1,nil) then
-			local dg=Duel.SelectMatchingCard(p,s.cfilter,p,LOCATION_HAND,0,1,1,nil)
-			if dg:GetCount()>0 then
-				Duel.ShuffleHand(p)
-				Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD,p)
+		if Duel.Draw(p,d,REASON_EFFECT)==d then
+			Duel.BreakEffect()
+			if Duel.IsExistingMatchingCard(s.cfilter,p,LOCATION_HAND,0,1,nil) then
+				local dg=Duel.SelectMatchingCard(p,s.cfilter,p,LOCATION_HAND,0,1,1,nil)
+				if dg:GetCount()>0 then
+					Duel.ShuffleHand(p)
+					Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD,p)
+				end
+			else
+				local sg=Duel.GetFieldGroup(p,LOCATION_HAND,0)
+				Duel.SendtoGrave(sg,REASON_EFFECT+REASON_DISCARD,p)
 			end
-		else
-			local sg=Duel.GetFieldGroup(p,LOCATION_HAND,0)
-			Duel.SendtoGrave(sg,REASON_EFFECT+REASON_DISCARD,p)
 		end
 	elseif e:GetLabel()==2 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)

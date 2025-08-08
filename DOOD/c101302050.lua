@@ -55,15 +55,15 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		for tc in aux.Next(sg) do
 			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetDescription(aux.Stringid(id,2))
 			e1:SetType(EFFECT_TYPE_FIELD)
 			e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-			e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
 			e1:SetRange(LOCATION_MZONE)
 			e1:SetAbsoluteRange(tp,1,0)
 			e1:SetTarget(s.splimit)
 			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_CONTROL)
 			tc:RegisterEffect(e1,true)
-			tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_CONTROL,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(id,2))
 		end
 	end
 end

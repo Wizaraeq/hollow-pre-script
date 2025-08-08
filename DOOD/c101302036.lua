@@ -36,7 +36,7 @@ function s.matfilter1(c)
 	return c:IsFusionType(TYPE_LINK) and c:IsFusionSetCard(0xfc)
 end
 function s.matcheck(e,c)
-	local ct=c:GetMaterial():Filter(Card.IsSetCard,nil,0xfc):GetSum(Card.GetLink)
+	local ct=c:GetMaterial():Filter(Card.IsFusionSetCard,nil,0xfc):GetSum(Card.GetLink)
 	local lim=0
 	if c:GetMaterial():IsExists(s.limfilter,1,nil) then
 		lim=1

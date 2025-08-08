@@ -37,16 +37,16 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		if e:IsCostChecked() then
 			e:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_SPECIAL_SUMMON)
 			Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
-			Duel.SetOperationInfo(0,CATEGORY_SEARCH+CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 		end
+		Duel.SetOperationInfo(0,CATEGORY_SEARCH+CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 	elseif op==2 then
 		if e:IsCostChecked() then
 			local g=Duel.SelectReleaseGroup(tp,s.costfilter,1,1,nil,e,tp)
 			Duel.Release(g,REASON_COST)
 			e:SetCategory(CATEGORY_SPECIAL_SUMMON)
 			Duel.RegisterFlagEffect(tp,id+o,RESET_PHASE+PHASE_END,0,1)
-			Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND)
 		end
+		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND)
 	end
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)

@@ -56,14 +56,12 @@ function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	e:SetLabel(Duel.AnnounceLevel(tp,1,10,lv))
 end
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	local lv=e:GetLabel()
-	if tc:IsFaceup() and tc:IsRelateToChain() and not tc:IsLevel(lv) then
+	if tc:IsFaceup() and tc:IsRelateToChain() and not tc:IsLevel(e:GetLabel()) then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_LEVEL)
-		e1:SetValue(lv)
+		e1:SetValue(e:GetLabel())
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
 	end
