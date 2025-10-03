@@ -30,7 +30,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.mfilter(c)
-	return c:IsLinkAttribute(ATTRIBUTE_DARK) and c:IsLinkRace(RACE_DRAGON)
+	return c:IsLinkAttribute(ATTRIBUTE_DARK) and (c:IsLinkRace(RACE_DRAGON) or c:IsHasEffect(77189532))
 end
 function s.lcheck(g)
 	return g:IsExists(Card.IsLinkSetCard,1,nil,0x102)
