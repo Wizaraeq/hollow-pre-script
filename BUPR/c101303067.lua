@@ -96,7 +96,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.efilter(e,te)
-	return te:GetOwner()~=e:GetOwner() and te:IsActivated()
+	return te:GetOwner()~=e:GetHandler() and te:IsActivated()
 end
 function s.fuslimit(e,c,sumtype)
 	return sumtype==SUMMON_TYPE_FUSION

@@ -1,4 +1,4 @@
---ドラグニティ-クイリヌス
+--ドラグニティ－クイリヌス
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--search
@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	e3:SetRange(LOCATION_SZONE)
+	e3:SetRange(LOCATION_MZONE)
 	e3:SetTargetRange(LOCATION_MZONE,0)
 	e3:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0x29))
 	e3:SetCondition(s.indcon)
@@ -53,7 +53,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.indcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetEquipTarget()
+	return e:GetHandler():GetEquipCount()>0
 end
 function s.bfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x29) and (c:GetOriginalType()&TYPE_MONSTER)~=0

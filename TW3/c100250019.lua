@@ -1,4 +1,4 @@
---ドラグニティ-ファルシオン
+--ドラグニティ－ファルシオン
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--equip
@@ -29,14 +29,15 @@ end
 function s.tgfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x29)
 end
-function s.eqfilter(c)
-	return c:IsSetCard(0x29) and c:IsRace(RACE_DRAGON)
+function s.eqfilter(c,tp)
+	return c:IsSetCard(0x29) and c:IsRace(RACE_DRAGON) and c:IsType(TYPE_MONSTER)
+		and not c:IsForbidden() and c:CheckUniqueOnField(tp)
 end
 function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.tgfilter(chkc) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
 		and Duel.IsExistingTarget(s.tgfilter,tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingMatchingCard(s.eqfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,e:GetHandler()) end
+		and Duel.IsExistingMatchingCard(s.eqfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,e:GetHandler(),tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
 	Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_MZONE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_EQUIP,nil,1,tp,LOCATION_DECK+LOCATION_GRAVE)
@@ -45,7 +46,7 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToChain() and tc:IsFaceup() and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.eqfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.eqfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,tp)
 		local ec=g:GetFirst()
 		if ec then
 			if not Duel.Equip(tp,ec,tc) then return end
@@ -65,7 +66,8 @@ function s.eqlimit(e,c)
 	return c==e:GetLabelObject()
 end
 function s.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():GetEquipTarget() and e:GetHandler():IsAbleToGraveAsCost() end
+	local et=e:GetHandler():GetEquipTarget()
+	if chk==0 then return et~=nil and et:IsSetCard(0x29) and e:GetHandler():IsAbleToGraveAsCost() end
 	Duel.SendtoGrave(e:GetHandler(),REASON_COST)
 end
 function s.rmfilter(c)
