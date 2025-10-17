@@ -131,7 +131,7 @@ function s.tfop(e,tp,eg,ep,ev,re,r,rp)
 	for tc in aux.Next(pg) do
 		Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
 	end
-	local sg=g:Filter(Card.IsLocation,nil,LOCATION_GRAVE)
+	local sg=g:Filter(Card.IsLocation,nil,LOCATION_REMOVED)
 	if sg:GetCount()>0 then
 		Duel.SendtoGrave(sg,REASON_RULE)
 	end
