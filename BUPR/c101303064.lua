@@ -51,7 +51,7 @@ function s.dfilter(c,e,tp)
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp,c)
 end
 function s.spfilter(c,e,tp,ec)
-	return c:IsAttack(1200) and c:IsDefenseBelow(1000)
+	return c:IsAttack(1200) and c:IsDefenseBelow(1000) and c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_MACHINE)
 		and (Duel.GetMZoneCount(tp,ec)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 		or Duel.GetMZoneCount(1-tp,ec)>0

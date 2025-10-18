@@ -88,7 +88,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 			sc:RegisterEffect(e4)
 		end
 		Duel.AdjustInstantly(sc)
-		if tc:IsRelateToChain() then
+		if tc:IsRelateToChain() and tc:IsType(TYPE_MONSTER) then
 			Duel.BreakEffect()
 			Duel.Destroy(tc,REASON_EFFECT)
 		end

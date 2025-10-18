@@ -53,6 +53,9 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_MZONE+LOCATION_HAND+LOCATION_REMOVED)
 end
 function s.cfilter(c)
+	return c:IsFacedown() or c:IsLocation(LOCATION_HAND)
+end
+function s.hfilter(c)
 	return c:IsLocation(LOCATION_REMOVED) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup())
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
@@ -77,12 +80,12 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		if sg1:IsContains(tc) and (sg2==nil or not sg2:IsContains(tc) or ce and not Duel.SelectYesNo(tp,ce:GetDescription())) then
 			local mat1=Duel.SelectFusionMaterial(tp,tc,mg1,nil,chkf)
 			tc:SetMaterial(mat1)
-			if mat1:IsExists(Card.IsFacedown,1,nil) then
-				local cg=mat1:Filter(Card.IsFacedown,nil)
+			if mat1:IsExists(s.cfilter,1,nil) then
+				local cg=mat1:Filter(s.cfilter,nil)
 				Duel.ConfirmCards(1-tp,cg)
 			end
-			if mat1:Filter(s.cfilter,nil):GetCount()>0 then
-				local cg=mat1:Filter(s.cfilter,nil)
+			if mat1:IsExists(s.hfilter,1,nil) then
+				local cg=mat1:Filter(s.hfilter,nil)
 				Duel.HintSelection(cg)
 			end
 			Duel.SendtoDeck(mat1,nil,SEQ_DECKSHUFFLE,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)

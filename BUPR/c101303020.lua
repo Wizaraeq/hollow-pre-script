@@ -32,7 +32,7 @@ function s.spfilter(c,e,tp)
 	return c:IsRace(RACE_MACHINE) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.tgfilter(c)
-	return c:IsLevelAbove(4) and c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_MACHINE) and c:IsAbleToGrave()
+	return c:IsLevelBelow(4) and c:IsAttribute(ATTRIBUTE_LIGHT) and c:IsRace(RACE_MACHINE) and c:IsAbleToGrave()
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.GetLocationCount(tp,LOCATION_MZONE)>0
