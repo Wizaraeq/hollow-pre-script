@@ -119,23 +119,20 @@ function s.tftg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	end
 end
 function s.tfop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetTargetsRelateToChain()
-	local ct=math.min(g:GetCount(),Duel.GetLocationCount(tp,LOCATION_SZONE))
-	local pg=g
-	if ct<=0 then
-		pg=Group.CreateGroup()
-	elseif g:GetCount()>ct then
+	local tg=Duel.GetTargetsRelateToChain()
+	if #tg==0 then return end
+	local gg=Group.CreateGroup()
+	local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
+	if ft<#tg then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-		pg=g:Select(tp,ct,ct,nil)
-		g:Sub(pg)
-	else
-		g=Group.CreateGroup()
+		local sg=tg:FilterSelect(tp,s.tffilter,ft,ft,nil,tp)
+		gg=tg-sg
+		tg=sg
 	end
-	for tc in aux.Next(pg) do
+	for tc in aux.Next(tg) do
 		Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
 	end
-	local sg=g:Filter(Card.IsLocation,nil,LOCATION_REMOVED)
-	if sg:GetCount()>0 then
-		Duel.SendtoGrave(sg,REASON_RULE)
+	if #gg>0 then
+		Duel.SendtoGrave(gg,REASON_RULE)
 	end
 end
