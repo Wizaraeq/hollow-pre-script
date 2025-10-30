@@ -11,7 +11,7 @@ function s.initial_effect(c)
 	e1:SetCondition(s.spcon)
 	e1:SetValue(s.spval)
 	c:RegisterEffect(e1)
-	--set
+	--place
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetType(EFFECT_TYPE_IGNITION)
@@ -43,7 +43,7 @@ function s.spval(e,c)
 	return 0,0x4
 end
 function s.pfilter(c,tp)
-	return c:IsType(TYPE_CONTINUOUS) and c:IsType(TYPE_SPELL) and c:IsSetCard(0x2d8)
+	return c:IsAllTypes(TYPE_CONTINUOUS+TYPE_SPELL) and c:IsSetCard(0x2d8)
 		and not c:IsForbidden() and c:CheckUniqueOnField(tp)
 end
 function s.ptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -95,7 +95,7 @@ function s.chop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetOperation(s.retop)
 			e1:SetReset(RESET_PHASE+PHASE_END)
 			Duel.RegisterEffect(e1,tp)
-			rc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,fid)
+			rc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,EFFECT_FLAG_CLIENT_HINT,1,fid,aux.Stringid(id,3))
 		end
 	end
 end

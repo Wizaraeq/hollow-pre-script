@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_FZONE)
 	e3:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	e3:SetTarget(s.indtg)
-	e3:SetValue(aux.tgoval)
+	e3:SetValue(aux.indoval)
 	c:RegisterEffect(e3)
 	--Activate
 	local e4=Effect.CreateEffect(c)

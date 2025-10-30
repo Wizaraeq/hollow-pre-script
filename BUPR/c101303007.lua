@@ -1,4 +1,4 @@
---ジャンク・ウォリア／バスター
+--ジャンク・ウォリアー／バスター
 local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.AddCodeList(c,60800381,80280737)
@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetValue(s.immval)
 	c:RegisterEffect(e2)
-	--spsummon
+	--toextra
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetCategory(CATEGORY_TOEXTRA+CATEGORY_SPECIAL_SUMMON)
@@ -66,7 +66,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToChain() and tc:IsCode(60800381)
+	if tc:IsRelateToChain()
 		and aux.NecroValleyFilter()(tc) and Duel.SendtoDeck(tc,nil,0,REASON_EFFECT)>0
 		and tc:IsLocation(LOCATION_EXTRA)
 		and tc:IsCanBeSpecialSummoned(e,SUMMON_TYPE_SYNCHRO,tp,false,false) and Duel.GetLocationCountFromEx(tp,tp,nil,tc)>0

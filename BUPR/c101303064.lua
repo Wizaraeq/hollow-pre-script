@@ -21,7 +21,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
-	--set
+	--place
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetType(EFFECT_TYPE_IGNITION)
@@ -71,17 +71,22 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	else
 		g=Duel.SelectMatchingCard(tp,Card.IsType,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,nil,TYPE_MONSTER)
 	end
-	if g:GetCount()>0 and Duel.Destroy(g,REASON_EFFECT)>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp,nil) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,nil)
-		if #sg>0 then
-			local tc=sg:GetFirst()
-			local ssp=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false)
-			local osp=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,1-tp)
-			if osp and (not ssp or Duel.SelectYesNo(tp,aux.Stringid(id,3))) then
-				Duel.SpecialSummon(tc,0,tp,1-tp,false,false,POS_FACEUP)
-			elseif ssp then
-				Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+	if g:GetCount()>0 then
+		if g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE) then
+			Duel.HintSelection(g)
+		end
+		if Duel.Destroy(g,REASON_EFFECT)>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp,nil) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+			local sg=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,nil)
+			if #sg>0 then
+				local tc=sg:GetFirst()
+				local ssp=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false)
+				local osp=Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 and tc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,1-tp)
+				if osp and (not ssp or Duel.SelectYesNo(tp,aux.Stringid(id,3))) then
+					Duel.SpecialSummon(tc,0,tp,1-tp,false,false,POS_FACEUP)
+				elseif ssp then
+					Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+				end
 			end
 		end
 	end

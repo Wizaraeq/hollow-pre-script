@@ -34,6 +34,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_ONFIELD,0,1,1,nil)
 	if g:GetCount()>0 then
+		if g:IsExists(Card.IsLocation,1,nil,LOCATION_ONFIELD) then
+			Duel.HintSelection(g)
+		end
 		Duel.Destroy(g,REASON_EFFECT)
 	end
 end

@@ -68,7 +68,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.nsfilter(c,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE)
+	return c:IsControler(tp) and c:IsLocation(LOCATION_MZONE)
 end
 function s.cfilter(c,tp)
 	local chk=c:GetColumnGroup():IsExists(s.nsfilter,1,nil,1-tp)
@@ -90,7 +90,7 @@ function s.nsop(e,tp,eg,ep,ev,re,r,rp)
 	for tc in aux.Next(sg) do
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+		e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE|EFFECT_FLAG_SET_AVAILABLE)
 		e1:SetCode(EFFECT_CANNOT_BE_LINK_MATERIAL)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
@@ -104,9 +104,9 @@ function s.nsop(e,tp,eg,ep,ev,re,r,rp)
 		e4:SetCode(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)
 		tc:RegisterEffect(e4)
 		local e5=e1:Clone()
-		e5:SetCode(EFFECT_CANNOT_BE_XYZ_MATERIAL)
 		e5:SetDescription(aux.Stringid(id,1))
-		e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CLIENT_HINT)
+		e5:SetCode(EFFECT_CANNOT_BE_XYZ_MATERIAL)
+		e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE|EFFECT_FLAG_SET_AVAILABLE|EFFECT_FLAG_CLIENT_HINT)
 		tc:RegisterEffect(e5)
 	end
 end

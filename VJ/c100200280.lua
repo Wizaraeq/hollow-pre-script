@@ -40,6 +40,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,1,aux.ExceptThisCard(e),tp)
+	if g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE) then
+		Duel.HintSelection(g)
+	end
 	if Duel.Destroy(g,REASON_EFFECT)>0 and c:IsRelateToChain() and aux.NecroValleyFilter()(c)
 		and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local e1=Effect.CreateEffect(c)

@@ -54,7 +54,7 @@ function s.splimit(e,c)
 end
 function s.thfilter(c)
 	return (c:IsSetCard(0xef) and not c:IsCode(id)
-		or c:IsSetCard(0x11d) and c:IsType(TYPE_QUICKPLAY))
+		or c:IsSetCard(0x11d) and c:IsAllTypes(TYPE_QUICKPLAY+TYPE_SPELL))
 		and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)

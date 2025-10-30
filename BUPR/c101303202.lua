@@ -52,6 +52,7 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,2))
 			ct=Duel.AnnounceNumber(tp,table.unpack(tbl))
 		end
+		Duel.BreakEffect()
 		Duel.ConfirmDecktop(1-tp,ct)
 		local g=Duel.GetDecktopGroup(1-tp,ct)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)

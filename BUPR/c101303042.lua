@@ -64,7 +64,7 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 		if re:GetHandler():IsDestructable() and re:GetHandler():IsRelateToEffect(re) then
 			Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
 		end
-	else
+	elseif op==2 then
 		Duel.SetOperationInfo(0,CATEGORY_DISABLE,te:GetHandler(),1,0,0)
 		if te:GetHandler():IsDestructable() and te:GetHandler():IsRelateToEffect(te) then
 			Duel.SetOperationInfo(0,CATEGORY_DESTROY,te:GetHandler(),1,0,0)
@@ -72,11 +72,12 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetLabel()==1 then
+	local op=e:GetLabel()
+	if op==1 then
 		if Duel.NegateEffect(ev) and re:GetHandler():IsRelateToChain(ev) then
 			Duel.Destroy(eg,REASON_EFFECT)
 		end
-	else
+	elseif op==2 then
 		local te=Duel.GetChainInfo(ev-1,CHAININFO_TRIGGERING_EFFECT)
 		if Duel.NegateEffect(ev-1) and te:GetHandler():IsRelateToChain(ev-1) then
 			Duel.Destroy(te:GetHandler(),REASON_EFFECT)

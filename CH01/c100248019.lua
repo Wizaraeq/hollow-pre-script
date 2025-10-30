@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.cfilter(c)
-	return aux.IsCodeListed(c,68468459) and c:IsAbleToGraveAsCost()
+	return aux.IsCodeListed(c,68468459) and c:IsType(TYPE_MONSTER) and c:IsAbleToGraveAsCost()
 end
 function s.cfilter2(c)
 	return c:IsFaceupEx() and c:IsSetCard(0x2d7) and c:IsType(TYPE_MONSTER)

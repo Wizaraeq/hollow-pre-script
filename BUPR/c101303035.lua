@@ -51,6 +51,15 @@ function s.initial_effect(c)
 	e5:SetOperation(s.fspop)
 	c:RegisterEffect(e5)
 end
+function s.getrg(tp,sc)
+	local rg=Duel.GetReleaseGroup(tp,true,REASON_SPSUMMON)
+	local mrg=rg:Filter(Card.IsHasEffect,nil,EFFECT_EXTRA_RELEASE)
+	if mrg:GetCount()>0 then
+		return mrg:Filter(s.spfilter,nil,tp,sc)
+	else
+		return rg:Filter(s.spfilter,nil,tp,sc)
+	end
+end
 function s.splimit(e,se,sp,st)
 	return bit.band(st,SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION and Duel.GetFlagEffect(sp,id)==0
 end
@@ -71,11 +80,11 @@ function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	if Duel.GetFlagEffect(tp,id)>0 then return false end
-	return Duel.CheckReleaseGroupEx(tp,s.spfilter,1,REASON_SPSUMMON,true,nil,tp,c)
-		and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND,0,1,nil)
+	local rg=s.getrg(tp,c)
+	return rg:GetCount()>0 and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND,0,1,nil)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
-	local g=Duel.GetReleaseGroup(tp,true,REASON_SPSUMMON):Filter(s.spfilter,nil,tp,c)
+	local g=s.getrg(tp,c)
 	local g2=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_HAND,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 	local tc=g2:SelectUnselect(nil,tp,false,true,1,1)

@@ -1,4 +1,4 @@
---K9-EX “Ripper/Ｍ”
+--K9-EX “Ripper／M”
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--xyz summon
