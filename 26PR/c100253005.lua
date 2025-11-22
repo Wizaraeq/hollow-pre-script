@@ -78,18 +78,18 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	g:AddCard(c)
 	if Duel.Destroy(g,REASON_EFFECT)~=0 then
 		local og=Duel.GetOperatedGroup()
-		if not og:IsContains(c) or og:GetCount()<1 then return end
+		if not og:IsContains(c) or og:GetCount()<2 then return end
 		local atk=og:GetCount()-1
 		local token=Duel.CreateToken(tp,id+o*2)
-		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_DISABLE)
+		e1:SetCode(EFFECT_SET_ATTACK)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
 		e1:SetValue(atk*700)
 		token:RegisterEffect(e1)
 		local e2=e1:Clone()
-		e2:SetCode(EFFECT_UPDATE_DEFENSE)
+		e2:SetCode(EFFECT_SET_DEFENSE)
 		token:RegisterEffect(e2)
+		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

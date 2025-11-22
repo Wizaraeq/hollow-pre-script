@@ -42,12 +42,15 @@ function s.initial_effect(c)
 	e4:SetOperation(s.thop)
 	c:RegisterEffect(e4)
 end
+
 function s.pencon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetFieldCard(tp,LOCATION_PZONE,0) and Duel.GetFieldCard(tp,LOCATION_PZONE,1)
 end
+
 function s.penspfilter(c,e,tp)
 	return c:IsLevelBelow(5) and c:IsType(TYPE_PENDULUM) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
+
 function s.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local b1=c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -67,6 +70,7 @@ function s.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_PZONE)
 	end
 end
+
 function s.penop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local op=e:GetLabel()
@@ -88,12 +92,15 @@ function s.penop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
+
 function s.protcon(e)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_PENDULUM)
 end
+
 function s.thfilter(c,tp)
 	return (c:GetOriginalType()&(TYPE_PENDULUM|TYPE_MONSTER)==TYPE_PENDULUM|TYPE_MONSTER) and c:IsFaceup() and c:IsControler(tp)
 end
+
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	local g=Duel.GetMatchingGroup(aux.AND(Card.IsCanBeEffectTarget,Card.IsAbleToHand),tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,e)
@@ -103,10 +110,12 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetTargetCard(sg)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,sg,2,0,0)
 end
+
 function s.thcheck(g,tp)
 	return g:IsExists(s.thfilter,1,nil,tp)
 		and g:IsExists(aux.AND(Card.IsControler,Card.IsAbleToHand),1,nil,1-tp)
 end
+
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetTargetsRelateToChain()
 	if #g>0 then

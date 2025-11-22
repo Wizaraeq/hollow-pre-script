@@ -4,18 +4,21 @@ function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
 	-- old function
-	-- local e0=Effect.CreateEffect(c)
-	-- e0:SetType(EFFECT_TYPE_SINGLE)
-	-- e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	-- e0:SetCode(EFFECT_FUSION_MATERIAL)
-	-- e0:SetCondition(s.FShaddollCondition)
-	-- e0:SetOperation(s.FShaddollOperation)
-	-- c:RegisterEffect(e0)
-	aux.AddFusionProcMix(c,false,true,
-		function (mc) return mc:IsFusionSetCard(0x9d) end,
-		function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_DARK) end,
-		function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_EARTH) end
-	)
+	if aux.AddFusionProcShaddoll then
+		local e0=Effect.CreateEffect(c)
+		e0:SetType(EFFECT_TYPE_SINGLE)
+		e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e0:SetCode(EFFECT_FUSION_MATERIAL)
+		e0:SetCondition(s.FShaddollCondition)
+		e0:SetOperation(s.FShaddollOperation)
+		c:RegisterEffect(e0)
+	else
+		aux.AddFusionProcMix(c,false,true,
+			function (mc) return mc:IsFusionSetCard(0x9d) end,
+			function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_DARK) end,
+			function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_EARTH) end
+		)
+	end
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -54,7 +57,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function s.efilter(e,te)
-	if te:GetHandlerPlayer()==e:GetHandlerPlayer() then
+	if te:GetHandlerPlayer()==e:GetHandlerPlayer() or not te:IsActivated() then
 		return false
 	end
 	if te:IsActiveType(TYPE_SPELL+TYPE_TRAP) then
@@ -100,7 +103,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.FShaddollFilter(c,fc)
-	return c:IsCanBeFusionMaterial(fc) and (c:IsFusionSetCard(0x9d) or c:IsFusionAttribute(ATTRIBUTE_DARK+ATTRIBUTE_EARTH) or c:IsHasEffect(4904633))
+	return (c:IsFusionSetCard(0x9d) or c:IsFusionAttribute(ATTRIBUTE_DARK+ATTRIBUTE_EARTH) or c:IsHasEffect(4904633))
+		and c:IsCanBeFusionMaterial(fc) and not c:IsHasEffect(6205579)
 end
 function s.FShaddollExFilter(c,fc,fe)
 	return c:IsFaceup() and not c:IsImmuneToEffect(fe) and s.FShaddollFilter(c,fc)
@@ -109,13 +113,11 @@ function s.FShaddollFilter1(c,g)
 	return c:IsFusionSetCard(0x9d) and g:IsExists(s.FShaddollFilter2,1,c,g,c)
 end
 function s.FShaddollFilter2(c,g,gc)
-	return c:IsFusionAttribute(ATTRIBUTE_DARK)
-		and c:IsHasEffect(4904633)
+	return (c:IsFusionAttribute(ATTRIBUTE_DARK) or c:IsHasEffect(4904633))
 		and g:IsExists(s.FShaddollFilter3,1,Group.FromCards(c,gc))
 end
 function s.FShaddollFilter3(c)
-	return c:IsFusionAttribute(ATTRIBUTE_EARTH)
-		and c:IsHasEffect(4904633)
+	return c:IsFusionAttribute(ATTRIBUTE_EARTH) or c:IsHasEffect(4904633)
 end
 function s.FShaddollSpFilter1(c,fc,tp,mg,exg,chkf)
 	local emg=mg:Clone()
@@ -126,7 +128,7 @@ function s.FShaddollSpFilter1(c,fc,tp,mg,exg,chkf)
 		or (exg and emg:CheckSubGroup(s.FShaddollgcheck,3,3,c,fc,tp,c,chkf,exg))
 end
 function s.FShaddollgcheck(g,gc,fc,tp,c,chkf,exg)
-	if gc and not g:IsContains(gc) then return false end
+	if gc and g:IsContains(gc) then return false end
 	if g:IsExists(aux.TuneMagicianCheckX,1,nil,g,EFFECT_TUNE_MAGICIAN_F) then return false end
 	if not aux.MustMaterialCheck(g,tp,EFFECT_MUST_BE_FMATERIAL) then return false end
 	if aux.FCheckAdditional and not aux.FCheckAdditional(tp,g,fc)
@@ -167,7 +169,7 @@ function s.FShaddollOperation(e,tp,eg,ep,ev,re,r,rp,gc,chkf)
 	if exg then mg:Merge(exg) end
 	if gc and not s.FShaddollSpFilter1(gc,c,tp,mg,exg,chkf) then return false end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-	local g=mg:SelectSubGroup(tp,s.FShaddollgcheck,false,3,3,fc,tp,c,chkf,exg)
+	local g=mg:SelectSubGroup(tp,s.FShaddollgcheck,false,3,3,c,tp,c,chkf,exg)
 	if exg and g:IsExists(s.exfilter,1,nil,exg) then
 		fc:RemoveCounter(tp,0x16,3,REASON_EFFECT)
 	end

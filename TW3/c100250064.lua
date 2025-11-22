@@ -4,8 +4,11 @@ function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
 	-- using new function
-	aux.AddFusionProcShaddoll(c,ATTRIBUTE_WIND)
-	--aux.AddFusionProcFun2(c,function (mc) return mc:IsFusionSetCard(0x9d) end, function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_WIND) end, true)
+	if aux.AddFusionProcShaddoll then
+		aux.AddFusionProcShaddoll(c,ATTRIBUTE_WIND)
+	else
+		aux.AddFusionProcFun2(c,function (mc) return mc:IsFusionSetCard(0x9d) end, function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_WIND) end, true)
+	end
 	--cannot spsummon
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)

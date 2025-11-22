@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	s.shadoll_flip_effect=e1
 end
 function s.counterfilter(c)
-	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsSetCard(0x9d)
+	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsSetCard(0x9d) and c:IsFaceup()
 end
 function s.rfilter(c)
 	return c:IsType(TYPE_FLIP) and c:IsSetCard(0x9d)
