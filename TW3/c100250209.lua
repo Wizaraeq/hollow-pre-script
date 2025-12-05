@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.dhtg)
 	e2:SetOperation(s.dhop)
 	c:RegisterEffect(e2)
-	--negate attack
+	--special summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)

@@ -5,8 +5,10 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	-- using new function
 	if aux.AddFusionProcShaddoll then
+		--old function
 		aux.AddFusionProcShaddoll(c,ATTRIBUTE_WIND)
 	else
+		--new function
 		aux.AddFusionProcFun2(c,function (mc) return mc:IsFusionSetCard(0x9d) end, function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_WIND) end, true)
 	end
 	--cannot spsummon

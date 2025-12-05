@@ -88,5 +88,5 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.cfilter(c)
-	return c:IsSetCard(0x2d7) and c:IsType(TYPE_MONSTER) or c:IsCode(68468459)
+	return c:IsSetCard(0x1d7) and c:IsType(TYPE_MONSTER) or c:IsCode(68468459)
 end

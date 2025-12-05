@@ -4,7 +4,7 @@ function s.initial_effect(c)
 	--xyz summon
 	aux.AddXyzProcedure(c,nil,4,3,nil,nil,99)
 	c:EnableReviveLimit()
-	--Cannot be effect
+	--Cannot be effect target
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	--Search
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
-	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1)

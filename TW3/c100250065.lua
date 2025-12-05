@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetLabel(0)
-	e2:SetCost(s.fuscost)
+	e2:SetCost(s.cost)
 	e2:SetTarget(s.fustg)
 	e2:SetOperation(s.fusop)
 	e2:SetCountLimit(1,id+o)
@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)
 end
 function s.counterfilter(c)
-	return  not c:IsSummonLocation(LOCATION_EXTRA) or c:IsSetCard(0x9d) and c:IsFaceup()
+	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsSetCard(0x9d) and c:IsFaceup()
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
@@ -58,10 +58,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SendtoGrave(g,REASON_EFFECT)
 	end
 end
-function s.fuscost(e,tp,eg,ep,ev,re,r,rp,chk)
-	e:SetLabel(100)
-	return true
-end
 function s.fusfilter1(c,e,tp)
 	return c:IsType(TYPE_FUSION) and Duel.IsExistingMatchingCard(s.fusfilter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,c:GetAttribute(),c)
 end
@@ -76,6 +72,7 @@ function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
 		return aux.MustMaterialCheck(nil,tp,EFFECT_MUST_BE_FMATERIAL) and Duel.CheckReleaseGroup(tp,s.fusfilter1,1,nil,e,tp)
 			and s.cost(e,tp,eg,ep,ev,re,r,rp,0)
 	end
+	e:SetLabel(0)
 	local rg=Duel.SelectReleaseGroup(tp,s.fusfilter1,1,1,nil,e,tp)
 	e:SetLabel(rg:GetFirst():GetAttribute())
 	Duel.Release(rg,REASON_COST)

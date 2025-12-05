@@ -13,9 +13,12 @@ function s.initial_effect(c)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
+function s.racefilter(c,sc)
+	return c:IsFaceup() and aux.SameValueCheck(Group.FromCards(c,sc),Card.GetRace)
+end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x9c,0x53) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and not Duel.IsExistingMatchingCard(aux.AND(Card.IsFaceup,Card.IsRace),tp,LOCATION_ONFIELD,0,1,nil,c:GetRace())
+		and not Duel.IsExistingMatchingCard(s.racefilter,tp,LOCATION_ONFIELD,0,1,nil,c)
 end
 function s.cfilter(c)
 	return c:IsSetCard(0x9c,0x53) and c:IsFaceup()
@@ -25,7 +28,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local sg=Duel.GetMatchingGroup(Card.IsDiscardable,tp,LOCATION_HAND,0,e:GetHandler(),REASON_EFFECT+REASON_DISCARD)
 	local b1=sg:GetCount()>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp)
 		and Duel.GetMZoneCount(tp)>0
-	local ct=Duel.GetFieldGroup(tp,LOCATION_MZONE,0):FilterCount(s.cfilter,nil)
+	local ct=Duel.GetMatchingGroupCount(s.cfilter,tp,LOCATION_MZONE,0,nil)
 	local b2=ct>0 and Duel.IsExistingTarget(aux.NegateMonsterFilter,tp,0,LOCATION_MZONE,1,nil)
 	if chk==0 then return b1 or b2 end
 	local op=0
@@ -59,7 +62,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		if sg:GetCount()>0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISCARD)
 			local dg=sg:Select(tp,1,1,nil)
-			Duel.ShuffleHand(tp)
 			if Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD)~=0
 				and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)

@@ -16,17 +16,17 @@ function s.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e2)
-	--
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
-	e2:SetCode(EVENT_BE_MATERIAL)
-	e2:SetCountLimit(1,id+o)
-	e2:SetCondition(s.eacon)
-	e2:SetTarget(s.eatg)
-	e2:SetOperation(s.eaop)
-	c:RegisterEffect(e2)
+	--grant effect
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
+	e3:SetCode(EVENT_BE_MATERIAL)
+	e3:SetCountLimit(1,id+o)
+	e3:SetCondition(s.eacon)
+	e3:SetTarget(s.eatg)
+	e3:SetOperation(s.eaop)
+	c:RegisterEffect(e3)
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToGraveAsCost() end
@@ -76,9 +76,12 @@ function s.descon(e,tp,eg,ep,ev,re,r,rp)
 		g:DeleteGroup()
 		e:Reset()
 		return false
-	else return true end
+	else
+		return true
+	end
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_CARD,0,id)
 	local g=e:GetLabelObject()
 	local tg=g:Filter(s.desfilter,nil,e:GetLabel())
 	Duel.Destroy(tg,REASON_EFFECT)

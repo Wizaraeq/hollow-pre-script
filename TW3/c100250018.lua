@@ -60,10 +60,11 @@ function s.bfilter(c)
 		and (c:IsAbleToHand() or c:IsAbleToExtra())
 end
 function s.bstg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and chkc:IsControler(tp) and s.bfilter(chkc) and chkc~=e:GetHandler() end
-	if chk==0 then return Duel.IsExistingTarget(s.bfilter,tp,LOCATION_ONFIELD,0,1,e:GetHandler()) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
-	local g=Duel.SelectTarget(tp,s.bfilter,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
+	local c=e:GetHandler()
+	if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and chkc:IsControler(tp) and s.bfilter(chkc) and chkc~=c end
+	if chk==0 then return Duel.IsExistingTarget(s.bfilter,tp,LOCATION_ONFIELD,0,1,c) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local g=Duel.SelectTarget(tp,s.bfilter,tp,LOCATION_ONFIELD,0,1,1,c)
 	local tc=g:GetFirst()
 	if tc:IsAbleToExtra() then
 		Duel.SetOperationInfo(0,CATEGORY_TOEXTRA,g,1,0,0)

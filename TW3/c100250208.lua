@@ -32,7 +32,6 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1)
 	e3:SetCondition(s.descon)
-	e3:SetCost(s.descost)
 	e3:SetTarget(s.destg)
 	e3:SetOperation(s.desop)
 	c:RegisterEffect(e3)
@@ -82,13 +81,27 @@ function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	return not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED)
 		and ep==1-tp
 end
-function s.descost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckReleaseGroup(tp,Card.IsSetCard,1,nil,0x100d) end
-	local g=Duel.SelectReleaseGroup(tp,Card.IsSetCard,1,1,nil,0x100d)
-	Duel.Release(g,REASON_COST)
+function s.desfilter(c,rc)
+	return c:GetEquipTarget()~=rc and c~=rc
+end
+function s.costfilter(c,tp)
+	if not c:IsSetCard(0x100d) then return false end
+	return Duel.IsExistingTarget(s.desfilter,tp,0,LOCATION_ONFIELD,1,c,c)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(nil,tp,0,LOCATION_ONFIELD,1,nil) end
+	local c=e:GetHandler()
+	if chk==0 then
+		if e:IsCostChecked() then
+			return Duel.CheckReleaseGroup(tp,s.costfilter,1,nil,tp)
+		else
+			return Duel.IsExistingMatchingCard(nil,tp,0,LOCATION_ONFIELD,1,nil)
+		end
+	end
+	if e:IsCostChecked() then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+		local g=Duel.SelectReleaseGroup(tp,s.costfilter,1,1,nil,tp)
+		Duel.Release(g,REASON_COST)
+	end
 	local g=Duel.GetMatchingGroup(nil,tp,0,LOCATION_ONFIELD,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end

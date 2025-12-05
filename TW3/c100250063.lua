@@ -3,16 +3,23 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	-- old function
 	if aux.AddFusionProcShaddoll then
-		local e0=Effect.CreateEffect(c)
-		e0:SetType(EFFECT_TYPE_SINGLE)
-		e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-		e0:SetCode(EFFECT_FUSION_MATERIAL)
-		e0:SetCondition(s.FShaddollCondition)
-		e0:SetOperation(s.FShaddollOperation)
-		c:RegisterEffect(e0)
+		--old function
+		--local e0=Effect.CreateEffect(c)
+		--e0:SetType(EFFECT_TYPE_SINGLE)
+		--e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		--e0:SetCode(EFFECT_FUSION_MATERIAL)
+		--e0:SetCondition(s.FShaddollCondition)
+		--e0:SetOperation(s.FShaddollOperation)
+		--c:RegisterEffect(e0)
+		--new function
+		aux.AddFusionProcMix(c,false,true,
+			function (mc) return mc:IsFusionSetCard(0x9d) end,
+			function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_DARK) end,
+			function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_EARTH) end
+		)
 	else
+		--new function
 		aux.AddFusionProcMix(c,false,true,
 			function (mc) return mc:IsFusionSetCard(0x9d) end,
 			function (mc) return aux.FShaddollFilter2(mc,ATTRIBUTE_DARK) end,
@@ -101,7 +108,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
-
 function s.FShaddollFilter(c,fc)
 	return (c:IsFusionSetCard(0x9d) or c:IsFusionAttribute(ATTRIBUTE_DARK+ATTRIBUTE_EARTH) or c:IsHasEffect(4904633))
 		and c:IsCanBeFusionMaterial(fc) and not c:IsHasEffect(6205579)
@@ -159,6 +165,7 @@ function s.exfilter(c,g)
 end
 function s.FShaddollOperation(e,tp,eg,ep,ev,re,r,rp,gc,chkf)
 	local c=e:GetHandler()
+	local tp=c:GetCounter()
 	local mg=eg:Filter(s.FShaddollFilter,nil,c)
 	local fc=Duel.GetFieldCard(tp,LOCATION_FZONE,0)
 	local exg=nil

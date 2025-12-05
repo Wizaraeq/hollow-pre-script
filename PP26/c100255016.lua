@@ -120,12 +120,13 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.cfilter(c,tp,chk)
-	return c:IsType(TYPE_FUSION) and c:IsReleasableByEffect() and Duel.GetMZoneCount(tp,c)>=2
-		and Duel.IsPlayerCanSpecialSummonMonster(tp,id+o,0,TYPES_TOKEN_MONSTER,0,0,c:GetLevel(),RACE_SPELLCASTER,ATTRIBUTE_DARK)
+	return c:IsType(TYPE_FUSION) and c:IsReleasableByEffect() and (not chk
+		or (Duel.GetMZoneCount(tp,c)>1
+			and Duel.IsPlayerCanSpecialSummonMonster(tp,id+o,0,TYPES_TOKEN_MONSTER,0,0,c:GetLevel(),RACE_SPELLCASTER,ATTRIBUTE_DARK)))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local rg=Duel.GetReleaseGroup(tp,false,REASON_EFFECT)
-	if chk==0 then return rg:Filter(s.cfilter,nil,tp,true)
+	if chk==0 then return rg:IsExists(s.cfilter,1,nil,tp,true)
 		and not Duel.IsPlayerAffectedByEffect(tp,59822133) end
 	Duel.SetOperationInfo(0,CATEGORY_RELEASE,nil,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,2,0,0)
@@ -135,11 +136,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local rg=Duel.GetReleaseGroup(tp,false,REASON_EFFECT)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
 	local srg=nil
-	if Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil,tp,true) then
-		srg=rg:FilterSelect(tp,s.cfilter,1,1,nil,tp,true)
-	else
-		srg=rg:FilterSelect(tp,s.cfilter,1,1,nil,tp,false)
-	end
+	local chk=Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil,tp,true)
+	srg=rg:FilterSelect(tp,s.cfilter,1,1,nil,tp,chk)
 	if srg and srg:GetCount()>0 then
 		local rc=srg:GetFirst()
 		local level=rc:GetLevel()
