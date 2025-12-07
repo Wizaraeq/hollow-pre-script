@@ -117,6 +117,7 @@ function s.fusop(e,tp,eg,ep,ev,re,r,rp)
 			local fop=ce:GetOperation()
 			fop(ce,e,tp,tc,mat2)
 		end
+		tc:CompleteProcedure()
 	end
 end
 function s.sumcon(e,tp,eg,ep,ev,re,r,rp)
