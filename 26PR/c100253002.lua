@@ -14,7 +14,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--equip
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_EQUIP)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e2:SetCode(EVENT_MOVE)
@@ -91,7 +91,7 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 	if c:IsRelateToChain() and c:IsFaceup() and qc then
 		Duel.DisableShuffleCheck()
 		if s.eqfilter(qc,c,tp) then
-			if  Duel.Equip(tp,qc,c) then
+			if Duel.Equip(tp,qc,c) then
 				local e1=Effect.CreateEffect(c)
 				e1:SetType(EFFECT_TYPE_SINGLE)
 				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)

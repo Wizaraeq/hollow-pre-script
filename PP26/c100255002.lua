@@ -33,8 +33,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	local ct=Duel.GetMatchingGroupCount(s.eqfilter,tp,LOCATION_GRAVE,0,nil)
 	if ft>ct then ft=ct end
-	if ft>0 then
-		if not Duel.IsPlayerCanSpecialSummonMonster(tp,id+o,0,TYPES_TOKEN_MONSTER,500,500,1,RACE_WARRIOR,ATTRIBUTE_LIGHT) then return end
+	if ft>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,id+o,0,TYPES_TOKEN_MONSTER,500,500,1,RACE_WARRIOR,ATTRIBUTE_LIGHT) then
 		if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 		local ctn=true
 		while ft>0 and ctn do
@@ -44,12 +43,13 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			if ft<=0 or not Duel.SelectYesNo(tp,aux.Stringid(id,1)) then ctn=false end
 		end
 		Duel.SpecialSummonComplete()
-		if e:GetHandler():IsRelateToChain() then
+		local c=e:GetHandler()
+		if c:IsRelateToChain() then
 			local dg=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_SZONE,0,nil)
 			if dg:GetCount()>0 and Duel.IsExistingMatchingCard(s.eqfilter,tp,LOCATION_GRAVE,0,1,nil)
 				and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 				Duel.BreakEffect()
-				if Duel.Destroy(dg,REASON_EFFECT)>0 then
+				if Duel.Destroy(dg,REASON_EFFECT)>0 and Duel.GetOperatedGroup():IsContains(c) then
 					local sg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.eqfilter2),tp,LOCATION_GRAVE,0,nil)
 					local count=Duel.GetLocationCount(tp,LOCATION_SZONE)
 					if count>sg:GetCount() then count=sg:GetCount() end

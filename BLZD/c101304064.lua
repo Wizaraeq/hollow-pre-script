@@ -34,7 +34,7 @@ function s.filter0(c)
 	return c:IsFaceup() and c:IsCode(101304116) and c:IsCanBeFusionMaterial()
 end
 function s.filter1(c,e)
-	return not c:IsImmuneToEffect(e)
+	return c and not c:IsImmuneToEffect(e)
 end
 function s.filter2(c,e,tp,m,f,chkf)
 	return c:IsType(TYPE_FUSION) and c:IsRace(RACE_SPELLCASTER) and (not f or f(c))

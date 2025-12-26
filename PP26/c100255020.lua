@@ -37,13 +37,17 @@ function s.desfilter(c)
 	return c:GetBattledGroupCount()>0
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-
 	local b1=Duel.IsExistingMatchingCard(s.desfilter,tp,0,LOCATION_MZONE,1,nil)
-	local event_chaining,_,_,event_value,reason_effect=Duel.CheckEvent(EVENT_CHAINING,true)
-	local reason_card=reason_effect and reason_effect:GetHandler() or nil
-	local b2=event_chaining and reason_effect:IsHasType(EFFECT_TYPE_ACTIVATE)
-		and (reason_card:GetType()==TYPE_SPELL or reason_card:IsType(TYPE_QUICKPLAY))
-		and Duel.IsChainDisablable(ev)
+	local ch=Duel.GetCurrentChain()
+	local b2=false
+	local og=Group.CreateGroup()
+	local tse=nil
+	if e:GetHandler():IsStatus(STATUS_CHAINING) then ch=ch-1 end
+	if ch>0 then
+		tse=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_EFFECT)
+		b2=tse:IsHasType(EFFECT_TYPE_ACTIVATE)
+			and (tse:IsActiveType(TYPE_QUICKPLAY) or tse:GetHandler():GetType()==TYPE_SPELL) and Duel.IsChainDisablable(ev)
+	end
 	if chk==0 then return b1 or b2 end
 	local op=aux.SelectFromOptions(tp,
 		{b1,aux.Stringid(id,2),1},

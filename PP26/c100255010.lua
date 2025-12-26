@@ -26,6 +26,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local og=Group.CreateGroup()
 	local tsp=-1
 	local tse=nil
+	if e:GetHandler():IsStatus(STATUS_CHAINING) then ch=ch-1 end
 	if ch>0 then
 		tsp,tse=Duel.GetChainInfo(ch,CHAININFO_TRIGGERING_PLAYER,CHAININFO_TRIGGERING_EFFECT)
 		og:AddCard(tse:GetHandler())
