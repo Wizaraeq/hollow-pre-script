@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.ffilter(c,fc)
-	return c:IsFusionSetCard(0xbf,0xc0)
+	return c:IsFusionSetCard(0xbf,0x10c0)
 end
 function s.valcheck(e,c)
 	local ct=c:GetMaterial():GetClassCount(Card.GetOriginalAttribute)

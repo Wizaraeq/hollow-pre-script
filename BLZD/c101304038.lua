@@ -63,16 +63,16 @@ end
 function s.mfilter(e,c)
 	return c:IsSynchroType(TYPE_TUNER) or not c:IsSynchroType(TYPE_TUNER) and c:IsSynchroType(TYPE_SYNCHRO)
 end
-function s.mgcheck(c,mg)
+function s.mgcheck(c,mg,syncard)
 	local rg=mg-c
-	if not c:IsSynchroType(TYPE_TUNER) and c:IsSynchroType(TYPE_SYNCHRO) then
-		return rg:FilterCount(Card.IsSynchroType,nil,TYPE_TUNER)==4
+	if c:IsNotTuner(syncard) and c:IsSynchroType(TYPE_SYNCHRO) then
+		return rg:FilterCount(Card.IsTuner,nil,c)==4
 	else
 		return false
 	end
 end
-function s.syncheck(g)
-	return g:IsExists(s.mgcheck,1,nil,g)
+function s.syncheck(g,syncard)
+	return g:IsExists(s.mgcheck,1,nil,g,syncard)
 end
 function s.atkval(e,c)
 	return Duel.GetMatchingGroupCount(Card.IsType,c:GetControler(),LOCATION_GRAVE,0,nil,TYPE_TUNER)*500

@@ -18,9 +18,9 @@ function s.resfilter(c,e,tp)
 	return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,1,c,e,tp)
 		and Duel.GetMZoneCount(tp,c)>0
 end
-function s.filter(c,e,tp)
+function s.filter(c,e,tp,fid)
 	return (aux.IsCodeOrListed(c,60800381) or aux.IsCodeOrListed(c,44508094))
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and (fid==nil or c:GetFieldID()~=fid)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.CheckReleaseGroup(tp,s.resfilter,1,nil,e,tp)
@@ -41,9 +41,10 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(op)
 	if op==1 then
 		e:SetCategory(CATEGORY_SPECIAL_SUMMON)
-		local g=Duel.SelectReleaseGroup(tp,s.resfilter,1,1,nil,e,tp)
-		e:SetLabelObject(g)
-		Duel.Release(g,REASON_COST)
+		local cost_card=Duel.SelectReleaseGroup(tp,s.resfilter,1,1,nil,e,tp):GetFirst()
+		Duel.Release(cost_card,REASON_COST)
+		local fid=cost_card:GetFieldID()
+		e:SetLabel(1,fid)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE)
 	elseif op==2 then
 		e:SetCategory(CATEGORY_DISABLE)
@@ -63,12 +64,11 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	e0:SetTarget(s.splimit)
 	e0:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e0,tp)
-	local op=e:GetLabel()
+	local op,fid=e:GetLabel()
 	if op==1 then
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-		local rcg=e:GetLabelObject()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.filter),tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,1,1,rcg,e,tp)
+		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.filter),tp,LOCATION_DECK+LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,e,tp,fid)
 		if g:GetCount()>0 then
 			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 		end
