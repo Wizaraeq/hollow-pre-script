@@ -63,7 +63,7 @@ function s.splimit(e,c)
 	return not c:IsSetCard(0x8) and c:IsLocation(LOCATION_EXTRA)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==1-tp and Duel.GetLP(tp)<=10000
+	return Duel.GetTurnPlayer()==1-tp and Duel.GetLP(tp)<=1000
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0

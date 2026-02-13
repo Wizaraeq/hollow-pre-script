@@ -18,7 +18,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_ATTACK_ANNOUNCE)
 	e2:SetCondition(s.spcon2)
 	c:RegisterEffect(e2)
-	--destroy
+	--deckdes
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetCategory(CATEGORY_SEARCH+CATEGORY_SPECIAL_SUMMON+CATEGORY_TOHAND+CATEGORY_DECKDES+CATEGORY_GRAVE_ACTION+CATEGORY_GRAVE_SPSUMMON)
@@ -58,7 +58,7 @@ function s.cfilter(c)
 end
 function s.thcon1(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not (ep==1-tp and re:GetHandler():IsOnField() and re:GetHandler():IsRelateToEffect(re) and re:IsActiveType(TYPE_MONSTER)) then return false end
+	if not (ep==1-tp and re:GetActivateLocation()==LOCATION_MZONE and re:IsActiveType(TYPE_MONSTER)) then return false end
 	e:SetLabelObject(re:GetHandler())
 	return true
 end

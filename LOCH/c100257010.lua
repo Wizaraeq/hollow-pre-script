@@ -38,7 +38,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_XYZ)
 end
 function s.filter(c,mc,e,tp)
-	return c:IsSetCard(0x55)
+	return c:IsSetCard(0x55) and c:IsType(TYPE_MONSTER)
 		and (Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 			and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
 			or (mc and mc:IsType(TYPE_XYZ) and c:IsCanOverlay()))

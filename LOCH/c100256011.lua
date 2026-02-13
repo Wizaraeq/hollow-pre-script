@@ -20,7 +20,7 @@ function s.xyzfiltr(c,g)
 		and c:IsXyzSummonable(g,2,2)
 end
 function s.spfilter(c,e,tp,ec)
-	if not (not c:IsCode(id) and c:IsSetCard(0x8f,0x54,0x59,0x82) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)) then return false end
+	if not (not c:IsCode(id) and c:IsSetCard(0x8f,0x54,0x59,0x82) and c:IsLevelAbove(1) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)) then return false end
 	local e1=nil
 	local e2=nil
 	if ec:IsLevelAbove(1) then
@@ -72,6 +72,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				e1=Effect.CreateEffect(e:GetHandler())
 				e1:SetType(EFFECT_TYPE_SINGLE)
 				e1:SetCode(EFFECT_XYZ_LEVEL)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 				e1:SetValue(s.xyzlv)
 				e1:SetLabel(c:GetLevel())
 				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
@@ -81,6 +82,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 				e2=Effect.CreateEffect(e:GetHandler())
 				e2:SetType(EFFECT_TYPE_SINGLE)
 				e2:SetCode(EFFECT_XYZ_LEVEL)
+				e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 				e2:SetValue(s.xyzlv)
 				e2:SetLabel(tc:GetLevel())
 				e2:SetReset(RESET_EVENT+RESETS_STANDARD)

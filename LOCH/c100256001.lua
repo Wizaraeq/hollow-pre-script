@@ -1,11 +1,12 @@
 --王のしもべ－ブラック・マジシャン
+CATEGORY_SSET			   =0x200000000	--包含盖放魔陷的效果
 local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.EnableChangeCode(c,46986414,LOCATION_MZONE+LOCATION_GRAVE)
 	--spsummon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_SSET)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCountLimit(1,id)
