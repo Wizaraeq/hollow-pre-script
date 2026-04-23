@@ -18,10 +18,11 @@ function s.cfilter(c,tp)
 		and aux.MustMaterialCheck(c,tp,EFFECT_MUST_BE_XMATERIAL)
 end
 function s.spfilter(c,e,tp,g)
-	g:AddCard(c)
+	local sg=g:Clone()
+	sg:AddCard(c)
 	return c:IsFaceupEx() and c:IsSetCard(0x10db,0x2073)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and g:IsExists(s.stfilter,1,nil,e,tp)
+		and sg:IsExists(s.stfilter,1,nil,e,tp)
 end
 function s.stfilter(c,e,tp)
 	return c:IsFaceupEx() and c:IsType(TYPE_XYZ) and c:IsAttribute(ATTRIBUTE_DARK)

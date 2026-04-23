@@ -43,7 +43,7 @@ function s.FSFilter1(g,fc,gc,tp,chkf)
 	if not aux.MustMaterialCheck(g,tp,EFFECT_MUST_BE_FMATERIAL) then return false end
 	if aux.FCheckAdditional and not aux.FCheckAdditional(tp,g,fc)
 		or aux.FGoalCheckAdditional and not aux.FGoalCheckAdditional(tp,g,fc) then return false end
-	return aux.dabcheck(g) and (chkf==PLAYER_NONE or Duel.GetLocationCountFromEx(tp,tp,g,fc)>0)
+	return chkf==PLAYER_NONE or Duel.GetLocationCountFromEx(tp,tp,g,fc)>0
 end
 function s.FSCondition(e,g,gc,chkf)
 	if g==nil then return aux.MustMaterialCheck(nil,e:GetHandlerPlayer(),EFFECT_MUST_BE_FMATERIAL) end
@@ -51,19 +51,25 @@ function s.FSCondition(e,g,gc,chkf)
 	local mg=g:Filter(s.FSFilter,nil,c)
 	local tp=e:GetHandlerPlayer()
 	local res=false
+	aux.GCheckAdditional=aux.dabcheck
 	if gc then
-		if not mg:IsContains(gc) then return false end
+		if not mg:IsContains(gc) then
+			aux.GCheckAdditional=nil
+			return false
+		end
 		res=mg:CheckSubGroup(s.FSFilter1,2,99,c,gc,tp,chkf)
 	else
 		res=mg:CheckSubGroup(s.FSFilter1,2,99,c,nil,tp,chkf)
 	end
+	aux.GCheckAdditional=nil
 	return res
 end
 function s.FSOperation(e,tp,eg,ep,ev,re,r,rp,gc,chkf)
 	local c=e:GetHandler()
 	local mg=eg:Filter(s.FSFilter,nil,c)
-	local g=Group.CreateGroup()
-	while g:GetCount()==0 do
+	aux.GCheckAdditional=aux.dabcheck
+	local g=nil
+	while not g do
 		if gc then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
 			g=mg:SelectSubGroup(tp,s.FSFilter1,true,2,99,c,gc,tp,chkf)
@@ -72,6 +78,7 @@ function s.FSOperation(e,tp,eg,ep,ev,re,r,rp,gc,chkf)
 			g=mg:SelectSubGroup(tp,s.FSFilter1,true,2,99,c,nil,tp,chkf)
 		end
 	end
+	aux.GCheckAdditional=nil
 	Duel.SetFusionMaterial(g)
 end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
