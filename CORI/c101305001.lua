@@ -20,7 +20,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sprtg)
 	e2:SetOperation(s.sprop)
 	c:RegisterEffect(e2)
-	--set
+	--place
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetType(EFFECT_TYPE_IGNITION)
@@ -70,7 +70,6 @@ function s.sprtg(e,tp,eg,ep,ev,re,r,rp,chk,c)
 end
 function s.sprop(e,tp,eg,ep,ev,re,r,rp,c)
 	local g=e:GetLabelObject()
-	Duel.HintSelection(g)
 	if g:IsExists(Card.IsLocation,1,nil,LOCATION_HAND) then
 		Duel.ConfirmCards(1-tp,g:Filter(Card.IsLocation,nil,LOCATION_HAND))
 	end

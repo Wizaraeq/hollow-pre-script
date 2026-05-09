@@ -63,7 +63,7 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetValue(1)
 		Duel.RegisterEffect(e2,tp)
 	elseif e:GetLabel()==2 then
-		if Duel.GetLocationCount(tp,LOCATION_SZONE)<1 then return end
+		if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 		local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil)
 		local tc=g:GetFirst()

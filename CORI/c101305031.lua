@@ -51,6 +51,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 			local sg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.rmfilter),tp,LOCATION_GRAVE,LOCATION_GRAVE,1,1,nil)
 			if sg:GetCount()>0 then
 				Duel.BreakEffect()
+				Duel.HintSelection(sg)
 				Duel.Remove(sg,POS_FACEUP,REASON_EFFECT)
 			end
 		end

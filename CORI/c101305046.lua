@@ -47,11 +47,12 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sg=g:SelectSubGroup(tp,aux.dncheck,false,3,3)
 	if not sg or sg:GetCount()~=3 then return end
+	Duel.HintSelection(g2)
 	if tc:IsFaceup() then
 		Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
-		tc:ClearEffectRelation()
+		local ce=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT)
+		tc:ReleaseEffectRelation(ce)
 	end
-	Duel.HintSelection(g2)
 	for sc in aux.Next(sg) do
 		Duel.SpecialSummonStep(sc,0,tp,tp,true,true,POS_FACEDOWN_DEFENSE)
 		local e1=Effect.CreateEffect(sc)

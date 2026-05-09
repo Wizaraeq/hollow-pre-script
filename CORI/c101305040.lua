@@ -48,12 +48,13 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.costfilter(c,e,tp)
+	local ec=e:GetHandler()
 	if c:IsHasEffect(55049722,tp) then
-		return e:GetHandler():IsSetCard(0x156) and c:IsAbleToRemoveAsCost()
+		return ec:IsSetCard(0x156) and c:IsAbleToRemoveAsCost()
 	elseif c:IsHasEffect(101305074,tp) then
-		return e:GetHandler():IsSetCard(0x156) and not c:IsCode(101305074)
+		return ec:IsSetCard(0x156) and not c:IsCode(101305074)
 			and c:IsSetCard(0x156) and c:IsAbleToGraveAsCost()
-			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,c,e,tp,c)
+			and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,c,e,tp,ec)
 	elseif c:IsLocation(LOCATION_HAND) then
 		return c:IsSetCard(0x156) and c:IsAbleToRemoveAsCost()
 	end
@@ -73,12 +74,12 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if te then
 		Duel.Hint(HINT_CARD,0,101305074)
 		te:UseCountLimit(tp)
-		Duel.SendtoGrave(tg,REASON_REPLACE)
+		Duel.SendtoGrave(tg,REASON_COST+REASON_REPLACE)
 	else
 		local te2=tg:GetFirst():IsHasEffect(55049722,tp)
 		if te2 then
 			te2:UseCountLimit(tp)
-			Duel.Remove(tg,POS_FACEUP,REASON_REPLACE)
+			Duel.Remove(tg,POS_FACEUP,REASON_COST+REASON_REPLACE)
 		else
 			Duel.Remove(tg,POS_FACEUP,REASON_COST)
 		end

@@ -153,7 +153,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.BreakEffect()
 		if tc:IsSummonable(true,nil) and (not tc:IsMSetable(true,nil)
 			or Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE)==POS_FACEUP_ATTACK) then
-			Duel.Summon(tp,tc,true,nil)
-		else Duel.MSet(tp,tc,true,nil) end
+			Duel.Summon(tp,tc,true,nil,1)
+		else Duel.MSet(tp,tc,true,nil,1) end
 	end
 end

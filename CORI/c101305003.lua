@@ -32,6 +32,9 @@ end
 function s.cfilter(c)
 	return aux.IsCodeListed(c,101305044)
 end
+function s.cfilter2(c)
+	return aux.IsCodeListed(c,101305044) and not c:IsPublic()
+end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_HAND,0,1,nil)
 		and not Duel.IsExistingMatchingCard(Card.IsPublic,tp,LOCATION_HAND,0,1,nil) end
@@ -41,7 +44,7 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 		local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_HAND,0,nil)
 		if g:GetCount()>0 then
 			Duel.ConfirmCards(1-tp,g)
-			if g:IsExists(s.cfilter,1,nil)
+			if g:IsExists(s.cfilter2,1,nil)
 				and Duel.IsPlayerCanDraw(tp,3)
 				and Duel.SelectYesNo(tp,aux.Stringid(id,2))
 				and Duel.Draw(tp,3,REASON_EFFECT)>0 then
@@ -55,7 +58,6 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	end
-	local c=e:GetHandler()
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
@@ -106,7 +108,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<1 then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
 	if g:GetCount()>0 then

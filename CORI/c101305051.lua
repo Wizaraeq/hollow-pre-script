@@ -46,8 +46,9 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 			{b2,aux.Stringid(id,3),2})
 	if op==2 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-		local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,e:GetHandler(),e:GetHandler(),tp)
-		Duel.SendtoHand(g,nil,REASON_COST)
+		local rg=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,e:GetHandler(),e:GetHandler(),tp)
+		Duel.HintSelection(rg)
+		Duel.SendtoHand(rg,nil,REASON_COST)
 	end
 	e:SetLabel(op)
 end
@@ -91,7 +92,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		end
 	elseif e:GetLabel()==2 then
 		local tc=Duel.GetFirstTarget()
-		if tc:IsRelateToChain() then
+		if tc:IsRelateToChain() and tc:IsOnField() then
 			Duel.Destroy(tc,REASON_EFFECT)
 		end
 	end

@@ -47,8 +47,11 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=1 then return end
 	local pg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.tffilter),tp,LOCATION_HAND+LOCATION_DECK+LOCATION_GRAVE,0,nil,tp)
 	if pg:GetCount()<2 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=pg:Select(tp,2,2,nil)
+	local g=pg
+	if g:GetCount()>2 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+		g=g:Select(tp,2,2,nil)
+	end
 	local ct=0
 	for tc in aux.Next(g) do
 		if Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
@@ -63,6 +66,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		local cg=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND,0,1,1,nil)
 		Duel.ConfirmCards(1-tp,cg)
 		Duel.ShuffleHand(tp)
+		Duel.BreakEffect()
 		local sc=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil):GetFirst()
 		local fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
 		if fc then

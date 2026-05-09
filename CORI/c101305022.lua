@@ -43,10 +43,11 @@ function s.nccost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return not c:IsPublic() and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_HAND,0,1,c) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
 	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_HAND,0,1,1,c)
+	local sc=g:GetFirst()
 	g:AddCard(c)
 	Duel.ConfirmCards(1-tp,g)
 	Duel.ShuffleHand(tp)
-	e:SetLabel(g:GetFirst():GetCode())
+	e:SetLabel(sc:GetCode())
 end
 function s.ncop(e,tp,eg,ep,ev,re,r,rp)
 	local e1=Effect.CreateEffect(e:GetHandler())
@@ -81,10 +82,6 @@ end
 function s.ctcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPreviousLocation(LOCATION_GRAVE)
 end
----comment
----@param c Card
----@param tp any
----@return boolean
 function s.tgfilter(c,tp)
 	return c:IsFaceup() and c:IsControlerCanBeChanged()
 		and not Duel.IsExistingMatchingCard(aux.AND(Card.IsFaceup,Card.IsAttackAbove),tp,0,LOCATION_MZONE,1,nil,c:GetAttack()+1)
