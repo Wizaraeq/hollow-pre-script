@@ -60,23 +60,25 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Remove(sg,POS_FACEUP,REASON_EFFECT)
 	end
 end
+function s.tgfilter(c,e,tp)
+	return c:IsFaceupEx() and c:IsSetCard(0x2e4) and c:IsType(TYPE_MONSTER+TYPE_TRAP)
+		and (c:IsAbleToHand() or s.setfilter(c,e,tp))
+end
 function s.setfilter(c,e,tp)
-	return c:IsFaceupEx() and c:IsSetCard(0x2e4)
-		and (c:IsAbleToHand()
-			or c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN)
-			or c:IsType(TYPE_TRAP) and c:IsSSetable())
+	return c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		or c:IsType(TYPE_TRAP) and c:IsSSetable()
 end
 function s.cspfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsLocation(LOCATION_GRAVE)
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) and s.setfilter(chkc,e,tp) end
-	if chk==0 then return Duel.IsExistingTarget(s.setfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp) end
+	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) and s.tgfilter(chkc,e,tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.tgfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp) end
 	local ct=1
 	if c:IsAbleToExtra() then ct=2 end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectTarget(tp,s.setfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,ct,nil,e,tp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_OPERATECARD)
+	local g=Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,ct,nil,e,tp)
 	if g:GetCount()==2 then
 		e:SetLabel(1)
 		Duel.SetOperationInfo(0,CATEGORY_TOEXTRA,c,1,0,0)
@@ -95,25 +97,71 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
 	local sg=g:Filter(aux.NecroValleyFilter(Card.IsRelateToChain),nil)
-	if sg:GetCount()>0 then
-		for tc in aux.Next(sg) do
-			local res=tc:IsType(TYPE_MONSTER) and tc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN)
-				or tc:IsType(TYPE_TRAP) and tc:IsSSetable()
-			if tc:IsAbleToHand()
-				and (not res or Duel.SelectOption(tp,1190,1153)==0) then
-				Duel.SendtoHand(tc,nil,REASON_EFFECT)
+	if sg:GetCount()==1 then
+		local tc=sg:GetFirst()
+		local set=s.setfilter(tc,e,tp)
+		if tc:IsAbleToHand()
+			and (not set or Duel.SelectOption(tp,1190,1153)==0) then
+			Duel.SendtoHand(tc,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,tc)
+		else
+			if tc:IsType(TYPE_MONSTER) then
+				Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
 				Duel.ConfirmCards(1-tp,tc)
 			else
-				if tc:IsType(TYPE_MONSTER) then
-					Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEDOWN)
-					Duel.ConfirmCards(1-tp,tc)
+				Duel.SSet(tp,tc)
+			end
+		end
+	elseif sg:GetCount()==2 then
+		local tg=sg:Filter(s.setfilter,nil,e,tp)
+		local setg=Group.CreateGroup()
+		if tg:GetCount()>0 then
+			local selg=Group.CreateGroup()
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
+			while true do
+				local mct=selg:FilterCount(Card.IsType,nil,TYPE_MONSTER)
+				local tct=selg:FilterCount(Card.IsType,nil,TYPE_TRAP)
+				local finish=true
+				if mct>0 then
+					if Duel.IsPlayerAffectedByEffect(tp,59822133) and mct>1 or mct>Duel.GetLocationCount(tp,LOCATION_MZONE) then
+						finish=false
+					end
+				end
+				if tct>0 and tct>Duel.GetLocationCount(tp,LOCATION_SZONE) then
+					finish=false
+				end
+				local tmg=tg:Clone()
+				tmg:Sub(selg)
+				local tc=tmg:SelectUnselect(selg,tp,finish,false,1,tg:GetCount())
+				if not tc then
+					setg:Merge(selg)
+					break
+				end
+				if selg:IsContains(tc) then
+					selg:RemoveCard(tc)
 				else
-					Duel.SSet(tp,tc)
+					selg:AddCard(tc)
 				end
 			end
 		end
+		local thg=sg-setg
+		if thg:GetCount()>0 then
+			Duel.SendtoHand(thg,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,thg)
+		end
+		local msg=setg:Filter(Card.IsType,nil,TYPE_MONSTER)
+		if msg:GetCount()>0 then
+			Duel.SpecialSummon(msg,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
+			if msg:GetCount()==1 then
+				Duel.ConfirmCards(1-tp,msg)
+			end
+		end
+		local ssg=setg:Filter(Card.IsType,nil,TYPE_TRAP)
+		if ssg:GetCount()>0 then
+			Duel.SSet(tp,ssg)
+		end
 	end
-	if e:GetLabel()==1 and c:IsRelateToEffect(e) then
+	if e:GetLabel()==1 and c:IsRelateToChain() then
 		Duel.SendtoDeck(c,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
 	end
 end

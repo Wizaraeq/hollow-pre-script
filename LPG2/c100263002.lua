@@ -59,6 +59,14 @@ function s.cointg(e,tp,eg,ep,ev,re,r,rp,chk)
 		Duel.SetOperationInfo(0,CATEGORY_DESTROY,dg,1,0,0)
 	end
 end
+---Check whether a monster is special summoned by Tiki Peace, which should not calculate its original value after leaving the field
+---@param c Card
+---@return boolean
+function Auxiliary.covcheck(c)
+	if c:GetOriginalType()&TYPE_MONSTER~=0 then return true end
+	local se=c:GetSpecialSummonInfo(SUMMON_INFO_REASON_EFFECT)
+	return se and se:GetHandler()==c
+end
 function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 	local res=-1
 	if Duel.IsPlayerAffectedByEffect(tp,73206827) then
@@ -86,7 +94,8 @@ function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 		local tc=g:GetFirst()
 		if tc then
 			Duel.HintSelection(g)
-			if Duel.Destroy(tc,REASON_EFFECT)~=0 and tc:GetTextAttack()>0 then
+			local flag=Auxiliary.covcheck(tc)
+			if Duel.Destroy(tc,REASON_EFFECT)~=0 and flag and tc:GetTextAttack()>0 then
 				Duel.Damage(tp,tc:GetTextAttack(),REASON_EFFECT)
 			end
 		end
@@ -96,7 +105,8 @@ function s.coinop(e,tp,eg,ep,ev,re,r,rp)
 		local tc=g:GetFirst()
 		if tc then
 			Duel.HintSelection(g)
-			if Duel.Destroy(tc,REASON_EFFECT)~=0 and tc:GetTextAttack()>0 then
+			local flag=Auxiliary.covcheck(tc)
+			if Duel.Destroy(tc,REASON_EFFECT)~=0 and flag and tc:GetTextAttack()>0 then
 				Duel.Damage(1-tp,tc:GetTextAttack(),REASON_EFFECT)
 			end
 		end

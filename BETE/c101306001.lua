@@ -32,7 +32,7 @@ function s.initial_effect(c)
 	end
 end
 function s.checkfilter(c)
-	return c:GetPreviousTypeOnField()&TYPE_MONSTER~=0
+	return c:GetPreviousTypeOnField()&TYPE_MONSTER~=0 or (not c:IsPreviousLocation(LOCATION_ONFIELD) and c:GetOriginalType()&TYPE_MONSTER~=0)
 end
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(s.checkfilter,1,nil) then
