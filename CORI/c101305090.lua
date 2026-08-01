@@ -17,42 +17,56 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--search
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_MOVE)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
-	e2:SetCountLimit(1,id+o)
-	e2:SetTarget(s.thtg)
-	e2:SetOperation(s.thop)
+	e2:SetOperation(s.flagop)
 	c:RegisterEffect(e2)
-	--effect count
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
-	e3:SetCode(EVENT_CHAINING)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e3:SetCode(EVENT_CHAIN_SOLVED)
 	e3:SetRange(LOCATION_SZONE)
-	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e3:SetCondition(s.thcon)
-	e3:SetOperation(s.count)
+	e3:SetOperation(s.raiseop)
 	c:RegisterEffect(e3)
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
-	e4:SetCode(EVENT_CHAIN_NEGATED)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_CUSTOM+id)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetCountLimit(1,id+o)
 	e4:SetRange(LOCATION_SZONE)
-	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e4:SetCondition(s.thcon)
-	e4:SetOperation(s.rst)
+	e4:SetTarget(s.thtg)
+	e4:SetOperation(s.thop)
 	c:RegisterEffect(e4)
-	--activate limit
+	--effect count
 	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD)
-	e5:SetCode(EFFECT_CANNOT_ACTIVATE)
-	e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e5:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
+	e5:SetCode(EVENT_CHAINING)
 	e5:SetRange(LOCATION_SZONE)
-	e5:SetTargetRange(0,1)
-	e5:SetCondition(s.econ)
-	e5:SetValue(s.elimit)
+	e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e5:SetCondition(s.thcon)
+	e5:SetOperation(s.count)
 	c:RegisterEffect(e5)
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
+	e6:SetCode(EVENT_CHAIN_NEGATED)
+	e6:SetRange(LOCATION_SZONE)
+	e6:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e6:SetCondition(s.thcon)
+	e6:SetOperation(s.rst)
+	c:RegisterEffect(e6)
+	--activate limit
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_FIELD)
+	e7:SetCode(EFFECT_CANNOT_ACTIVATE)
+	e7:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e7:SetRange(LOCATION_SZONE)
+	e7:SetTargetRange(0,1)
+	e7:SetCondition(s.econ)
+	e7:SetValue(s.elimit)
+	c:RegisterEffect(e7)
 end
 function s.rmfilter(c)
 	return c:IsAbleToRemove()
@@ -72,6 +86,22 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
 	end
 end
+function s.flagop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsLocation(LOCATION_SZONE) or c:GetType()~=TYPE_SPELL+TYPE_CONTINUOUS then return end
+	if Duel.GetCurrentChain()>0 then
+		c:RegisterFlagEffect(id+o,RESET_EVENT+RESETS_STANDARD+RESET_CHAIN,0,1)
+	else
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,e,0,tp,tp,0)
+	end
+end
+function s.raiseop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:GetType()~=TYPE_SPELL+TYPE_CONTINUOUS then return end
+	if c:GetFlagEffect(id+o)~=0 then
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,e,0,tp,tp,0)
+	end
+end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetType()==TYPE_SPELL+TYPE_CONTINUOUS
 end
@@ -79,7 +109,7 @@ function s.thfilter(c)
 	return c:IsSetCard(0x2e5) and c:IsType(TYPE_TRAP) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) and e:GetHandler():GetType()==TYPE_SPELL+TYPE_CONTINUOUS end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK+LOCATION_GRAVE)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)

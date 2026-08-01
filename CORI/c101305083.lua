@@ -24,6 +24,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--fusion
 	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
@@ -118,9 +119,9 @@ function s.fspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local chkf=tp
 	if Duel.GetCurrentPhase()&(PHASE_DAMAGE+PHASE_DAMAGE_CAL)~=0 then return end
-	if not c:IsRelateToEffect(e) or c:IsImmuneToEffect(e) then return end
+	if not c:IsRelateToChain() or c:IsImmuneToEffect(e) then return end
 	local mg1=Duel.GetFusionMaterial(tp):Filter(s.filter1,nil,e)
-	local mg2=Duel.GetMatchingGroup(s.filter0,tp,0,LOCATION_MZONE,nil)
+	local mg2=Duel.GetMatchingGroup(s.filter0,tp,0,LOCATION_MZONE,nil,e)
 	if mg2:GetCount()>0 then
 		mg1:Merge(mg2)
 	end

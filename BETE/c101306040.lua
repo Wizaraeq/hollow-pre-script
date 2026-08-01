@@ -62,7 +62,7 @@ function s.settg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local g=Duel.SelectTarget(tp,s.setfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil,res)
 	if g:IsExists(Card.IsLocation,1,nil,LOCATION_GRAVE) then
-		Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,1,0,0)
+		Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,1,0,0)
 	end
 end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)

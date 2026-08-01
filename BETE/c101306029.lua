@@ -77,8 +77,9 @@ function s.cfilter(c)
 	return c:IsCode(22702055) and c:IsFaceup()
 end
 function s.econ(e)
-	return Duel.IsEnvironment(22702055)
-		or Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil)
+	local tp=e:GetHandlerPlayer()
+	return Duel.IsEnvironment(22702055,tp)
+		or Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 function s.tgtg(e,c)
 	return c:IsAttribute(ATTRIBUTE_WATER) and c:IsType(TYPE_LINK)

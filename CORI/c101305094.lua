@@ -88,18 +88,18 @@ end
 function s.tecon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.sfilter,1,nil,tp) and not eg:IsContains(e:GetHandler())
 end
-function s.tefilter(c)
+function s.tefilter(c,tp)
 	return c:IsSetCard(0x2e5) and bit.band(c:GetOriginalType(),TYPE_MONSTER)~=0
-		and c:IsAbleToExtra() and c:IsFaceup()
+		and c:IsAbleToExtra() and c:IsFaceup() and c:GetOwner()==tp
 end
 function s.tetg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tefilter,tp,LOCATION_SZONE,0,1,nil) end
-	local g=Duel.GetMatchingGroup(s.tefilter,tp,LOCATION_SZONE,0,nil)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tefilter,tp,LOCATION_SZONE,0,1,nil,tp) end
+	local g=Duel.GetMatchingGroup(s.tefilter,tp,LOCATION_SZONE,0,nil,tp)
 	Duel.SetOperationInfo(0,CATEGORY_TOEXTRA,g,1,0,0)
 end
 function s.teop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local sg=Duel.SelectMatchingCard(tp,s.tefilter,tp,LOCATION_SZONE,0,1,1,nil)
+	local sg=Duel.SelectMatchingCard(tp,s.tefilter,tp,LOCATION_SZONE,0,1,1,nil,tp)
 	if sg:GetCount()>0 then
 		Duel.HintSelection(sg)
 		if Duel.SendtoDeck(sg,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)~=0 then

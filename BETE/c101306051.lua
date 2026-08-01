@@ -102,7 +102,6 @@ function s.fsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.fspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not c:IsRelateToChain() then return end
 	local chkf=tp
 	local mg1=Duel.GetFusionMaterial(tp):Filter(s.filter1,nil,e)
 	local mg2=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.filter3),tp,LOCATION_GRAVE,0,nil)

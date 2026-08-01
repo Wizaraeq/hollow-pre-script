@@ -71,8 +71,8 @@ function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return a:IsControler(1-tp)
 end
 function s.atkcon2(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return ep==1-tp and re:GetHandler():IsRelateToEffect(re) and re:IsActiveType(TYPE_MONSTER)
+	local rc=re:GetHandler()
+	return ep==1-tp and re:IsActiveType(TYPE_MONSTER) and rc:IsOnField() and rc:IsRelateToEffect(re)
 end
 function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x76,1,REASON_COST) end
@@ -88,6 +88,7 @@ function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
 	Duel.SetTargetCard(a)
+	Duel.SetOperationInfo(0,CATEGORY_COIN,nil,0,tp,1)
 end
 function s.atktg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tc=re:GetHandler()
@@ -95,6 +96,7 @@ function s.atktg2(e,tp,eg,ep,ev,re,r,rp,chk)
 		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
 	Duel.SetTargetCard(tc)
+	Duel.SetOperationInfo(0,CATEGORY_COIN,nil,0,tp,1)
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

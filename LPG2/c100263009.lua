@@ -39,7 +39,7 @@ function s.ntcon(e,c,minc)
 end
 function s.sumfilter(c,res,se)
 	return (c:IsSummonable(true,nil) or c:IsMSetable(true,nil))
-		or (res and c:IsLevelAbove(5) and c:IsSummonable(false,se))
+		or (res and c:IsLevelAbove(5) and c:IsSummonable(true,se))
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local res=Duel.IsExistingMatchingCard(aux.TRUE,tp,0,LOCATION_MZONE,1,nil)
@@ -55,7 +55,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	if tc then
 		local ne=nil
-		if (res and tc:IsLevelAbove(5) and tc:IsSummonable(false,se)
+		if (res and tc:IsLevelAbove(5) and tc:IsSummonable(true,se)
 			and (not (tc:IsSummonable(true,nil) or tc:IsMSetable(true,nil))
 				or Duel.SelectYesNo(tp,aux.Stringid(id,2)))) then
 			ne=se

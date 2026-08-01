@@ -53,5 +53,5 @@ end
 -- Auxiliary.quick_effect_filter=Auxiliary.quick_effect_filter or {}
 -- Auxiliary.quick_effect_filter[id]=Auxiliary.ArsMagnaFilter
 -- function Auxiliary.ArsMagnaFilter(c)
---  return c:IsOriginalSetCard(0x2e6)
+-- 	return c:IsOriginalSetCard(0x2e6)
 -- end

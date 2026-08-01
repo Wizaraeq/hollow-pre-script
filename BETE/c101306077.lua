@@ -46,7 +46,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.Remove(g,POS_FACEUP,REASON_EFFECT)~=0 then
 		local ct=Duel.GetOperatedGroup():GetCount()
 		if ct>0
-			and Duel.IsExistingMatchingCard(aux.NegateAnyFilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,aux.ExceptThisCard(e))
+			and Duel.IsExistingMatchingCard(aux.NegateAnyFilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,aux.ExceptThisCard(e))
 			and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DISABLE)

@@ -60,7 +60,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 				if g:GetCount()>0 and Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP,0x60)~=0 then
 					if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 						Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-						local sg=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_EXTRA,0,1,1,nil)
+						local sg=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_EXTRA,0,1,1,nil,tp)
 						local sc=sg:GetFirst()
 						if sc then
 							Duel.MoveToField(sc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
@@ -85,13 +85,14 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if e:IsHasType(EFFECT_TYPE_ACTIVATE) then
 		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetDescription(aux.Stringid(id,2))
 		e1:SetType(EFFECT_TYPE_FIELD)
 		e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
 		e1:SetTargetRange(1,0)
 		e1:SetTarget(s.splimit)
 		local ct=1
-		if Duel.GetTurnPlayer()==1-tp then
+		if Duel.GetTurnPlayer()==tp then
 			ct=2
 		end
 		e1:SetReset(RESET_PHASE+PHASE_END+RESET_SELF_TURN,ct)

@@ -35,9 +35,12 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 	elseif op==2 then
 		if e:IsCostChecked() then
-			e:SetCategory(CATEGORY_DESTROY)
+			e:SetCategory(CATEGORY_DESTROY+CATEGORY_DAMAGE+CATEGORY_COIN)
 			Duel.RegisterFlagEffect(tp,id+o,RESET_PHASE+PHASE_END,0,1)
 		end
+		local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+		Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+		Duel.SetOperationInfo(0,CATEGORY_COIN,nil,0,tp,1)
 	end
 end
 function s.calfilter(c)

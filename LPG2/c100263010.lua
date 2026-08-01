@@ -48,8 +48,8 @@ function s.spfilter(c,e,tp)
 	return c:IsFaceupEx() and c:IsSetCard(0xc008) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local dg,p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	dg=dg:Filter(Card.IsRelateToChain,nil)
+	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
+	local dg=Duel.GetTargetsRelateToChain()
 	if dg:GetCount()>0 and Duel.Destroy(dg,REASON_EFFECT)>0
 		and Duel.Draw(p,d,REASON_EFFECT)~=0
 		and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil)
