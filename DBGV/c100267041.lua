@@ -7,20 +7,18 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
 	--recycle
+	local custom_code=aux.RegisterMergedDelayedEvent_ToSingleCard(c,id,{EVENT_SUMMON_SUCCESS,EVENT_SPSUMMON_SUCCESS})
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_CUSTOM+id)
+	e2:SetCode(custom_code)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetCountLimit(1,EFFECT_COUNT_CODE_CHAIN)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
-	local g=Group.CreateGroup()
-	aux.RegisterMergedDelayedEvent(c,id,EVENT_SUMMON_SUCCESS,g)
-	aux.RegisterMergedDelayedEvent(c,id,EVENT_SPSUMMON_SUCCESS,g)
 	--atkdown
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
@@ -41,7 +39,7 @@ function s.tgfilter(c,e,tp,chk)
 end
 function s.spfilter(c,e,tp,ec,ft)
 	return c:IsFacedown() and c:IsSetCard(0x2ec) and c:IsAttribute(ec:GetAttribute()) and not c:IsAttribute(Duel.GetFlagEffectLabel(tp,id))
-		and (c:IsAbleToHand() or (ft>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,c:GetCode(),0x2ec,TYPE_MONSTER+TYPE_EFFECT,c:GetAttack(),c:GetDefense(),c:GetLevel(),c:GetRace(),c:GetAttribute())))
+		and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return eg:IsContains(chkc) and s.tgfilter(chkc,e,tp,true) end
@@ -65,7 +63,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		if #g>0 then
 			local sc=g:GetFirst()
 			if sc then
-				local flag=ft>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,sc:GetCode(),0x2ec,TYPE_MONSTER+TYPE_EFFECT,sc:GetAttack(),sc:GetDefense(),sc:GetLevel(),sc:GetRace(),sc:GetAttribute())
+				local flag=ft>0 and sc:IsCanBeSpecialSummoned(e,0,tp,false,false)
 				if sc:IsAbleToHand() and (not flag or Duel.SelectOption(tp,1190,1152)==0) then
 					Duel.SendtoHand(sc,nil,REASON_EFFECT)
 					Duel.ConfirmCards(1-tp,sc)

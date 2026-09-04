@@ -45,16 +45,20 @@ function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.chkfilter,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_DECK,0,1,nil)
 		and Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) end
 end
-function s.gcheck(g,ft)
-	return g:FilterCount(aux.NOT(Card.IsType),nil,TYPE_FIELD)<=ft
+function s.gcheck(g,ft,res)
+	return (g:FilterCount(aux.NOT(Card.IsType),nil,TYPE_FIELD)<=ft-1 or res)
 		and g:FilterCount(Card.IsType,nil,TYPE_FIELD)<=1
 end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.setfilter,tp,LOCATION_DECK,0,nil)
 	if g:GetCount()==0 then return end
 	local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
-	if g:IsExists(Card.IsType,1,nil,TYPE_FIELD) then ft=ft+1 end
 	if ft>=2 then ft=2 end
+	local res=true
+	if g:IsExists(Card.IsType,1,nil,TYPE_FIELD) and ft<2 then
+		ft=ft+1
+		res=false
+	end
 	local cg=Duel.GetMatchingGroup(s.chkfilter,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_DECK,0,nil)
 	local ct=math.min(ft,g:GetCount(),cg:GetCount())
 	if ct==0 then return end
@@ -70,7 +74,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		end
 		if g:GetCount()>0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-			local sg=g:SelectSubGroup(tp,s.gcheck,false,rg:GetCount(),rg:GetCount(),ft)
+			local sg=g:SelectSubGroup(tp,s.gcheck,false,rg:GetCount(),rg:GetCount(),ft,res)
 			if sg:GetCount()>0 then
 				Duel.SSet(tp,sg)
 			end

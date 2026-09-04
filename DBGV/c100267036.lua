@@ -55,7 +55,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.spfilter(c,e,tp)
 	return c:IsFacedown() and c:IsSetCard(0x2ec) and c:IsType(TYPE_MONSTER) and not c:IsLevel(6)
-		and Duel.IsPlayerCanSpecialSummonMonster(tp,c:GetCode(),0x2ec,TYPE_MONSTER+TYPE_EFFECT,c:GetAttack(),c:GetDefense(),c:GetLevel(),c:GetRace(),c:GetAttribute())
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

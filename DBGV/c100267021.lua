@@ -98,6 +98,25 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 		e4:SetTarget(s.splimit)
 		e4:SetReset(RESET_PHASE+PHASE_END,2)
 		Duel.RegisterEffect(e4,tp)
+		-- draw in chain while spsummoning
+		local e5=Effect.CreateEffect(c)
+		e5:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
+		e5:SetCode(EVENT_CHAINING)
+		e5:SetCondition(s.chaindrawcon)
+		e5:SetOperation(s.procdraw)
+		e5:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e5,tp)
+		local e6=Effect.CreateEffect(c)
+		e6:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
+		e6:SetProperty(EFFECT_FLAG_DELAY)
+		e6:SetCode(EVENT_SPSUMMON_SUCCESS)
+		e6:SetCondition(s.succon)
+		e6:SetOperation(s.procdraw)
+		e6:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e6,tp)
+		local e7=e6:Clone()
+		e7:SetCode(EVENT_SUMMON_SUCCESS)
+		Duel.RegisterEffect(e7,tp)
 	elseif e:GetLabel()==2 then
 		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 		Duel.Draw(p,d,REASON_EFFECT)
@@ -106,12 +125,32 @@ end
 function s.cfilter(c,tp)
 	return c:IsControler(1-tp) and not c:IsReason(REASON_DRAW)
 end
+function s.procfilter(c,tp)
+	return s.cfilter(c,tp) and c:IsReason(REASON_SPSUMMON)
+end
 function s.drcon1(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp) and not Duel.IsChainSolving()
 end
 function s.drop1(e,tp,eg,ep,ev,re,r,rp)
+	-- raise event for REASON_SPSUMMON
+	if eg:IsExists(s.procfilter,1,nil,tp) then
+		Duel.RegisterFlagEffect(tp,id+o*4,RESET_PHASE+PHASE_END,0,1)
+		return
+	end
 	Duel.Hint(HINT_CARD,0,id)
 	Duel.Draw(tp,1,REASON_EFFECT)
+end
+function s.chaindrawcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetCurrentChain()==1 and Duel.GetFlagEffect(tp,id+o*4)>0
+end
+function s.succon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetFlagEffect(tp,id+o*4)>0 and not Duel.IsChainSolving()
+end
+function s.procdraw(e,tp,eg,ep,ev,re,r,rp)
+	local ct=Duel.GetFlagEffect(tp,id+o*4)
+	Duel.ResetFlagEffect(tp,id+o*4)
+	Duel.Hint(HINT_CARD,0,id)
+	Duel.Draw(tp,ct,REASON_EFFECT)
 end
 function s.regcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp) and Duel.IsChainSolving()
