@@ -80,8 +80,14 @@ end
 function s.disfilter(c,att)
 	return c:IsFacedown() and c:IsSetCard(0x2ec) and c:IsAttribute(att) and c:IsAbleToDeck()
 end
+function s.getchainatt(c,ev)
+	if c:IsRelateToChain(ev) then
+		return c:GetAttribute()
+	end
+	return Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_ATTRIBUTE)
+end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local att=re:GetHandler():GetAttribute()
+	local att=s.getchainatt(re:GetHandler(),ev)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.disfilter,tp,LOCATION_REMOVED,0,1,nil,att) end
 	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_REMOVED)
@@ -89,9 +95,7 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
-	if rc:IsRelateToChain(ev) and not rc:IsFaceupEx() then return end
-	local att=rc:GetAttribute()
-	if not rc:IsRelateToChain(ev) then att=rc:GetOriginalAttribute() end
+	local att=s.getchainatt(rc,ev)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectMatchingCard(tp,s.disfilter,tp,LOCATION_REMOVED,0,1,1,nil,att)
 	if #g>0 then

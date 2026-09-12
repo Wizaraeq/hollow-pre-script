@@ -1,5 +1,9 @@
 --光帰の旅－『セネト』
 local s,id,o=GetID()
+EFFECT_ADD_CARD_TYPE=377
+local IsAllCardType = Card.IsAllCardType or function(c,tpe)
+	return c:GetOriginalType()&tpe==tpe or c:GetFlagEffect(100267007)>0
+end
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -13,7 +17,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.chkfilter(c)
-	return c:IsFaceupEx() and (c:IsType(TYPE_NORMAL) or bit.band(c:GetOriginalType(),TYPE_NORMAL)~=0)
+	return c:IsFaceupEx() and IsAllCardType(c,TYPE_NORMAL+TYPE_MONSTER)
 end
 function s.spfilter(c,e,tp)
 	return c:IsType(TYPE_FUSION) and not c:IsType(TYPE_EFFECT) and c:IsLevelBelow(8)
@@ -56,17 +60,31 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 	if rg:GetCount()==2 then
+		local c=e:GetHandler()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
 		local tc=g:GetFirst()
 		if tc and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_ADD_TYPE)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetValue(TYPE_NORMAL)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			tc:RegisterEffect(e1)
+			if Card.IsAllCardType then
+				local e1=Effect.CreateEffect(c)
+				e1:SetDescription(aux.Stringid(id,2))
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetCode(EFFECT_ADD_CARD_TYPE)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CLIENT_HINT)
+				e1:SetValue(TYPE_NORMAL)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+				tc:RegisterEffect(e1,true)
+			else
+				local e1=Effect.CreateEffect(c)
+				e1:SetDescription(aux.Stringid(id,2))
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetCode(EFFECT_ADD_TYPE)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CLIENT_HINT)
+				e1:SetValue(TYPE_NORMAL)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+				tc:RegisterEffect(e1,true)
+				tc:RegisterFlagEffect(100267007,RESET_EVENT+RESETS_STANDARD,0,1)
+			end
 		end
 		Duel.SpecialSummonComplete()
 	elseif rg:GetCount()==3 then

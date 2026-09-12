@@ -1,13 +1,16 @@
 --光器還魂の儀
 local s,id,o=GetID()
+local IsAllCardType = Card.IsAllCardType or function(c,tpe)
+	return c:GetOriginalType()&tpe==tpe or c:GetFlagEffect(100267007)>0
+end
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DECKDES)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_GRAVE_SPSUMMON+CATEGORY_DECKDES)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetHintTiming(TIMING_ATTACK,TIMING_ATTACK)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_END_PHASE)
 	e1:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
@@ -57,8 +60,8 @@ function s.spfilter(c,e,tp,m)
 	return res
 end
 function s.matfilter(c)
-	return (c:IsType(TYPE_NORMAL) or bit.band(c:GetOriginalType(),TYPE_NORMAL)~=0)
-		and c:IsFaceupEx() and c:IsAbleToGrave() and bit.band(c:GetOriginalType(),TYPE_MONSTER)~=0
+	return IsAllCardType(c,TYPE_NORMAL+TYPE_MONSTER)
+		and c:IsFaceupEx() and c:IsAbleToGrave()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
@@ -114,8 +117,7 @@ function s.eqlimit(e,c)
 	return c==e:GetLabelObject()
 end
 function s.repfilter(c,tp)
-	return c:IsFaceupEx() and c:GetOriginalType()&TYPE_MONSTER~=0
-		and (not c:IsType(TYPE_MONSTER) and c:GetOriginalType()&TYPE_NORMAL~=0 or c:IsAllTypes(TYPE_NORMAL+TYPE_MONSTER))
+	return c:IsFaceupEx() and IsAllCardType(c,TYPE_NORMAL+TYPE_MONSTER)
 		and c:IsControler(tp) and c:IsReason(REASON_EFFECT+REASON_BATTLE) and not c:IsReason(REASON_REPLACE)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)

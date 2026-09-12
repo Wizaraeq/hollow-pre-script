@@ -1,5 +1,8 @@
 --セネトナクト・スフィンクス
 local s,id,o=GetID()
+local IsAllCardType = Card.IsAllCardType or function(c,tpe)
+	return c:GetOriginalType()&tpe==tpe or c:GetFlagEffect(100267007)>0
+end
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--search
@@ -64,8 +67,7 @@ function s.efilter(e,te)
 	return te:GetOwnerPlayer()~=e:GetHandlerPlayer() and te:IsActivated()
 end
 function s.cfilter(c)
-	return c:IsFaceup() and c:IsAbleToGraveAsCost() and c:GetOriginalType()&TYPE_MONSTER~=0
-		and (not c:IsType(TYPE_MONSTER) and c:GetOriginalType()&TYPE_NORMAL~=0 or c:IsAllTypes(TYPE_NORMAL+TYPE_MONSTER))
+	return c:IsFaceup() and c:IsAbleToGraveAsCost() and IsAllCardType(c,TYPE_NORMAL+TYPE_MONSTER)
 end
 function s.poscost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil) end

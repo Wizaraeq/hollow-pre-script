@@ -1,5 +1,8 @@
 --セネトメス・ネクベト
 local s,id,o=GetID()
+local IsAllCardType = Card.IsAllCardType or function(c,tpe)
+	return c:GetOriginalType()&tpe==tpe or c:GetFlagEffect(100267007)>0
+end
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--tohand
@@ -59,7 +62,7 @@ function s.eqcon(e)
 	return c:GetEquipCount()>0
 end
 function s.spfilter(c,e,tp)
-	return c:IsFaceup() and bit.band(c:GetOriginalType(),TYPE_NORMAL)~=0
+	return c:IsFaceup() and IsAllCardType(c,TYPE_NORMAL+TYPE_MONSTER)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.GetSZoneCount(tp,c)>0
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -75,7 +78,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	if g:GetCount()>0 and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0
 		and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and c:IsRelateToChain() then
+		and c:IsRelateToChain() and c:IsControler(tp) then
 		Duel.BreakEffect()
 		if not Duel.Equip(tp,c,tc) then return end
 		local e1=Effect.CreateEffect(c)

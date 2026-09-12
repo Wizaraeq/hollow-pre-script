@@ -1,5 +1,8 @@
 --光器の降雷
 local s,id,o=GetID()
+local IsAllCardType = Card.IsAllCardType or function(c,tpe)
+	return c:GetOriginalType()&tpe==tpe or c:GetFlagEffect(100267007)>0
+end
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -45,8 +48,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.csfilter(c)
-	return c:IsFaceup() and c:GetOriginalType()&TYPE_MONSTER~=0
-		and (not c:IsType(TYPE_MONSTER) and c:GetOriginalType()&TYPE_NORMAL~=0 or c:IsAllTypes(TYPE_NORMAL+TYPE_MONSTER))
+	return c:IsFaceup() and IsAllCardType(c,TYPE_NORMAL+TYPE_MONSTER)
 end
 function s.getatk(c)
 	if c:IsType(TYPE_MONSTER) then

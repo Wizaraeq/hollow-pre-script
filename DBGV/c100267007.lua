@@ -1,5 +1,6 @@
 --光帰ヘの契り
 local s,id,o=GetID()
+EFFECT_ADD_CARD_TYPE=377
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -68,14 +69,26 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	sg:DeleteGroup()
 	local tc=g:GetFirst()
 	if tc and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
-		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(id,2))
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_ADD_TYPE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CLIENT_HINT)
-		e1:SetValue(TYPE_NORMAL)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		tc:RegisterEffect(e1,true)
+		if Card.IsAllCardType then
+			local e1=Effect.CreateEffect(c)
+			e1:SetDescription(aux.Stringid(id,2))
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_ADD_CARD_TYPE)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CLIENT_HINT)
+			e1:SetValue(TYPE_NORMAL)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e1,true)
+		else
+			local e1=Effect.CreateEffect(c)
+			e1:SetDescription(aux.Stringid(id,2))
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_ADD_TYPE)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CLIENT_HINT)
+			e1:SetValue(TYPE_NORMAL)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e1,true)
+			tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+		end
 		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)

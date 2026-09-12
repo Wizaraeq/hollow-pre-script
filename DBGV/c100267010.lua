@@ -1,5 +1,8 @@
 --光器の瀑布
 local s,id,o=GetID()
+local IsAllCardType = Card.IsAllCardType or function(c,tpe)
+	return c:GetOriginalType()&tpe==tpe or c:GetFlagEffect(100267007)>0
+end
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
@@ -62,16 +65,16 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
-	local loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-	return rp~=tp and re:IsActiveType(TYPE_MONSTER) and loc==LOCATION_MZONE and seq==e:GetLabel()
+	local rc=re:GetHandler()
+	return rp==1-tp and re:IsActiveType(TYPE_MONSTER) and rc:IsRelateToChain(ev)
+		and rc:IsControler(1-tp) and rc:IsLocation(LOCATION_MZONE) and rc:GetSequence()==e:GetLabel()
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_CARD,0,id)
-	Duel.NegateEffect(ev,true)
+	Duel.NegateEffect(ev)
 end
 function s.csfilter(c)
-	return c:IsFaceup() and c:GetOriginalType()&TYPE_MONSTER~=0
-		and (not c:IsType(TYPE_MONSTER) and c:GetOriginalType()&TYPE_NORMAL~=0 or c:IsAllTypes(TYPE_NORMAL+TYPE_MONSTER))
+	return c:IsFaceup() and IsAllCardType(c,TYPE_NORMAL+TYPE_MONSTER)
 end
 function s.getatk(c)
 	if c:IsType(TYPE_MONSTER) then
@@ -85,7 +88,7 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return g:GetSum(s.getatk)>3000
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) end
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and chkc:IsAbleToGrave() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToGrave,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=Duel.SelectTarget(tp,Card.IsAbleToGrave,tp,0,LOCATION_MZONE,1,1,nil)

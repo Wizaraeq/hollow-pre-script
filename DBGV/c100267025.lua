@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	--todeck
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,3))
-	e4:SetCategory(CATEGORY_TODECK)
+	e4:SetCategory(CATEGORY_TODECK+CATEGORY_GRAVE_ACTION)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e4:SetCode(EVENT_PHASE+PHASE_END)
 	e4:SetRange(LOCATION_SZONE)
