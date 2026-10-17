@@ -3,6 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	aux.AddCodeList(c,41463181)
 	aux.AddLinkProcedure(c,s.matfilter,3,3)
+	c:EnableReviveLimit()
 	--attribute
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)

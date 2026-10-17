@@ -59,14 +59,16 @@ function s.mvop(e,tp,eg,ep,ev,re,r,rp)
 		local sg=g:SelectSubGroup(tp,s.gcheck,false,1,g:GetCount(),tp,ft1,ft2)
 		Duel.HintSelection(sg)
 		for tc in aux.Next(sg) do
-			Duel.MoveToField(tc,tp,tc:GetOwner(),LOCATION_SZONE,POS_FACEUP,true)
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetCode(EFFECT_CHANGE_TYPE)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET)
-			e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
-			tc:RegisterEffect(e1)
+			if tc:IsType(TYPE_MONSTER) and not tc:IsImmuneToEffect(e) then
+				Duel.MoveToField(tc,tp,tc:GetOwner(),LOCATION_SZONE,POS_FACEUP,true)
+				local e1=Effect.CreateEffect(e:GetHandler())
+				e1:SetCode(EFFECT_CHANGE_TYPE)
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET)
+				e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
+				tc:RegisterEffect(e1)
+			end
 		end
 		if sg:IsExists(Card.IsLocation,1,nil,LOCATION_SZONE) then
 			local ct=Duel.GetMatchingGroupCount(Card.IsType,tp,LOCATION_ONFIELD,0,nil,TYPE_SPELL+TYPE_TRAP)
