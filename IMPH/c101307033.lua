@@ -46,7 +46,7 @@ function s.atkval(e,c)
 	return Duel.GetMatchingGroupCount(Card.IsCode,c:GetControler(),LOCATION_GRAVE,0,nil,76812113)*500
 end
 function s.efilter(e,re,rp)
-	return re:IsActiveType(TYPE_MONSTER) and not re:GetHandler():IsAttribute(ATTRIBUTE_WIND) and e:GetHandlerPlayer()~=re:GetHandlerPlayer()
+	return re:IsActiveType(TYPE_MONSTER) and not re:GetHandler():IsAttribute(ATTRIBUTE_WIND) and rp==1-e:GetHandlerPlayer()
 end
 function s.desfilter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP)

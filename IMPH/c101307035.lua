@@ -33,7 +33,7 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetValue(s.efilter)
 	c:RegisterEffect(e3)
-	--negateid
+	--negate
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
 	e4:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)

@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.rmtg)
 	e1:SetOperation(s.rmop)
 	c:RegisterEffect(e1)
-	--search
+	--tograve
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_MOVE)
@@ -114,7 +114,4 @@ function s.chainop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_CHAIN)
 		Duel.RegisterEffect(e1,rp)
 	end
-end
-function s.chainlm(e,rp,tp)
-	return tp==rp
 end

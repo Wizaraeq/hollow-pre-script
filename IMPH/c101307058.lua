@@ -49,7 +49,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ShuffleHand(tp)
 		if dg:GetCount()>0 then
 			Duel.BreakEffect()
-			if Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD)~=0
+			if Duel.SendtoGrave(dg,REASON_EFFECT)~=0
 				and dg:IsExists(Card.IsLocation,1,nil,LOCATION_GRAVE) then
 				local gg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.thfilter2),tp,LOCATION_GRAVE,0,nil)
 				if Duel.IsExistingMatchingCard(s.omfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,nil) and gg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then

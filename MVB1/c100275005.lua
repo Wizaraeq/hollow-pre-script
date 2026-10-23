@@ -83,7 +83,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local dfid=d and d:GetRealFieldID() or 0
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e1:SetCode(EVENT_DAMAGE_STEP_END)
+	e1:SetCode(EVENT_BATTLED)
 	e1:SetLabel(c:GetFieldID(),ac,afid,dfid)
 	e1:SetLabelObject(g)
 	e1:SetOperation(s.rmop)

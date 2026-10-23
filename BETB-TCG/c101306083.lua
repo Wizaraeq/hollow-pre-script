@@ -26,12 +26,12 @@ function s.initial_effect(c)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
 end
-function s.sfilter(c,tp)
+function s.sfilter(c,tp,rp)
 	return c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousControler(tp)
-		and c:IsReason(REASON_EFFECT) and c:IsPreviousLocation(LOCATION_ONFIELD) and c:GetReasonPlayer()==1-tp
+		and c:IsReason(REASON_EFFECT) and c:IsPreviousLocation(LOCATION_ONFIELD) and rp==1-tp
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.sfilter,1,nil,tp)
+	return eg:IsExists(s.sfilter,1,nil,tp,rp)
 end
 function s.rfilter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
@@ -43,7 +43,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local a=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
 	local b=Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE,0,1,nil)
 	if chk==0 then return a or b end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,nil,1,tp,LOCATION_GRAVE)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COIN)
@@ -58,6 +58,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 		end
 	else
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.setfilter),tp,LOCATION_GRAVE,0,1,1,nil)
 		local tc=g:GetFirst()
 		if tc then
@@ -73,11 +74,10 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local a=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
 	local b=Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE,0,1,nil)
 	if chk==0 then return a or b end
-	if a or b then
-		op=aux.SelectFromOptions(tp,
-			{a,aux.Stringid(id,2),1},
-			{b,aux.Stringid(id,3),2})
-	end
+	local op=aux.SelectFromOptions(tp,
+		{a,aux.Stringid(id,2),1},
+		{b,aux.Stringid(id,3),2}
+	)
 	e:SetLabel(op)
 	if op==1 then
 		e:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_GRAVE_SPSUMMON)
@@ -97,6 +97,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 		end
 	elseif e:GetLabel()==2 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.setfilter),tp,LOCATION_GRAVE,0,1,1,nil)
 		local tc=g:GetFirst()
 		if tc then

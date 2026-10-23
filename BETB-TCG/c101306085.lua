@@ -23,7 +23,7 @@ function s.initial_effect(c)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCode(EVENT_TO_HAND)
 	e2:SetCountLimit(1,id+o)
-	e2:SetCondition(s.spcon2)
+	e2:SetCondition(s.setcon)
 	e2:SetTarget(s.settg)
 	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
@@ -60,7 +60,7 @@ end
 function s.cfilter2(c,tp)
 	return c:IsPreviousLocation(LOCATION_ONFIELD)
 end
-function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
+function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter2,1,e:GetHandler(),tp)
 end
 function s.setfilter(c)

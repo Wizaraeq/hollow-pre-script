@@ -51,7 +51,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,e,tp)
 	if g:GetCount()>0 then
 		local tc=g:GetFirst()
-		if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+		if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0
 			and c:IsRelateToChain() and tc:IsFaceup() then
 			c:SetCardTarget(tc)
 			local e1=Effect.CreateEffect(c)

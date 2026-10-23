@@ -71,7 +71,7 @@ function s.indop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local a=Duel.GetAttacker()
 	local d=a:GetBattleTarget()
-	if d and a:IsRelateToBattle() and d:GetBattleTarget() then
+	if d and a:IsRelateToBattle() and d:IsRelateToBattle() then
 		local g=Group.FromCards(a,d)
 		for tc in aux.Next(g) do
 			local e2=Effect.CreateEffect(c)

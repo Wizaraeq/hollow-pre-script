@@ -1,7 +1,7 @@
 --白鴉の森の炎魔
 local s,id,o=GetID()
 function s.initial_effect(c)
-	--specail summon
+	--special summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
@@ -61,16 +61,16 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.sfilter(c,e,tp)
 	local lv=c:GetOriginalLevel()
-	return c:GetOriginalType()&TYPE_MONSTER>0
+	return c:IsCardType(TYPE_MONSTER)
 		and (c:IsSetCard(0x2f2) or lv>6 and lv<9)
 		and c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.spstg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and s.sfilter(chkc,e,tp) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(s.sfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,e,tp) end
+		and Duel.IsExistingTarget(s.sfilter,tp,LOCATION_SZONE,LOCATION_SZONE,1,nil,e,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,s.sfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,e,tp)
+	local g=Duel.SelectTarget(tp,s.sfilter,tp,LOCATION_SZONE,LOCATION_SZONE,1,1,nil,e,tp)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 end
 function s.spsop(e,tp,eg,ep,ev,re,r,rp)

@@ -58,8 +58,7 @@ function s.eqop(e,tp,eg,ep,ev,re,r,rp)
 		and c:IsRelateToChain() and c:IsLocation(LOCATION_MZONE) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
 		local g=Duel.SelectMatchingCard(tp,s.eqfilter,tp,LOCATION_EXTRA,0,1,1,nil,tp)
-		if g:GetCount()>0 then
-			Duel.Equip(tp,g:GetFirst(),c)
+		if g:GetCount()>0 and Duel.Equip(tp,g:GetFirst(),c) then
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetProperty(EFFECT_FLAG_OWNER_RELATE)

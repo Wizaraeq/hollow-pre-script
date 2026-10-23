@@ -29,7 +29,7 @@ end
 function s.effectfilter(e,ct)
 	local p=e:GetHandler():GetControler()
 	local te,tp=Duel.GetChainInfo(ct,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)
-	return p==tp and te:GetHandler():IsSetCard(0x1e8)
+	return p==tp and te:GetHandler():IsSetCard(0x1e8) and te:IsActiveType(TYPE_MONSTER)
 end
 function s.cfilter(c)
 	return c:IsSetCard(0x1ce) and c:IsType(TYPE_MONSTER)
@@ -105,7 +105,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local ac=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,ac)
-	if g:GetCount()>0 and Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP) then
+	if g:GetCount()>0 and Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)>0 then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetDescription(aux.Stringid(id,1))
 		e1:SetType(EFFECT_TYPE_SINGLE)

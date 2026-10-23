@@ -65,15 +65,13 @@ function s.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 function s.tefilter(c)
-	return c:IsSetCard(0x1e2) and bit.band(c:GetOriginalType(),TYPE_MONSTER)~=0
-		and c:IsFaceup()
+	return c:IsSetCard(0x1e2) and c:IsCardType(TYPE_MONSTER) and c:IsFaceup()
 end
 function s.clcon(tp,ct)
 	return Duel.IsExistingMatchingCard(s.tefilter,tp,LOCATION_SZONE,0,ct,nil)
 end
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==1-tp
-		and s.clcon(tp,1)
+	return Duel.GetTurnPlayer()==1-tp and s.clcon(tp,1)
 end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end

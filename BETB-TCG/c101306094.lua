@@ -42,16 +42,16 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e1:SetTarget(s.splimit)
 	Duel.RegisterEffect(e1,tp)
 end
-function s.spfilter(c,e,tp)
+function s.spfilter(c,tp,e,g)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,1-tp,0x1f)
+		and g:IsExists(s.setfilter,1,c,tp)
 end
-function s.setfilter(c,g,e,tp)
+function s.setfilter(c,tp)
 	return not c:IsForbidden()
 		and c:CheckUniqueOnField(tp,LOCATION_SZONE)
-		and g:IsExists(s.spfilter,1,c,e,tp)
 end
 function s.gcheck(g,e,tp)
-	return g:IsExists(s.setfilter,1,nil,g,e,tp)
+	return g:IsExists(s.spfilter,1,nil,tp,e,g)
 end
 function s.effilter(c,tp)
 	return c:IsSetCard(0x1e2)
@@ -64,20 +64,20 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	local g=Duel.GetMatchingGroup(s.effilter,tp,LOCATION_EXTRA,0,nil,tp)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>ct
-		and Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0
+		and Duel.GetLocationCount(1-tp,LOCATION_MZONE,tp)>0
 		and g:CheckSubGroup(s.gcheck,2,2,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.GetLocationCount(1-tp,LOCATION_MZONE)>0 then
+		and Duel.GetLocationCount(1-tp,LOCATION_MZONE,tp)>0 then
 		local g=Duel.GetMatchingGroup(s.effilter,tp,LOCATION_EXTRA,0,nil,tp)
 		if g:CheckSubGroup(s.gcheck,2,2,e,tp) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
 			local tg=g:SelectSubGroup(tp,s.gcheck,false,2,2,e,tp)
 			if tg:GetCount()>1 then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-				local sg=tg:FilterSelect(tp,s.spfilter,1,1,nil,e,tp)
+				local sg=tg:FilterSelect(tp,s.spfilter,1,1,nil,tp,e,tg)
 				tg:Sub(sg)
 				local sc=sg:GetFirst()
 				local pc=tg:GetFirst()

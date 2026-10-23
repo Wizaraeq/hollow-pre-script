@@ -74,7 +74,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		local res=false
 		Duel.HintSelection(g)
 		if tc and tc:IsAbleToGrave() and (not tc:IsAbleToRemove() or not Duel.SelectYesNo(tp,aux.Stringid(id,3))) then
-			res=Duel.SendtoGrave(tc,REASON_EFFECT)>0
+			res=Duel.SendtoGrave(tc,REASON_EFFECT)>0 and tc:IsLocation(LOCATION_GRAVE)
 		elseif tc:IsAbleToRemove() then
 			res=Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)>0 and (tc:IsLocation(LOCATION_REMOVED) or tc:IsType(TYPE_TOKEN))
 		end

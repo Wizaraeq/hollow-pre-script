@@ -3,6 +3,7 @@ local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
@@ -52,7 +53,7 @@ function s.splimit(e,c)
 	return not (c:IsAttribute(ATTRIBUTE_LIGHT+ATTRIBUTE_DARK) and c:IsType(TYPE_SYNCHRO)) and c:IsLocation(LOCATION_EXTRA)
 end
 function s.tefilter(c,tp)
-	return c:IsSetCard(0x1e2) and bit.band(c:GetOriginalType(),TYPE_MONSTER)~=0
+	return c:IsSetCard(0x1e2) and c:IsCardType(TYPE_MONSTER)
 		and c:IsAbleToExtra() and c:IsFaceup() and c:GetOwner()==tp
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)

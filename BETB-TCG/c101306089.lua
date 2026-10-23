@@ -1,5 +1,8 @@
 --Chaospawn Bishop
 local s,id,o=GetID()
+if not CATEGORY_DECK_SPSUMMON then
+	CATEGORY_DECK_SPSUMMON=0x800000000
+end
 function s.initial_effect(c)
 	--nontuner
 	local e1=Effect.CreateEffect(c)
@@ -12,7 +15,7 @@ function s.initial_effect(c)
 	--special summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DECKDES+CATEGORY_GRAVE_SPSUMMON)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DECKDES+CATEGORY_GRAVE_SPSUMMON+CATEGORY_DECK_SPSUMMON)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_DELAY)

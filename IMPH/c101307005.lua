@@ -36,18 +36,21 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.IsExistingMatchingCard(s.spfilter,tp,0,LOCATION_DECK+LOCATION_EXTRA,1,nil,e,tp)
 		and Duel.SelectYesNo(1-tp,aux.Stringid(id,1)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(1-tp,s.spfilter,1-tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,nil,e,tp)
 		if g:GetCount()>0 then
 			local tc=g:GetFirst()
-			if tc and Duel.SpecialSummonStep(tc,0,tp,tp,true,false,POS_FACEUP)~=0 then
-				local e1=Effect.CreateEffect(e:GetHandler())
-				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetCode(EFFECT_CANNOT_TRIGGER)
-				e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CANNOT_DISABLE)
-				e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-				tc:RegisterEffect(e1)
-				Duel.SpecialSummonComplete()
+			if tc then
+				Duel.ConfirmCards(tp,tc)
+				if Duel.SelectYesNo(tp,aux.Stringid(id,2)) and Duel.SpecialSummonStep(tc,0,tp,tp,true,false,POS_FACEUP)~=0 then
+					local e1=Effect.CreateEffect(e:GetHandler())
+					e1:SetType(EFFECT_TYPE_SINGLE)
+					e1:SetCode(EFFECT_CANNOT_TRIGGER)
+					e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CANNOT_DISABLE)
+					e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+					tc:RegisterEffect(e1)
+					Duel.SpecialSummonComplete()
+				end
 			end
 		end
 	else

@@ -69,11 +69,6 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.BreakEffect()
 		end
 		Duel.MoveToField(tc,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CANNOT_TRIGGER)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e1,true)
 		if ct>0 and tc:IsCanAddCounter(0x6e,ct) then
 			tc:AddCounter(0x6e,ct)
 		end

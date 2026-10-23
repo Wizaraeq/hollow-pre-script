@@ -120,6 +120,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		end
 		tc:CompleteProcedure()
 	end
+	aux.FCheckAdditional=nil
 end
 function s.cfilter2(c)
 	return c:IsFaceup() and c:IsType(TYPE_FUSION) and c:IsSetCard(0x9)

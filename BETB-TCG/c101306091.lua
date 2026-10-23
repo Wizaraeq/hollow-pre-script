@@ -23,6 +23,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_BE_BATTLE_TARGET)
 	e2:SetCountLimit(1,id+o)
 	e2:SetCondition(s.negcon)
+	e2:SetTarget(s.negtg)
 	e2:SetOperation(s.negop)
 	c:RegisterEffect(e2)
 end
@@ -98,8 +99,7 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if Duel.NegateAttack()
-		and c:IsRelateToChain() then
+	if Duel.NegateAttack() and c:IsRelateToChain() then
 		Duel.GetControl(c,1-tp)
 	end
 end

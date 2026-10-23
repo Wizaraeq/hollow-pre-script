@@ -66,10 +66,10 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 		local tc=g:GetFirst()
 		local res=false
 		Duel.HintSelection(g)
-		if tc and tc:IsAbleToGrave() and (not tc:IsAbleToRemove() or not Duel.SelectYesNo(tp,aux.Stringid(id,3))) then
+		if tc and (not tc:IsAbleToRemove() or not Duel.SelectYesNo(tp,aux.Stringid(id,3))) then
 			res=Duel.Destroy(tc,REASON_EFFECT)>0
 		elseif tc:IsAbleToRemove() then
-			res=Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) and (tc:IsLocation(LOCATION_REMOVED) or tc:IsType(TYPE_TOKEN))
+			res=Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)>0 and (tc:IsLocation(LOCATION_REMOVED) or tc:IsType(TYPE_TOKEN))
 		end
 		local dg=Duel.GetMatchingGroup(aux.NecroValleyFilter(Card.IsAbleToDeck),tp,LOCATION_GRAVE,LOCATION_GRAVE,nil)
 		if res and dg:GetCount()~=0 and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then

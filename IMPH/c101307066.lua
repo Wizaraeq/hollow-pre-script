@@ -54,7 +54,7 @@ function s.drcon(e)
 	return Duel.IsExistingMatchingCard(s.drfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,2,nil)
 end
 function s.spfilter1(c,tp)
-	return c:IsPreviousLocation(LOCATION_DECK) and c:GetPreviousTypeOnField()==1-tp
+	return c:IsPreviousLocation(LOCATION_DECK) and c:GetPreviousControler()==1-tp
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.spfilter1,1,nil,tp)

@@ -44,7 +44,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.indtg(e,c)
-	return c:IsFaceup() and c:IsSetCard(0x2f2) and c:GetOriginalType()&TYPE_MONSTER==TYPE_MONSTER
+	return c:IsFaceup() and c:IsSetCard(0x2f2) and c:IsCardType(TYPE_MONSTER)
 end
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp

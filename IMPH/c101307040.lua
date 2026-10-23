@@ -78,8 +78,9 @@ function s.chainlm(p)
 end
 function s.rectg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	local rec=Duel.GetMatchingGroupCount(Card.IsDefensePos,tp,0,LOCATION_MZONE,nil)*500
-	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,1-tp,rec)
+	local rec1=Duel.GetMatchingGroupCount(Card.IsDefensePos,tp,LOCATION_MZONE,0,nil)*500
+	local rec2=Duel.GetMatchingGroupCount(Card.IsDefensePos,tp,0,LOCATION_MZONE,nil)*500
+	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,PLAYER_ALL,rec1+rec2)
 end
 function s.recop(e,tp,eg,ep,ev,re,r,rp)
 	local rec1=Duel.GetMatchingGroupCount(Card.IsDefensePos,tp,LOCATION_MZONE,0,nil)*500

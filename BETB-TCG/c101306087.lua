@@ -18,7 +18,7 @@ function s.initial_effect(c)
 	--negate
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
+	e2:SetCategory(CATEGORY_NEGATE)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e2:SetCode(EVENT_CHAINING)
@@ -76,7 +76,7 @@ function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 		and ep~=tp and re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and Duel.IsChainNegatable(ev)
 end
 function s.cfilter(c)
-	return c:GetType()&(TYPE_SPELL+TYPE_EQUIP)==TYPE_SPELL+TYPE_EQUIP and c:IsAbleToGraveAsCost()
+	return c:IsType(TYPE_EQUIP) and c:IsAbleToGraveAsCost()
 		and (c:IsFaceup() or c:GetEquipTarget()~=nil)
 end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)

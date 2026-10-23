@@ -1,4 +1,4 @@
---獄神封門-共滅の剣-
+--獄神封門－共滅の剣－
 local s,id,o=GetID()
 function s.initial_effect(c)
 	--Activate

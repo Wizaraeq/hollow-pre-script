@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.tdtg)
 	e2:SetOperation(s.tdop)
 	c:RegisterEffect(e2)
-	--special summmon
+	--special summon
 	local e3=e2:Clone()
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_GRAVE_SPSUMMON)

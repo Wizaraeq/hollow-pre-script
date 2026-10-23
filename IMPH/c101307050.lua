@@ -91,7 +91,7 @@ function s.codeop(e,tp,eg,ep,ev,re,r,rp)
 			local fgroup=ce:GetTarget()
 			mg3=fgroup(ce,e,tp)
 			local mf=ce:GetValue()
-			res2=fc:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and mf(c) and fc:CheckFusionMaterial(mg3,nil,chkf)
+			res2=fc:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and mf(fc) and fc:CheckFusionMaterial(mg3,nil,chkf)
 		end
 		if (res1 or res2) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 			Duel.BreakEffect()

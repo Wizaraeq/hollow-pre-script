@@ -38,7 +38,7 @@ s.material_type=TYPE_SYNCHRO+TYPE_FUSION
 function s.mvfilter(c,tp)
 	local r=LOCATION_REASON_TOFIELD
 	if not c:IsControler(c:GetOwner()) then r=LOCATION_REASON_CONTROL end
-	return c:IsLocation(LOCATION_MZONE) and c:IsFaceupEx() and Duel.GetLocationCount(c:GetOwner(),LOCATION_SZONE,tp,r)>0
+	return c:IsLocation(LOCATION_MZONE) and Duel.GetLocationCount(c:GetOwner(),LOCATION_SZONE,tp,r)>0
 end
 function s.mvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.mvfilter,tp,LOCATION_MZONE,0,1,nil,tp) end
@@ -59,8 +59,8 @@ function s.mvop(e,tp,eg,ep,ev,re,r,rp)
 		local sg=g:SelectSubGroup(tp,s.gcheck,false,1,g:GetCount(),tp,ft1,ft2)
 		Duel.HintSelection(sg)
 		for tc in aux.Next(sg) do
-			if tc:IsType(TYPE_MONSTER) and not tc:IsImmuneToEffect(e) then
-				Duel.MoveToField(tc,tp,tc:GetOwner(),LOCATION_SZONE,POS_FACEUP,true)
+			if tc:IsType(TYPE_MONSTER) and not tc:IsImmuneToEffect(e)
+				and Duel.MoveToField(tc,tp,tc:GetOwner(),LOCATION_SZONE,POS_FACEUP,true) then
 				local e1=Effect.CreateEffect(e:GetHandler())
 				e1:SetCode(EFFECT_CHANGE_TYPE)
 				e1:SetType(EFFECT_TYPE_SINGLE)

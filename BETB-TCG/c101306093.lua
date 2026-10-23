@@ -24,7 +24,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.tefilter(c,tp)
-	return c:IsSetCard(0x1e2) and bit.band(c:GetOriginalType(),TYPE_MONSTER)~=0
+	return c:IsSetCard(0x1e2) and c:IsCardType(TYPE_MONSTER)
 		and c:IsAbleToExtra() and c:IsFaceup() and c:GetOwner()==tp
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)

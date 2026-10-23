@@ -25,8 +25,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.tefilter(c)
-	return c:IsSetCard(0x1e2) and bit.band(c:GetOriginalType(),TYPE_MONSTER)~=0
-		and c:IsFaceup()
+	return c:IsSetCard(0x1e2) and c:IsCardType(TYPE_MONSTER) and c:IsFaceup()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ct=Duel.GetMatchingGroupCount(s.tefilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)

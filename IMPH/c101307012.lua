@@ -27,7 +27,7 @@ function s.initial_effect(c)
 end
 function s.spfilter(c,tp)
 	return c:IsFaceup() and c:GetOriginalLevel()==1 and c:GetOriginalAttribute()&ATTRIBUTE_FIRE==ATTRIBUTE_FIRE
-		and c:GetOriginalType()&TYPE_MONSTER==TYPE_MONSTER
+		and c:IsCardType(TYPE_MONSTER)
 		and c:IsAbleToDeckAsCost() and Duel.GetMZoneCount(tp,c)>0
 end
 function s.spcon(e,c)
@@ -39,7 +39,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil,tp)
 	Duel.HintSelection(g)
-	Duel.SendtoDeck(g,nil,1,REASON_SPSUMMON)
+	Duel.SendtoDeck(g,nil,SEQ_DECKBOTTOM,REASON_SPSUMMON)
 end
 function s.mvcon(e,tp,eg,ep,ev,re,r,rp)
 	return rp==1-tp

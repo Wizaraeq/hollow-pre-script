@@ -55,14 +55,13 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 		if Duel.SendtoGrave(g,REASON_EFFECT)~=0 and g:IsExists(Card.IsLocation,1,nil,LOCATION_GRAVE)
 			and Duel.IsExistingMatchingCard(Card.IsReleasableByEffect,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
 			and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
-			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-			local g=Duel.SelectMatchingCard(tp,Card.IsReleasableByEffect,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-			local tc=g:GetFirst()
+			local rg=Duel.SelectMatchingCard(tp,Card.IsReleasableByEffect,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+			local tc=rg:GetFirst()
 			if tc then
 				Duel.BreakEffect()
-				Duel.HintSelection(g)
-				Duel.Release(g,REASON_EFFECT)
+				Duel.HintSelection(rg)
+				Duel.Release(rg,REASON_EFFECT)
 			end
 		end
 	end
